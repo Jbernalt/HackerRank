@@ -11,6 +11,6 @@ namespace HackerRank.Models.Achievements
         public int AchievementId { get; set; }
         public string AchievementName { get; set; }
         public string Description { get; set; }
-        public byte[] ImageBinaryData { get; set; }
+        public string Image { get; set; }
     }
 }

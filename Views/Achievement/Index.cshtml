@@ -1,0 +1,43 @@
+﻿@model IEnumerable<HackerRank.Models.Achievements.Achievement>
+
+@{
+    ViewData["Title"] = "Achievement";
+}
+
+<h1>Achievement</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("")
+            </th>
+            <th>
+                @Html.DisplayName("Achievement")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                <img src="~/achievementImg/@item.Image"
+                     height="60" width="60"
+                     asp-append-version="true" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AchievementName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.AchievementId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.AchievementId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.AchievementId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
