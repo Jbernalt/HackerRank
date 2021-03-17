@@ -4,16 +4,14 @@ using HackerRank.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace HackerRank.Data.Migrations
+namespace HackerRank.Migrations
 {
     [DbContext(typeof(HackerRankContext))]
-    [Migration("20210317121411_UserTransactionUserIdFix")]
-    partial class UserTransactionUserIdFix
+    partial class HackerRankContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -407,6 +405,9 @@ namespace HackerRank.Data.Migrations
             modelBuilder.Entity("HackerRank.Models.Users.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("GitLabId")
                         .HasColumnType("int");

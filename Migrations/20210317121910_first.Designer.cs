@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace HackerRank.Data.Migrations
+namespace HackerRank.Migrations
 {
     [DbContext(typeof(HackerRankContext))]
-    [Migration("20210317120645_UpdatedUser")]
-    partial class UpdatedUser
+    [Migration("20210317121910_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -179,8 +179,8 @@ namespace HackerRank.Data.Migrations
 
             modelBuilder.Entity("HackerRank.Models.Users.UserTransaction", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("TransactionId")
                         .HasColumnType("int");
@@ -188,17 +188,12 @@ namespace HackerRank.Data.Migrations
                     b.Property<DateTime>("FetchDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Value")
                         .HasColumnType("int");
 
                     b.HasKey("UserId", "TransactionId", "FetchDate");
 
                     b.HasIndex("TransactionId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("UserTransaction");
                 });
@@ -487,7 +482,9 @@ namespace HackerRank.Data.Migrations
 
                     b.HasOne("HackerRank.Models.Users.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Transaction");
 
