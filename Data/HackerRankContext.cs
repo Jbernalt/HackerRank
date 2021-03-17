@@ -27,7 +27,7 @@ namespace HackerRank.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<GroupTransaction>().HasKey(t => new { t.GroupId, t.TransactionId, t.FetchDate });
             modelBuilder.Entity<UserTransaction>().HasKey(t => new { t.UserId, t.TransactionId, t.FetchDate });
-            modelBuilder.Entity<Group>().HasData(
+            modelBuilder.Entity<Transaction>().HasData(
                 new Transaction() { TransactionId = 1, Description = "Commits", Points = 0.15 },
                 new Transaction() { TransactionId = 2, Description = "Issues opened", Points = 0.15 },
                 new Transaction() { TransactionId = 3, Description = "Issues solved", Points = 0.3 },
