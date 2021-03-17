@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using HackerRank.Models.Groups;
+
+using HackerRank.Models;
+using HackerRank.Models.Achivements;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using HackerRank.Models.Transactions;
@@ -27,5 +30,8 @@ namespace HackerRank.Data
                 new Transaction() { TransactionId = 4, Description = "Merge requests", Points = 0.35 },
                 new Transaction() { TransactionId = 5, Description = "Comments", Points = 0.05 });
         }
+
+        DbSet<Achivement> Achivement { get; set; }
+        DbSet<UserAchivement> UserAchivement { get; set; }
     }
 }
