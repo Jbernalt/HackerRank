@@ -36,14 +36,14 @@ namespace HackerRank.Migrations
                     b.ToTable("GroupUser");
                 });
 
-            modelBuilder.Entity("HackerRank.Models.Achivements.Achivement", b =>
+            modelBuilder.Entity("HackerRank.Models.Achievements.Achievement", b =>
                 {
-                    b.Property<int>("AchivementId")
+                    b.Property<int>("AchievementId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AchivementName")
+                    b.Property<string>("AchievementName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
@@ -55,19 +55,19 @@ namespace HackerRank.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
-                    b.HasKey("AchivementId");
+                    b.HasKey("AchievementId");
 
-                    b.ToTable("Achivement");
+                    b.ToTable("Achievement");
                 });
 
-            modelBuilder.Entity("HackerRank.Models.Achivements.UserAchivement", b =>
+            modelBuilder.Entity("HackerRank.Models.Achievements.UserAchievement", b =>
                 {
-                    b.Property<int>("UserAchivementId")
+                    b.Property<int>("UserAchievementId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AchivementId")
+                    b.Property<int?>("AchievementId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsUnlocked")
@@ -76,13 +76,13 @@ namespace HackerRank.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("UserAchivementId");
+                    b.HasKey("UserAchievementId");
 
-                    b.HasIndex("AchivementId");
+                    b.HasIndex("AchievementId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserAchivement");
+                    b.ToTable("UserAchievement");
                 });
 
             modelBuilder.Entity("HackerRank.Models.Groups.Group", b =>
@@ -438,17 +438,17 @@ namespace HackerRank.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HackerRank.Models.Achivements.UserAchivement", b =>
+            modelBuilder.Entity("HackerRank.Models.Achievements.UserAchievement", b =>
                 {
-                    b.HasOne("HackerRank.Models.Achivements.Achivement", "Achivement")
+                    b.HasOne("HackerRank.Models.Achievements.Achievement", "Achievement")
                         .WithMany()
-                        .HasForeignKey("AchivementId");
+                        .HasForeignKey("AchievementId");
 
                     b.HasOne("HackerRank.Models.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Achivement");
+                    b.Navigation("Achievement");
 
                     b.Navigation("User");
                 });

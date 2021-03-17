@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using HackerRank.Models.Groups;
-using HackerRank.Models.Achivements;
+using HackerRank.Models.Achievements;
 using HackerRank.Models.Users;
 
 namespace HackerRank.Data
@@ -15,8 +15,8 @@ namespace HackerRank.Data
 
         }
 
-        public DbSet<Achivement> Achivement { get; set; }
-        public DbSet<UserAchivement> UserAchivement { get; set; }
+        public DbSet<Achievement> Achievement { get; set; }
+        public DbSet<UserAchievement> UserAchievement { get; set; }
         public DbSet<Group> Group { get; set; }
         public DbSet<GroupTransaction> GroupTransaction { get; set; }
         public DbSet<UserTransaction> UserTransaction { get; set; }
