@@ -9,6 +9,10 @@ namespace HackerRank.Models.Groups
 {
     public class Group 
     {
+        public Group()
+        {
+            Users = new List<User>();
+        }
         [Key]
         public int GroupID { get; set; }
         public int GitlabTeamId { get; set; }

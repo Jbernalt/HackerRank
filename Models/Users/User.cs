@@ -10,6 +10,10 @@ namespace HackerRank.Models.Users
 {
     public class User : IdentityUser
     {
+        public User()
+        {
+            Groups = new List<Group>();
+        }
         public int GitLabId { get; set; }
         public double MonthlyRating { get; set; }
         public DateTime DateCreated { get; set; }
