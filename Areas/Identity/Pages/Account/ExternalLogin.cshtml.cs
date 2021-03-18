@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using HackerRank.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -121,7 +122,9 @@ namespace HackerRank.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var username = info.Principal.Identity.Name;
+                var gitlabId = Int32.Parse(info.ProviderKey);
+                var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId };
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
