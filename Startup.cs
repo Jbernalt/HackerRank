@@ -77,6 +77,7 @@ namespace HackerRank
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<HackerRankContext>();
+            services.AddScoped<GroupService>();
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -96,7 +97,7 @@ namespace HackerRank
                 options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
                 options.SuppressXFrameOptionsHeader = false;
             });
-
+            
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
         }
 
