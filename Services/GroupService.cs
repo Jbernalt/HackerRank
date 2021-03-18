@@ -68,7 +68,7 @@ namespace HackerRank.Services
             string baseUrlPart2 = @"/members";
             foreach(var g in groups)
             {
-                List<UserResponse> users = new();
+                //List<UserResponse> users = new();
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "tr3SszQyyabFd34jNbjU");
@@ -76,24 +76,24 @@ namespace HackerRank.Services
 
                     var jsonResult = await response.Content.ReadAsStringAsync();
 
-                    List<UserResponse> result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
-                    users.AddRange(result);
+                    //List<UserResponse> result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
+                    //users.AddRange(result);
                 }
                 List<User> nonexisting = new();
                 GitLabGroup group = await _context.Group.Where(i => i.GitlabTeamId == g.id).Include("Users").FirstOrDefaultAsync();
-                foreach (var u in users)
-                {
-                    User user = await _context.Users.Where(id => id.GitLabId == u.id).Include("Groups").FirstOrDefaultAsync();
+                //foreach (var u in users)
+                //{
+                //    User user = await _context.Users.Where(id => id.GitLabId == u.id).Include("Groups").FirstOrDefaultAsync();
 
-                    if (user == null)
-                        user = CreateUser(u);
+                //    if (user == null)
+                //        user = CreateUser(u);
 
-                    if (!UserExists(group, user))
-                    {
-                        user.Groups.Add(group);
-                        group.Users.Add(user);
-                    }                       
-                }
+                //    if (!UserExists(group, user))
+                //    {
+                //        user.Groups.Add(group);
+                //        group.Users.Add(user);
+                //    }                       
+                //}
             }
             await _context.SaveChangesAsync();
         }
@@ -114,16 +114,16 @@ namespace HackerRank.Services
             }
             return result;
         }
-        public User CreateUser(UserResponse response)
-        {
-            User user = new()
-            {
-                GitLabId = response.id,
-                UserName = response.username,
-                DateCreated = DateTime.Now
-            };
-            return user;
-        }
+        //public User CreateUser(UserResponse response)
+        //{
+        //    User user = new()
+        //    {
+        //        GitLabId = response.id,
+        //        UserName = response.username,
+        //        DateCreated = DateTime.Now
+        //    };
+        //    return user;
+        //}
 
     }
 }
