@@ -15,11 +15,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-using static System.Net.WebRequestMethods;
-
 namespace HackerRank.Services
 {
-
     public interface IAchievementService
     {
         Task<List<Achievement>> ListAllAchievements();

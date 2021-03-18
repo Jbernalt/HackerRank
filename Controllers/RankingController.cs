@@ -12,9 +12,9 @@ namespace HackerRank.Controllers
 {
     public class RankingController : Controller
     {
-        private readonly RankingService _rankingService;
+        private readonly IRankingService _rankingService;
 
-        public RankingController(RankingService rankingService)
+        public RankingController(IRankingService rankingService)
         {
             _rankingService = rankingService;
         }

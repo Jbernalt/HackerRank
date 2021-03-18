@@ -8,7 +8,12 @@ using HackerRank.Data;
 
 namespace HackerRank.Services
 {
-    public class RankingService
+    public interface IRankingService
+    {
+
+    }
+
+    public class RankingService : IRankingService
     {
         HackerRankContext _context;
 

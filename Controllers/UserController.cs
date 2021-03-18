@@ -1,6 +1,8 @@
 ﻿using HackerRank.Data;
 using HackerRank.Models.Users;
 using HackerRank.Responses;
+using HackerRank.Services;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,10 +15,11 @@ namespace HackerRank.Controllers
 {
     public class UserController : Controller
     {
-        HackerRankContext _context;
-        public UserController(HackerRankContext context)
+        IUserService _userService;
+
+        public UserController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         // GET: UserController

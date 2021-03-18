@@ -22,15 +22,11 @@ namespace HackerRank.Services
 
     public class UserService : IUserService
     {
-        HackerRankContext _context;
-        UserManager<User> _userManager;
-        RoleManager<IdentityRole> _roleManager;
+        private readonly HackerRankContext _context;
 
-        public UserService(HackerRankContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public UserService(HackerRankContext context)
         {
             _context = context;
-            _userManager = userManager;
-            _roleManager = roleManager;
         }
 
         //public async Task GetUser()

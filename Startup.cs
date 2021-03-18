@@ -65,6 +65,11 @@ namespace HackerRank
                     DisableGlobalLocks = true
                 }));
 
+            services.AddScoped<IAchievementService, AchievementService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IRankingService, RankingService>();
+
             // Add the processing server as IHostedService
             services.AddHangfireServer();
             services.AddMvc();
@@ -130,13 +135,6 @@ namespace HackerRank
                 options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
                 options.SuppressXFrameOptionsHeader = false;
             });
-
-            services.AddAuthorizationCore(options =>
-            {
-                options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
-            });
-
-            services.AddScoped<IAchievementService, AchievementService>();
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
         }
