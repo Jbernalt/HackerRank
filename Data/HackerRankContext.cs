@@ -21,6 +21,7 @@ namespace HackerRank.Data
         public DbSet<GroupTransaction> GroupTransaction { get; set; }
         public DbSet<UserTransaction> UserTransaction { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

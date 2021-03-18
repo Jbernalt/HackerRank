@@ -11,5 +11,6 @@ namespace HackerRank.Responses
         public string UserName { get; set; }
         public double MonthlyRating { get; set; }
         public DateTime DateCreated { get; set; }
+
     }
 }
