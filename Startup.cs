@@ -8,6 +8,9 @@ using AutoMapper;
 using HackerRank.Data;
 using HackerRank.Services;
 
+using Hangfire;
+using Hangfire.SqlServer;
+
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,6 +47,28 @@ namespace HackerRank
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<HangFireContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("HangFire")));
+
+            // Add Hangfire services.
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(Configuration.GetConnectionString("HangFire"), new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.Zero,
+                    UseRecommendedIsolationLevel = true,
+                    DisableGlobalLocks = true
+                }));
+
+            // Add the processing server as IHostedService
+            services.AddHangfireServer();
+            services.AddMvc();
+
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.Configure<AuthTokenOptions>(Configuration);
@@ -117,7 +142,7 @@ namespace HackerRank
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs)
         {
             if (env.IsDevelopment())
             {
@@ -155,12 +180,16 @@ namespace HackerRank
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseHangfireDashboard();
+            backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+                endpoints.MapHangfireDashboard();
             });
         }
     }

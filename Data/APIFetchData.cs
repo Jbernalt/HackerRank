@@ -11,6 +11,8 @@ using HackerRank.Models.Groups;
 using HackerRank.Responses;
 using HackerRank.Services;
 
+using Hangfire;
+
 using Microsoft.Extensions.Configuration;
 
 namespace HackerRank.Data
@@ -20,12 +22,14 @@ namespace HackerRank.Data
         private readonly IGroupService _groupService;
         private readonly IUserService _userService;
         private readonly IConfiguration _config;
+        private readonly IRecurringJobManager _recurringJobManager;
 
-        public APIFetchData(IGroupService groupService, IConfiguration config, IUserService userService)
+        public APIFetchData(IGroupService groupService, IConfiguration config, IUserService userService, IRecurringJobManager recurringJobManager)
         {
             _groupService = groupService;
             _userService = userService;
             _config = config;
+            _recurringJobManager = recurringJobManager;
         }
     }
 }
