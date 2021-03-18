@@ -17,7 +17,7 @@ namespace HackerRank.Models.Groups
         public int GroupID { get; set; }
         public int GitlabTeamId { get; set; }
         public string GroupName { get; set; }
-        public int GroupRating { get; set; }
+        public double GroupRating { get; set; }
         public List<User> Users { get; set; }
 
 

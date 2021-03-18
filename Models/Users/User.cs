@@ -15,7 +15,7 @@ namespace HackerRank.Models.Users
             Groups = new List<Group>();
         }
         public int GitLabId { get; set; }
-        public double MonthlyRating { get; set; }
+
         public DateTime DateCreated { get; set; }
         public byte[] ImageBinaryData { get; set; }
         public List<Group> Groups { get; set; }

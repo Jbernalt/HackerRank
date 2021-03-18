@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HackerRank.Migrations
 {
     [DbContext(typeof(HackerRankContext))]
-    [Migration("20210317163605_NewImageStoring")]
-    partial class NewImageStoring
+    [Migration("20210318141937_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,6 +51,9 @@ namespace HackerRank.Migrations
 
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NumberOfActions")
+                        .HasColumnType("int");
 
                     b.HasKey("AchievementId");
 
@@ -172,6 +175,33 @@ namespace HackerRank.Migrations
                             Description = "Comments",
                             Points = 0.050000000000000003
                         });
+                });
+
+            modelBuilder.Entity("HackerRank.Models.Users.UserStats", b =>
+                {
+                    b.Property<int>("UserStatsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("TotalComments")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalCommits")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalIssuesCreated")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalIssuesSolved")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalMergeRequests")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserStatsId");
+
+                    b.ToTable("UserStats");
                 });
 
             modelBuilder.Entity("HackerRank.Models.Users.UserTransaction", b =>
@@ -417,6 +447,11 @@ namespace HackerRank.Migrations
                     b.Property<double>("MonthlyRating")
                         .HasColumnType("float");
 
+                    b.Property<int?>("UserStatsId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("UserStatsId");
+
                     b.HasDiscriminator().HasValue("User");
                 });
 
@@ -537,6 +572,15 @@ namespace HackerRank.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HackerRank.Models.Users.User", b =>
+                {
+                    b.HasOne("HackerRank.Models.Users.UserStats", "userStats")
+                        .WithMany()
+                        .HasForeignKey("UserStatsId");
+
+                    b.Navigation("userStats");
                 });
 #pragma warning restore 612, 618
         }

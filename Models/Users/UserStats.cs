@@ -8,6 +8,8 @@ namespace HackerRank.Models.Users
 {
     public class UserStats
     {
+        public double DailyRating { get; set; }
+        public double MonthlyRating { get; set; }
         public int UserStatsId { get; set; }
         public int TotalCommits { get; set; }
         public int TotalMergeRequests { get; set; }

@@ -19,6 +19,7 @@ namespace HackerRank.Services
         public Task<List<GroupResponse>> GetData();
         public Task GetMembers(List<GroupResponse> groups);
         public Task CreateGroup(GroupResponse response);
+        public Task SummarizeGroup(List<Group> group);
 
     }
 
@@ -71,7 +72,7 @@ namespace HackerRank.Services
             string baseUrlPart2 = @"/members";
             foreach (var g in groups)
             {
-                //List<UserResponse> users = new();
+                List<UserResponse> users = new();
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
@@ -79,27 +80,42 @@ namespace HackerRank.Services
 
                     var jsonResult = await response.Content.ReadAsStringAsync();
 
-                    //List<UserResponse> result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
-                    //users.AddRange(result);
+                    List<UserResponse> result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
+                    users.AddRange(result);
                 }
                 List<User> nonexisting = new();
                 Group group = await _context.Group.Where(i => i.GitlabTeamId == g.id).Include("Users").FirstOrDefaultAsync();
-                //foreach (var u in users)
-                //{
-                //    User user = await _context.Users.Where(id => id.GitLabId == u.id).Include("Groups").FirstOrDefaultAsync();
+                foreach (var u in users)
+                {
+                    User user = (User)await _context.Users.Where(n => n.UserName == u.UserName).FirstOrDefaultAsync();
 
-                //    if (user == null)
-                //        user = CreateUser(u);
-
-                //    if (!UserExists(group, user))
-                //    {
-                //        user.Groups.Add(group);
-                //        group.Users.Add(user);
-                //    }                       
-                //}
+                    if (!UserExists(group, user))
+                    {
+                        user.Groups.Add(group);
+                        group.Users.Add(user);
+                    }
+                }
             }
             await _context.SaveChangesAsync();
         }
+
+        public async Task SummarizeGroup(List<Group> groups)
+        {
+            foreach (var group in groups)
+            {
+                double groupRating = 0;
+                foreach (var user in group.Users)
+                {
+                    groupRating += user.userStats.DailyRating;
+                }
+                groupRating /= group.Users.Count();
+                group.GroupRating = groupRating;
+            }
+            await _context.SaveChangesAsync();
+        }
+  
+
+ 
 
         public bool UserExists(Group group, User user)
         {
