@@ -53,7 +53,7 @@ namespace HackerRank.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AchievementId,AchievementName,Description")] AchievementViewModel achievementModel, [FromForm(Name = "file")] IFormFile file)
+        public async Task<IActionResult> Create([Bind("AchievementId,AchievementName,Description,NumberOfActions")] AchievementViewModel achievementModel, [FromForm(Name = "file")] IFormFile file)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace HackerRank.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AchievementId,AchievementName,Description,Image")] AchievementViewModel achievementModel, [FromForm(Name = "editFile")] IFormFile file)
+        public async Task<IActionResult> Edit(int id, [Bind("AchievementId,AchievementName,Description,NumberOfActions,Image")] AchievementViewModel achievementModel, [FromForm(Name = "editFile")] IFormFile file)
         {
             if (id != achievementModel.AchievementId)
             {

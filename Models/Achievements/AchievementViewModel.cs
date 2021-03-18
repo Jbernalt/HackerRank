@@ -13,6 +13,7 @@ namespace HackerRank.Models.Achievements
         public int AchievementId { get; set; }
         public string AchievementName { get; set; }
         public string Description { get; set; }
+        public int NumberOfActions { get; set; }
         public IFormFile Image { get; set; }
     }
 }

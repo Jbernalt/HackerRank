@@ -19,6 +19,6 @@ namespace HackerRank.Models.Users
         public DateTime DateCreated { get; set; }
         public byte[] ImageBinaryData { get; set; }
         public List<Group> Groups { get; set; }
-
+        public UserStats userStats { get; set; }
     }
 }

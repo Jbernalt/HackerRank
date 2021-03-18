@@ -18,6 +18,9 @@
             <th>
                 @Html.DisplayName("Achievement")
             </th>
+            <th>
+                @Html.DisplayName("Description")
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -31,6 +34,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.AchievementName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.AchievementId">Edit</a> |
