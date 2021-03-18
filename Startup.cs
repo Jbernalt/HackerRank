@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using AutoMapper;
+
 using HackerRank.Data;
 using HackerRank.Services;
 
@@ -78,6 +80,13 @@ namespace HackerRank
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<HackerRankContext>();
 
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.ConfigureApplicationCookie(options =>
             {
                 // Cookie settings
@@ -96,6 +105,13 @@ namespace HackerRank
                 options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
                 options.SuppressXFrameOptionsHeader = false;
             });
+
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+            });
+
+            services.AddScoped<IAchievementService, AchievementService>();
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
         }

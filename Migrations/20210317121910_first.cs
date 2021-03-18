@@ -8,19 +8,19 @@ namespace HackerRank.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Achivement",
+                name: "Achievement",
                 columns: table => new
                 {
-                    AchivementId = table.Column<int>(type: "int", nullable: false)
+                    AchievementId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AchivementName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AchievementName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Level = table.Column<int>(type: "int", nullable: false),
                     ImageBinaryData = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Achivement", x => x.AchivementId);
+                    table.PrimaryKey("PK_Achievement", x => x.AchievementId);
                 });
 
             migrationBuilder.CreateTable(
@@ -203,26 +203,26 @@ namespace HackerRank.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserAchivement",
+                name: "UserAchievement",
                 columns: table => new
                 {
-                    UserAchivementId = table.Column<int>(type: "int", nullable: false)
+                    UserAchievementId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     IsUnlocked = table.Column<bool>(type: "bit", nullable: false),
-                    AchivementId = table.Column<int>(type: "int", nullable: true),
+                    AchievementId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAchivement", x => x.UserAchivementId);
+                    table.PrimaryKey("PK_UserAchievement", x => x.UserAchievementId);
                     table.ForeignKey(
-                        name: "FK_UserAchivement_Achivement_AchivementId",
-                        column: x => x.AchivementId,
-                        principalTable: "Achivement",
-                        principalColumn: "AchivementId",
+                        name: "FK_UserAchievement_Achievement_AchievementId",
+                        column: x => x.AchievementId,
+                        principalTable: "Achievement",
+                        principalColumn: "AchievementId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_UserAchivement_AspNetUsers_UserId",
+                        name: "FK_UserAchievement_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -367,13 +367,13 @@ namespace HackerRank.Migrations
                 column: "UsersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAchivement_AchivementId",
-                table: "UserAchivement",
-                column: "AchivementId");
+                name: "IX_UserAchievement_AchievementId",
+                table: "UserAchievement",
+                column: "AchievementId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAchivement_UserId",
-                table: "UserAchivement",
+                name: "IX_UserAchievement_UserId",
+                table: "UserAchievement",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -406,7 +406,7 @@ namespace HackerRank.Migrations
                 name: "GroupUser");
 
             migrationBuilder.DropTable(
-                name: "UserAchivement");
+                name: "UserAchievement");
 
             migrationBuilder.DropTable(
                 name: "UserTransaction");
@@ -418,7 +418,7 @@ namespace HackerRank.Migrations
                 name: "Group");
 
             migrationBuilder.DropTable(
-                name: "Achivement");
+                name: "Achievement");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

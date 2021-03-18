@@ -4,14 +4,16 @@ using HackerRank.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HackerRank.Migrations
 {
     [DbContext(typeof(HackerRankContext))]
-    partial class HackerRankContextModelSnapshot : ModelSnapshot
+    [Migration("20210317153553_UpdatedAchievement")]
+    partial class UpdatedAchievement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,8 +49,8 @@ namespace HackerRank.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("ImageBinaryData")
+                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("AchievementId");
 

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 using HackerRank.Models.Users;
 
-namespace HackerRank.Models.Achivements
+namespace HackerRank.Models.Achievements
 {
-    public class UserAchivement
+    public class UserAchievement
     {
-        public int UserAchivementId { get; set; }
+        public int UserAchievementId { get; set; }
         public bool IsUnlocked { get; set; }
-        public Achivement Achivement { get; set; }
+        public Achievement Achievement { get; set; }
         public User User { get; set; }
     }
 }
