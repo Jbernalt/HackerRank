@@ -10,6 +10,7 @@ using HackerRank.Data;
 using HackerRank.Models.Groups;
 using HackerRank.Models.Users;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace HackerRank.Services
 {
@@ -24,9 +25,11 @@ namespace HackerRank.Services
     public class GroupService : IGroupService
     {
         HackerRankContext _context;
-        public GroupService(HackerRankContext context)
+        private readonly IConfiguration _config;
+        public GroupService(HackerRankContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
         public async Task<List<GroupResponse>> GetData()
@@ -35,7 +38,7 @@ namespace HackerRank.Services
             List<GroupResponse> groupResponses = new List<GroupResponse>();
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "tr3SszQyyabFd34jNbjU");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
                 var response = await client.GetAsync(baseUrl);
 
                 var jsonResult = await response.Content.ReadAsStringAsync();
@@ -71,7 +74,7 @@ namespace HackerRank.Services
                 //List<UserResponse> users = new();
                 using (var client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "tr3SszQyyabFd34jNbjU");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
                     var response = await client.GetAsync(baseUrlPart1 + g.id.ToString() + baseUrlPart2);
 
                     var jsonResult = await response.Content.ReadAsStringAsync();

@@ -1,5 +1,9 @@
 ﻿using HackerRank.Data;
+using HackerRank.Models.Users;
 using HackerRank.Responses;
+
+using Microsoft.AspNetCore.Identity;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +23,14 @@ namespace HackerRank.Services
     public class UserService : IUserService
     {
         HackerRankContext _context;
-        public UserService(HackerRankContext context)
+        UserManager<User> _userManager;
+        RoleManager<IdentityRole> _roleManager;
+
+        public UserService(HackerRankContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         //public async Task GetUser()
