@@ -5,10 +5,15 @@ using System.Threading.Tasks;
 using HackerRank.Models.Users;
 using System.ComponentModel.DataAnnotations;
 
-namespace HackerRank.Models.Groups
+namespace HackerRank.Models.GitLabGroups
 {
-    public class Group 
+    public class GitLabGroup 
     {
+        public GitLabGroup()
+        {
+            Users = new List<User>();
+        }
+
         [Key]
         public int GroupID { get; set; }
         public int GitlabTeamId { get; set; }

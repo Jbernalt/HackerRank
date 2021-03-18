@@ -1,9 +1,10 @@
 ﻿using HackerRank.Models.Transactions;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using HackerRank.Models.Groups;
+using HackerRank.Models.GitLabGroups;
 using HackerRank.Models.Achivements;
 using HackerRank.Models.Users;
+
 
 namespace HackerRank.Data
 {
@@ -17,7 +18,7 @@ namespace HackerRank.Data
 
         public DbSet<Achivement> Achivement { get; set; }
         public DbSet<UserAchivement> UserAchivement { get; set; }
-        public DbSet<Group> Group { get; set; }
+        public DbSet<GitLabGroup> Group { get; set; }
         public DbSet<GroupTransaction> GroupTransaction { get; set; }
         public DbSet<UserTransaction> UserTransaction { get; set; }
         public DbSet<Transaction> Transaction { get; set; }

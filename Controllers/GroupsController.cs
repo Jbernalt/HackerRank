@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HackerRank.Data;
-using HackerRank.Models.Groups;
+using HackerRank.Models.GitLabGroups;
 using HackerRank.Services;
 
 
@@ -27,6 +27,7 @@ namespace HackerRank.Controllers
         {
             var data = await _groupService.GetData();
             await _groupService.GetMembers(data);
+            
             return View(await _context.Group.ToListAsync());
             
         }
@@ -60,7 +61,7 @@ namespace HackerRank.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GroupID,GitlabTeamId,GroupName,GroupRating")] Group @group)
+        public async Task<IActionResult> Create([Bind("GroupID,GitlabTeamId,GroupName,GroupRating")] GitLabGroup @group)
         {
             if (ModelState.IsValid)
             {
@@ -92,7 +93,7 @@ namespace HackerRank.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("GroupID,GitlabTeamId,GroupName,GroupRating")] Group @group)
+        public async Task<IActionResult> Edit(int id, [Bind("GroupID,GitlabTeamId,GroupName,GroupRating")] GitLabGroup @group)
         {
             if (id != @group.GroupID)
             {

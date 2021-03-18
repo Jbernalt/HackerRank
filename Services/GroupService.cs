@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 using HackerRank.Responses;
 using System.Text.Json;
 using HackerRank.Data;
-using HackerRank.Models.Groups;
+using HackerRank.Models.GitLabGroups;
 using HackerRank.Models.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -45,8 +45,8 @@ namespace HackerRank.Services
             }
             foreach(var g in groupResponses)
             {
-                Group group = await _context.Group.Where(i => i.GitlabTeamId == g.id).FirstOrDefaultAsync();
-                if (group == null)
+                GitLabGroup group = await _context.Group.Where(i => i.GitlabTeamId == g.id).Include("Users").FirstOrDefaultAsync();
+               if (group == null)
                     await CreateGroup(g);
             }
             await _context.SaveChangesAsync();
@@ -55,7 +55,7 @@ namespace HackerRank.Services
 
         public async Task CreateGroup(GroupResponse response)
         {
-            Group group = new();
+            GitLabGroup group = new();
             group.GitlabTeamId = response.id;
             group.GroupName = response.name;
 
@@ -80,28 +80,49 @@ namespace HackerRank.Services
                     users.AddRange(result);
                 }
                 List<User> nonexisting = new();
-                Group group = await _context.Group.Where(i => i.GitlabTeamId == g.id).FirstOrDefaultAsync();
+                GitLabGroup group = await _context.Group.Where(i => i.GitlabTeamId == g.id).Include("Users").FirstOrDefaultAsync();
                 foreach (var u in users)
                 {
-                    //User user = await _context.Users.Where(id => id.GitLabId == u.id).FirstOrDefaultAsync();
+                    User user = await _context.Users.Where(id => id.GitLabId == u.id).Include("Groups").FirstOrDefaultAsync();
+
+                    if (user == null)
+                        user = CreateUser(u);
+
                     if (!UserExists(group, user))
-                        nonexisting.Add(user);
+                    {
+                        user.Groups.Add(group);
+                        group.Users.Add(user);
+                    }                       
                 }
-                group.Users.AddRange(nonexisting);
             }
             await _context.SaveChangesAsync();
         }
 
-        public bool UserExists(Group group, User user)
+        public bool UserExists(GitLabGroup group, User user)
         {
             bool result = false;
-            foreach(var u in group.Users)
+            if(group.Users != null)
             {
-                if (u == user)
-                    result = true;
-                break;
+                foreach (var u in group.Users)
+                {
+                    if (u == user)
+                    {
+                        result = true;
+                        break;
+                    }
+                }
             }
             return result;
+        }
+        public User CreateUser(UserResponse response)
+        {
+            User user = new()
+            {
+                GitLabId = response.id,
+                UserName = response.username,
+                DateCreated = DateTime.Now
+            };
+            return user;
         }
 
     }
