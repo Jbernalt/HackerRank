@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HackerRank.Migrations
 {
     [DbContext(typeof(HackerRankContext))]
-    [Migration("20210318130810_UpdatedUserAndAchievementModels")]
-    partial class UpdatedUserAndAchievementModels
+    [Migration("20210318141937_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

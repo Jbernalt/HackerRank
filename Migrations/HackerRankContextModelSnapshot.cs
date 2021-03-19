@@ -96,8 +96,8 @@ namespace HackerRank.Migrations
                     b.Property<string>("GroupName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("GroupRating")
-                        .HasColumnType("int");
+                    b.Property<double>("GroupRating")
+                        .HasColumnType("float");
 
                     b.HasKey("GroupID");
 
@@ -181,6 +181,12 @@ namespace HackerRank.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<double>("DailyRating")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MonthlyRating")
+                        .HasColumnType("float");
 
                     b.Property<int>("TotalComments")
                         .HasColumnType("int");
@@ -441,9 +447,6 @@ namespace HackerRank.Migrations
 
                     b.Property<byte[]>("ImageBinaryData")
                         .HasColumnType("varbinary(max)");
-
-                    b.Property<double>("MonthlyRating")
-                        .HasColumnType("float");
 
                     b.Property<int?>("UserStatsId")
                         .HasColumnType("int");

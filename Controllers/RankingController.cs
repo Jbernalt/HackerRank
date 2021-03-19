@@ -13,10 +13,12 @@ namespace HackerRank.Controllers
     public class RankingController : Controller
     {
         private readonly IRankingService _rankingService;
+        private readonly IGroupService _groupService;
 
-        public RankingController(IRankingService rankingService)
+        public RankingController(IRankingService rankingService, IGroupService groupService)
         {
             _rankingService = rankingService;
+            _groupService = groupService;
         }
 
         // GET: HomeController1
