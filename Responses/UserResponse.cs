@@ -7,8 +7,8 @@ namespace HackerRank.Responses
 {
     public class UserResponse
     {
-        public int GitLabId { get; set; }
-        public string UserName { get; set; }
+        public int id { get; set; }
+        public string username { get; set; }
         public double MonthlyRating { get; set; }
         public DateTime DateCreated { get; set; }
 
