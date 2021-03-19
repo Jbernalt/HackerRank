@@ -7,7 +7,7 @@ using HackerRank.Models.Users;
 
 namespace HackerRank.Data
 {
-    public class HackerRankContext : IdentityDbContext
+    public class HackerRankContext : IdentityDbContext<User>
     {
         public HackerRankContext(DbContextOptions<HackerRankContext> options)
             : base(options)
@@ -21,6 +21,7 @@ namespace HackerRank.Data
         public DbSet<GroupTransaction> GroupTransaction { get; set; }
         public DbSet<UserTransaction> UserTransaction { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
+        public DbSet<UserStats> UserStats { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 
 using HackerRank.Data;
+using HackerRank.Models.Users;
 using HackerRank.Services;
 
 using Hangfire;
@@ -107,8 +108,11 @@ namespace HackerRank
                 options.User.RequireUniqueEmail = false;
             });
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<HackerRankContext>();
+            services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<HackerRankContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders()
+                .AddSignInManager<SignInManager<User>>();
 
             var mappingConfig = new MapperConfiguration(mc =>
             {
@@ -137,10 +141,16 @@ namespace HackerRank
             });
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("RequireAdministrator",
+                     policy => policy.RequireRole("Administrator"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager)
         {
             if (env.IsDevelopment())
             {
@@ -177,6 +187,8 @@ namespace HackerRank
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            RolesData.SeedRoles(roleManager).Wait();
 
             app.UseHangfireDashboard();
             backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -20,19 +21,22 @@ namespace HackerRank.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
+            RoleManager<IdentityRole> roleManager,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _roleManager = roleManager;
             _logger = logger;
             _emailSender = emailSender;
         }
@@ -124,8 +128,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
             {
                 var username = info.Principal.Identity.Name;
                 var gitlabId = Int32.Parse(info.ProviderKey);
-                var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId }
-;
+                var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId };
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
@@ -134,6 +137,14 @@ namespace HackerRank.Areas.Identity.Pages.Account
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+
+                        if (!await _roleManager.RoleExistsAsync("Administrator"))
+                            await _roleManager.CreateAsync(new IdentityRole("Administrator"));
+
+                        if (_userManager.Users.ToArray().Length == 1)
+                        {
+                            await _userManager.AddToRoleAsync(user, "Administrator");
+                        }
 
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

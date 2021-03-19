@@ -1,8 +1,10 @@
 ﻿using HackerRank.Data;
+using HackerRank.Models.Achievements;
 using HackerRank.Models.Users;
 using HackerRank.Responses;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+using static HackerRank.Models.ActionTypes;
 
 namespace HackerRank.Services
 {
@@ -23,30 +26,82 @@ namespace HackerRank.Services
     public class UserService : IUserService
     {
         private readonly HackerRankContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public UserService(HackerRankContext context)
+        public UserService(HackerRankContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        //public async Task GetUser()
-        //{
-        //    string baseUrl = "https://gitlab.com/api/v4/users/7603033/events";
-        //    List<UserResponse> userResponses = new List<UserResponse>();
+        public async Task UpdateUserAchivements(string username)
+        {
+            var user = await _context.Users.Where(u => u.UserName == username).FirstOrDefaultAsync();
+            var achievements = _context.Achievement.ToArray();
+            
+            foreach(var a in achievements)
+            {
+                if (a.TypeOfAction == ActionType.Commit && user.userStats.TotalCommits > a.NumberOfActions)
+                {
+                    UserAchievement userAchievement = new()
+                    {
+                        IsUnlocked = true,
+                        User = user,
+                        Achievement = a
+                    };
 
-        //    using (var client = new HttpClient())
-        //    {
-        //        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Gitlabapikey");
-        //        var response = await client.GetAsync(baseUrl);
+                    await _context.UserAchievement.AddAsync(userAchievement);
+                    await _context.SaveChangesAsync();
+                }
+                if (a.TypeOfAction == ActionType.IssueOpened && user.userStats.TotalIssuesCreated > a.NumberOfActions)
+                {
+                    UserAchievement userAchievement = new()
+                    {
+                        IsUnlocked = true,
+                        User = user,
+                        Achievement = a
+                    };
 
-        //        var jsonResult = await response.Content.ReadAsStringAsync();
+                    await _context.UserAchievement.AddAsync(userAchievement);
+                    await _context.SaveChangesAsync();
+                }
+                if (a.TypeOfAction == ActionType.IssueSolved && user.userStats.TotalIssuesSolved > a.NumberOfActions)
+                {
+                    UserAchievement userAchievement = new()
+                    {
+                        IsUnlocked = true,
+                        User = user,
+                        Achievement = a
+                    };
 
-        //        List<UserResponse> result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
-        //        userResponses.AddRange(result);
-        //    }
+                    await _context.UserAchievement.AddAsync(userAchievement);
+                    await _context.SaveChangesAsync();
+                }
+                if (a.TypeOfAction == ActionType.MergeRequest && user.userStats.TotalMergeRequests > a.NumberOfActions)
+                {
+                    UserAchievement userAchievement = new()
+                    {
+                        IsUnlocked = true,
+                        User = user,
+                        Achievement = a
+                    };
 
-        //}
+                    await _context.UserAchievement.AddAsync(userAchievement);
+                    await _context.SaveChangesAsync();
+                }
+                if (a.TypeOfAction == ActionType.Comment && user.userStats.TotalComments > a.NumberOfActions)
+                {
+                    UserAchievement userAchievement = new()
+                    {
+                        IsUnlocked = true,
+                        User = user,
+                        Achievement = a
+                    };
 
+                    await _context.UserAchievement.AddAsync(userAchievement);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
     }
-
 }
