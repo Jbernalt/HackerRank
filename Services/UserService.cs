@@ -3,6 +3,7 @@ using HackerRank.Models.Users;
 using HackerRank.Responses;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 using System;
 using System.Collections.Generic;
@@ -23,30 +24,22 @@ namespace HackerRank.Services
     public class UserService : IUserService
     {
         private readonly HackerRankContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public UserService(HackerRankContext context)
+        public UserService(HackerRankContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        //public async Task GetUser()
-        //{
-        //    string baseUrl = "https://gitlab.com/api/v4/users/7603033/events";
-        //    List<UserResponse> userResponses = new List<UserResponse>();
-
-        //    using (var client = new HttpClient())
-        //    {
-        //        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "Gitlabapikey");
-        //        var response = await client.GetAsync(baseUrl);
-
-        //        var jsonResult = await response.Content.ReadAsStringAsync();
-
-        //        List<UserResponse> result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
-        //        userResponses.AddRange(result);
-        //    }
-
-        //}
-
+        public async Task UpdateUserAchivements(string username)
+        {
+            var user = await _context.Users.Where(u => u.UserName == username).FirstOrDefaultAsync();
+            var achievements = _context.Achievement.ToArray();
+            
+            foreach(var a in achievements)
+            {
+            }
+        }
     }
-
 }
