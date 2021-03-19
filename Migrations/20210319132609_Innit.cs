@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HackerRank.Migrations
 {
-    public partial class first : Migration
+    public partial class Innit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -16,6 +16,7 @@ namespace HackerRank.Migrations
                     AchievementName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NumberOfActions = table.Column<int>(type: "int", nullable: false),
+                    TypeOfAction = table.Column<int>(type: "int", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -45,7 +46,7 @@ namespace HackerRank.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     GitlabTeamId = table.Column<int>(type: "int", nullable: false),
                     GroupName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    GroupRating = table.Column<int>(type: "int", nullable: false)
+                    GroupRating = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,6 +73,8 @@ namespace HackerRank.Migrations
                 {
                     UserStatsId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    DailyRating = table.Column<double>(type: "float", nullable: false),
+                    MonthlyRating = table.Column<double>(type: "float", nullable: false),
                     TotalCommits = table.Column<int>(type: "int", nullable: false),
                     TotalMergeRequests = table.Column<int>(type: "int", nullable: false),
                     TotalIssuesSolved = table.Column<int>(type: "int", nullable: false),
@@ -135,10 +138,8 @@ namespace HackerRank.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GitLabId = table.Column<int>(type: "int", nullable: true),
-                    MonthlyRating = table.Column<double>(type: "float", nullable: true),
-                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    GitLabId = table.Column<int>(type: "int", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ImageBinaryData = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     UserStatsId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -192,8 +193,8 @@ namespace HackerRank.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -237,8 +238,8 @@ namespace HackerRank.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
