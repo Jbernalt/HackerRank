@@ -1,1 +1,65 @@
-﻿
+﻿@model IEnumerable<HackerRank.Models.Users.User>
+
+@{
+    ViewData["Title"] = "Ranking";
+}
+
+<h1>Ranking</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("UserName")
+            </th>
+            <th>
+                @Html.DisplayName("MergeRequests")
+            </th>
+            <th>
+                @Html.DisplayName("Commits")
+            </th>
+            <th>
+                @Html.DisplayName("IssuesCreated")
+            </th>
+            <th>
+                @Html.DisplayName("IssuesSolved")
+            </th>
+            <th>
+                @Html.DisplayName("Comments")
+            </th>
+            <th>
+                @Html.DisplayName("Rating")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.userStats.TotalMergeRequests)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.userStats.TotalCommits)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.userStats.TotalIssuesCreated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.userStats.TotalIssuesSolved)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.userStats.TotalComments)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.userStats.MonthlyRating)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -13,6 +13,7 @@ namespace HackerRank.Models.Users
         public User()
         {
             Groups = new List<Group>();
+            userStats = new UserStats();
         }
         public int GitLabId { get; set; }
 

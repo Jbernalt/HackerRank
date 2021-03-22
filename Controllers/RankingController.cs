@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using HackerRank.Services;
 
 using Microsoft.AspNetCore.Http;
@@ -14,17 +13,21 @@ namespace HackerRank.Controllers
     {
         private readonly IRankingService _rankingService;
         private readonly IGroupService _groupService;
+        private readonly IUserService _userService;
 
-        public RankingController(IRankingService rankingService, IGroupService groupService)
+        public RankingController(IRankingService rankingService, IGroupService groupService, IUserService userService)
         {
             _rankingService = rankingService;
             _groupService = groupService;
+            _userService = userService;
         }
 
         // GET: HomeController1
-        public ActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            //await _userService.GetAllUserData();
+            await _userService.UpdateUserStats();
+            return View(await _rankingService.ListAllUsers());
         }
 
         // GET: HomeController1/Details/5

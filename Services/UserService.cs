@@ -22,6 +22,7 @@ namespace HackerRank.Services
     public interface IUserService
     {
         Task GetAllUserData();
+        Task UpdateUserStats();
         Task UpdateUserAchivements(string username);
     }
 
@@ -139,6 +140,46 @@ namespace HackerRank.Services
                 }
 
                 await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdateUserStats()
+        {
+            var users = await _context.Users.Include("userStats").ToListAsync();
+
+            foreach(var u in users)
+            {
+                var usertransaction = _context.UserTransaction.Where(t => t.UserId == u.Id);
+                var userstat = await _context.UserStats.Where(s => s.UserStatsId == u.userStats.UserStatsId).FirstOrDefaultAsync();
+
+                foreach(var t in usertransaction)
+                {
+                    if(t.TransactionId == 1)
+                    {
+                        userstat.TotalCommits += t.Value;
+                        await _context.SaveChangesAsync();
+                    }
+                    if (t.TransactionId == 2)
+                    {
+                        userstat.TotalIssuesCreated += t.Value;
+                        await _context.SaveChangesAsync();
+                    }
+                    if (t.TransactionId == 3)
+                    {
+                        userstat.TotalIssuesSolved += t.Value;
+                        await _context.SaveChangesAsync();
+                    }
+                    if (t.TransactionId == 4)
+                    {
+                        userstat.TotalMergeRequests += t.Value;
+                        await _context.SaveChangesAsync();
+                    }
+                    if (t.TransactionId == 5)
+                    {
+                        userstat.TotalComments += t.Value;
+                        await _context.SaveChangesAsync();
+                    }
+                }
             }
         }
 
