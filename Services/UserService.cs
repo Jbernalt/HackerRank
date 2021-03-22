@@ -57,8 +57,8 @@ namespace HackerRank.Services
                 foreach (var user in users)
                 {
                     string path = user.GitLabId.ToString() + $"/events";
-                        uriBuilder.Path = path;
-                        uriBuilder.Query = "?per_page=100";
+                    uriBuilder.Path = path;
+                    uriBuilder.Query = "?per_page=100";
                     var response = await client.GetAsync(uriBuilder.ToString());
                     var jsonResult = await response.Content.ReadAsStringAsync();
 
