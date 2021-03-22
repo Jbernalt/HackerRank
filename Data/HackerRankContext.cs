@@ -34,6 +34,7 @@ namespace HackerRank.Data
                 new Transaction() { TransactionId = 3, Description = "Issues solved", Points = 0.3 },
                 new Transaction() { TransactionId = 4, Description = "Merge requests", Points = 0.35 },
                 new Transaction() { TransactionId = 5, Description = "Comments", Points = 0.05 });
+            modelBuilder.Entity<User>().HasOne(t => t.UserStats).WithOne(x => x.User).HasForeignKey<UserStats>(k => k.UserStatsId);
         }
     }
 }

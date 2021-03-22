@@ -92,17 +92,15 @@ namespace HackerRank.Services
                     UserTransaction commit = new()
                     {
                         User = user,
-                        TransactionId = 1,
+                        FetchDate = DateTime.UtcNow,
                         Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault(),
-                        Value = commitCounter,
-                        FetchDate = DateTime.UtcNow
+                        Value = commitCounter
                     };
 
                     UserTransaction issuesCreated = new()
                     {
                         User = user,
-                        FetchDate = DateTime.Now,
-                        TransactionId = 2,
+                        FetchDate = DateTime.UtcNow,
                         Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault(),
                         Value = issuesCreatedCounter
                     };
@@ -110,8 +108,7 @@ namespace HackerRank.Services
                     UserTransaction issuesSolved = new()
                     {
                         User = user,
-                        FetchDate = DateTime.Now,
-                        TransactionId = 3,
+                        FetchDate = DateTime.UtcNow,
                         Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault(),
                         Value = issuesSolvedCounter
                     };
@@ -119,8 +116,7 @@ namespace HackerRank.Services
                     UserTransaction mergeRequests = new()
                     {
                         User = user,
-                        FetchDate = DateTime.Now,
-                        TransactionId = 4,
+                        FetchDate = DateTime.UtcNow,
                         Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault(),
                         Value = mrCounter
                     };
@@ -128,8 +124,7 @@ namespace HackerRank.Services
                     UserTransaction comments = new()
                     {
                         User = user,
-                        FetchDate = DateTime.Now,
-                        TransactionId = 5,
+                        FetchDate = DateTime.UtcNow,
                         Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault(),
                         Value = commentsCounter
                     };
@@ -149,34 +144,33 @@ namespace HackerRank.Services
 
             foreach(var u in users)
             {
-                var usertransaction = _context.UserTransaction.Where(t => t.UserId == u.Id);
-                var userstat = await _context.UserStats.Where(s => s.UserStatsId == u.userStats.UserStatsId).FirstOrDefaultAsync();
+                var usertransaction = await _context.UserTransaction.Where(t => t.UserId == u.Id).ToArrayAsync();
 
                 foreach(var t in usertransaction)
                 {
                     if(t.TransactionId == 1)
                     {
-                        userstat.TotalCommits += t.Value;
+                        u.UserStats.TotalCommits += t.Value;
                         await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 2)
                     {
-                        userstat.TotalIssuesCreated += t.Value;
+                        u.UserStats.TotalIssuesCreated += t.Value;
                         await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 3)
                     {
-                        userstat.TotalIssuesSolved += t.Value;
+                        u.UserStats.TotalIssuesSolved += t.Value;
                         await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 4)
                     {
-                        userstat.TotalMergeRequests += t.Value;
+                        u.UserStats.TotalMergeRequests += t.Value;
                         await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 5)
                     {
-                        userstat.TotalComments += t.Value;
+                        u.UserStats.TotalComments += t.Value;
                         await _context.SaveChangesAsync();
                     }
                 }
@@ -190,7 +184,7 @@ namespace HackerRank.Services
             
             foreach(var a in achievements)
             {
-                if (a.TypeOfAction == ActionType.Commit && user.userStats.TotalCommits > a.NumberOfActions)
+                if (a.TypeOfAction == ActionType.Commit && user.UserStats.TotalCommits > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -202,7 +196,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.IssueOpened && user.userStats.TotalIssuesCreated > a.NumberOfActions)
+                if (a.TypeOfAction == ActionType.IssueOpened && user.UserStats.TotalIssuesCreated > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -214,7 +208,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.IssueSolved && user.userStats.TotalIssuesSolved > a.NumberOfActions)
+                if (a.TypeOfAction == ActionType.IssueSolved && user.UserStats.TotalIssuesSolved > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -226,7 +220,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.MergeRequest && user.userStats.TotalMergeRequests > a.NumberOfActions)
+                if (a.TypeOfAction == ActionType.MergeRequest && user.UserStats.TotalMergeRequests > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -238,7 +232,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.Comment && user.userStats.TotalComments > a.NumberOfActions)
+                if (a.TypeOfAction == ActionType.Comment && user.UserStats.TotalComments > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {

@@ -109,7 +109,7 @@ namespace HackerRank.Services
                 double groupRating = 0;
                 foreach (var user in group.Users)
                 {
-                    groupRating += user.userStats.DailyRating;
+                    groupRating += user.UserStats.DailyRating;
                 }
                 groupRating /= group.Users.Count();
                 group.GroupRating = groupRating;

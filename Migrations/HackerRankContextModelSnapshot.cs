@@ -239,9 +239,6 @@ namespace HackerRank.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int?>("UserStatsId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -252,17 +249,13 @@ namespace HackerRank.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("UserStatsId");
-
                     b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("HackerRank.Models.Users.UserStats", b =>
                 {
-                    b.Property<int>("UserStatsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("UserStatsId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("DailyRating")
                         .HasColumnType("float");
@@ -491,13 +484,15 @@ namespace HackerRank.Migrations
                     b.Navigation("Transaction");
                 });
 
-            modelBuilder.Entity("HackerRank.Models.Users.User", b =>
+            modelBuilder.Entity("HackerRank.Models.Users.UserStats", b =>
                 {
-                    b.HasOne("HackerRank.Models.Users.UserStats", "userStats")
-                        .WithMany()
-                        .HasForeignKey("UserStatsId");
+                    b.HasOne("HackerRank.Models.Users.User", "User")
+                        .WithOne("UserStats")
+                        .HasForeignKey("HackerRank.Models.Users.UserStats", "UserStatsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("userStats");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HackerRank.Models.Users.UserTransaction", b =>
@@ -568,6 +563,11 @@ namespace HackerRank.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HackerRank.Models.Users.User", b =>
+                {
+                    b.Navigation("UserStats");
                 });
 #pragma warning restore 612, 618
         }
