@@ -140,7 +140,7 @@ namespace HackerRank.Services
 
         public async Task UpdateUserStats()
         {
-            var users = await _context.Users.Include("userStats").ToListAsync();
+            var users = await _context.Users.Include("UserStats").ToListAsync();
 
             foreach(var u in users)
             {
