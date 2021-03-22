@@ -26,7 +26,7 @@ namespace HackerRank.Controllers
         public async Task<IActionResult> Index()
         {
             //await _userService.GetAllUserData();
-            await _userService.UpdateUserStats();
+            await _rankingService.UpdateUserStats();
             return View(await _rankingService.ListAllUsers());
         }
 

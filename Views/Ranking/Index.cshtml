@@ -28,7 +28,7 @@
                 @Html.DisplayName("Comments")
             </th>
             <th>
-                @Html.DisplayName("Rating")
+                @Html.DisplayName("DailyRating")
             </th>
             <th></th>
         </tr>
@@ -57,7 +57,7 @@
                     @Html.DisplayFor(modelItem => item.UserStats.TotalComments)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserStats.MonthlyRating)
+                    @Html.DisplayFor(modelItem => item.UserStats.DailyRating)
                 </td>
             </tr>
         }
