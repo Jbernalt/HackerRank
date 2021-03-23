@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using HackerRank.Data;
+using HackerRank.Models.Groups;
 using HackerRank.Models.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace HackerRank.Services
         Task CalculateDailyRating(User user);
         Task CalculateMonthlyRating(User user);
         Task<List<User>> GetTopFiveUsers();
+        Task<List<Group>> GetTopFiveGroups();
     }
 
     public class RankingService : IRankingService
@@ -38,7 +40,7 @@ namespace HackerRank.Services
 
         public async Task CalculateDailyRating(User user)
         {
-            var today = DateTime.UtcNow.AddDays(-1);
+            var today = DateTime.UtcNow;
 
             var transaction = await _context.Transaction.ToArrayAsync();
             var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArrayAsync();
@@ -94,6 +96,13 @@ namespace HackerRank.Services
                 await CalculateDailyRating(u);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Group>> GetTopFiveGroups()
+        {
+            List<Group> groups = await _context.Group.ToListAsync();
+            groups.OrderByDescending(t => t.GroupRating).Take(5).ToList();
+            return groups;
         }
 
         public async Task<List<User>> GetTopFiveUsers()

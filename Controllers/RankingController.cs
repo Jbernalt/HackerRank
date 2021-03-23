@@ -29,10 +29,17 @@ namespace HackerRank.Controllers
             
             return View(users);
         }
+        public async Task<IActionResult> RankingGroups()
+        {
+            return View(await _rankingService.GetTopFiveGroups());
+        }
+
         public async Task<IActionResult> Data()
         {
             await _userService.GetAllUserData();
             await _rankingService.UpdateUserStats();
+            await _groupService.GetData();
+             _groupService.SummarizeGroup();
 
             return View();
         }
