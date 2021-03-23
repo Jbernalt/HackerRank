@@ -57,7 +57,7 @@
                     @Html.DisplayFor(modelItem => item.UserStats.TotalComments)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserStats.DailyRating)
+                    @string.Format("{0:0.00}", item.UserStats.DailyRating)
                 </td>
             </tr>
         }
