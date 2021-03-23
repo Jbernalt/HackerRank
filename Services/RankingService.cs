@@ -15,6 +15,9 @@ namespace HackerRank.Services
     {
         Task<List<User>> ListAllUsers();
         Task UpdateUserStats();
+        Task CalculateDailyRating(User user);
+        Task CalculateMonthlyRating(User user);
+        Task<List<User>> GetTopFiveUsers();
     }
 
     public class RankingService : IRankingService
@@ -35,26 +38,25 @@ namespace HackerRank.Services
 
         public async Task CalculateDailyRating(User user)
         {
-            var today = DateTime.UtcNow;
-            int year = today.Year;
-            int month = today.Month;
-            int day = today.Day;
+            var today = DateTime.UtcNow.AddDays(-1);
 
             var transaction = await _context.Transaction.ToArrayAsync();
-            var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == year && t.FetchDate.Month >= month && t.FetchDate.Day >= day).ToArrayAsync();
+            var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArrayAsync();
             var dailyRating = transaction[0].Points * usertransaction[0].Value + transaction[1].Points * usertransaction[1].Value + transaction[2].Points * usertransaction[2].Value + transaction[3].Points * usertransaction[3].Value + transaction[4].Points * usertransaction[4].Value;
             user.UserStats.DailyRating = dailyRating;
         }
 
-        public async Task CalculateMonlthlyRating(User user)
+        public async Task CalculateMonthlyRating(User user)
         {
-            var today = DateTime.UtcNow;
-            int year = today.Year;
-            int month = today.Month;
+            var today = DateTime.UtcNow.AddMonths(-1);
 
             var transaction = await _context.Transaction.ToArrayAsync();
-            var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == year && t.FetchDate.Month >= month).ToArrayAsync();
-            var monthlyRating = transaction[0].Points * usertransaction[0].Value + transaction[1].Points * usertransaction[1].Value + transaction[2].Points * usertransaction[2].Value + transaction[3].Points * usertransaction[3].Value + transaction[4].Points * usertransaction[4].Value;
+            var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month).ToArray();
+            var monthly = usertransaction.GroupBy(
+                t=> t.TransactionId, 
+                t => t.Value, 
+                (key, v) => new {TransactionId = key, Value = v.ToArray() }).ToArray();
+            var monthlyRating = (transaction[0].Points * monthly[0].Value[0] + transaction[1].Points * monthly[1].Value[0] + transaction[2].Points * monthly[2].Value[0] + transaction[3].Points * monthly[3].Value[0] + transaction[4].Points * monthly[4].Value[0]) / DateTime.DaysInMonth(today.Year,today.Month);
             user.UserStats.MonthlyRating = monthlyRating;
         }
 
@@ -90,9 +92,17 @@ namespace HackerRank.Services
                     }
                 }
                 await CalculateDailyRating(u);
+                await _context.SaveChangesAsync();
             }
-            await _context.SaveChangesAsync();
         }
 
+        public async Task<List<User>> GetTopFiveUsers()
+        {
+            List<User> users = await _context.Users.Include("UserStats")
+                .ToListAsync();
+            users = users.OrderByDescending(u => u.UserStats.DailyRating).Take(5).ToList();
+
+            return users;
+        }
     }
 }

@@ -25,9 +25,11 @@ namespace HackerRank.Controllers
         // GET: HomeController1
         public async Task<IActionResult> Index()
         {
-            //await _userService.GetAllUserData();
+            await _userService.GetAllUserData();
             await _rankingService.UpdateUserStats();
-            return View(await _rankingService.ListAllUsers());
+            var users = await _rankingService.GetTopFiveUsers();
+            
+            return View(users);
         }
 
         // GET: HomeController1/Details/5
