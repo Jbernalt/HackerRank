@@ -33,13 +33,29 @@ namespace HackerRank.Services
             return await _userManager.Users.ToListAsync();
         }
 
-        public async Task CalculateRating(User user, UserTransaction[] userTransactions)
+        public async Task CalculateDailyRating(User user)
         {
+            var today = DateTime.UtcNow;
+            int year = today.Year;
+            int month = today.Month;
+            int day = today.Day;
 
-            var tran = _context.Transaction.ToArray();
-            var dailyrating = tran[0].Points * userTransactions[0].Value + tran[1].Points * userTransactions[2].Value + tran[2].Points * userTransactions[4].Value + tran[3].Points * userTransactions[6].Value + tran[4].Points * userTransactions[8].Value;
-            user.UserStats.DailyRating = dailyrating;
-            await _context.SaveChangesAsync();
+            var transaction = await _context.Transaction.ToArrayAsync();
+            var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == year && t.FetchDate.Month >= month && t.FetchDate.Day >= day).ToArrayAsync();
+            var dailyRating = transaction[0].Points * usertransaction[0].Value + transaction[1].Points * usertransaction[1].Value + transaction[2].Points * usertransaction[2].Value + transaction[3].Points * usertransaction[3].Value + transaction[4].Points * usertransaction[4].Value;
+            user.UserStats.DailyRating = dailyRating;
+        }
+
+        public async Task CalculateMonlthlyRating(User user)
+        {
+            var today = DateTime.UtcNow;
+            int year = today.Year;
+            int month = today.Month;
+
+            var transaction = await _context.Transaction.ToArrayAsync();
+            var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == year && t.FetchDate.Month >= month).ToArrayAsync();
+            var monthlyRating = transaction[0].Points * usertransaction[0].Value + transaction[1].Points * usertransaction[1].Value + transaction[2].Points * usertransaction[2].Value + transaction[3].Points * usertransaction[3].Value + transaction[4].Points * usertransaction[4].Value;
+            user.UserStats.MonthlyRating = monthlyRating;
         }
 
         public async Task UpdateUserStats()
@@ -47,8 +63,7 @@ namespace HackerRank.Services
             var users = await _context.Users.Include("UserStats").ToListAsync();
 
             foreach (var u in users)
-            {
-                
+            { 
                 var usertransaction = await _context.UserTransaction.Where(t => t.UserId == u.Id).ToArrayAsync();
 
                 foreach (var t in usertransaction)
@@ -56,31 +71,27 @@ namespace HackerRank.Services
                     if (t.TransactionId == 1)
                     {
                         u.UserStats.TotalCommits += t.Value;
-                        await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 2)
                     {
                         u.UserStats.TotalIssuesCreated += t.Value;
-                        await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 3)
                     {
                         u.UserStats.TotalIssuesSolved += t.Value;
-                        await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 4)
                     {
                         u.UserStats.TotalMergeRequests += t.Value;
-                        await _context.SaveChangesAsync();
                     }
                     if (t.TransactionId == 5)
                     {
                         u.UserStats.TotalComments += t.Value;
-                        await _context.SaveChangesAsync();
                     }
                 }
-                await CalculateRating(u, usertransaction);
+                await CalculateDailyRating(u);
             }
+            await _context.SaveChangesAsync();
         }
 
     }
