@@ -10,6 +10,7 @@ using HackerRank.Models.Users;
 using HackerRank.Services;
 
 using Hangfire;
+using Hangfire.Common;
 using Hangfire.SqlServer;
 
 using Microsoft.AspNetCore.Antiforgery;
@@ -35,6 +36,8 @@ namespace HackerRank
         }
 
         public IConfiguration Configuration { get; }
+        public IUserService _userService;
+        public IRecurringJobManager _recurringJobManager;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -150,7 +153,7 @@ namespace HackerRank
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager)
         {
             if (env.IsDevelopment())
             {
@@ -191,7 +194,9 @@ namespace HackerRank
             RolesData.SeedRoles(roleManager).Wait();
 
             app.UseHangfireDashboard();
-            backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
+
+            //Add methods to run recurringly here:
+            //recurringJobManager.AddOrUpdate("GetUserData", Job.FromExpression(() => userService.GetAllUserData()), Cron.Daily());
 
             app.UseEndpoints(endpoints =>
             {
