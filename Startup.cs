@@ -26,6 +26,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using Westwind.AspNetCore.LiveReload;
+
 namespace HackerRank
 {
     public class Startup
@@ -42,6 +44,8 @@ namespace HackerRank
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLiveReload();
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
@@ -155,6 +159,8 @@ namespace HackerRank
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager)
         {
+            app.UseLiveReload();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
