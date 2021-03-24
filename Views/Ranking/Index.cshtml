@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HackerRank.Models.Users.User>
+﻿@model IEnumerable<HackerRank.ViewModels.TopFiveUsersViewModel>
 
 @{
     ViewData["Title"] = "Ranking";
@@ -42,22 +42,22 @@
                     @Html.DisplayFor(modelItem => item.UserName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserStats.TotalMergeRequests)
+                    @Html.DisplayFor(modelItem => item.MergeRequest)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserStats.TotalCommits)
+                    @Html.DisplayFor(modelItem => item.Commits)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserStats.TotalIssuesCreated)
+                    @Html.DisplayFor(modelItem => item.IssuesCreated)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserStats.TotalIssuesSolved)
+                    @Html.DisplayFor(modelItem => item.IssuesSolved)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserStats.TotalComments)
+                    @Html.DisplayFor(modelItem => item.Comments)
                 </td>
                 <td>
-                    @string.Format("{0:0.00}", item.UserStats.DailyRating)
+                    @string.Format("{0:0.00}", item.DailyRating)
                 </td>
             </tr>
         }

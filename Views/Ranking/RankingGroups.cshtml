@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HackerRank.Models.Groups.Group>
+﻿@model IEnumerable<HackerRank.ViewModels.TopFiveGroupsViewModel>
 
 @{
     ViewData["Title"] = "Ranking";
@@ -13,6 +13,21 @@
                 @Html.DisplayName("Group name")
             </th>
             <th>
+                @Html.DisplayName("Commits")
+            </th>
+            <th>
+                @Html.DisplayName("Issues Created")
+            </th>
+            <th>
+                @Html.DisplayName("Issues Solved")
+            </th>
+            <th>
+                @Html.DisplayName("Merge Requests")
+            </th>
+            <th>
+                @Html.DisplayName("Comments")
+            </th>
+            <th>
                 @Html.DisplayName("DailyRating")
             </th>
             <th></th>
@@ -21,15 +36,30 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
+        <tr>
 
-                <td>
-                    @Html.DisplayFor(modelItem => item.GroupName)
-                </td>
-                <td>
-                    @string.Format("{0:0.00}", item.GroupRating)
-                </td>
-            </tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.GroupName)
+            </td>
+            <td>
+                @string.Format("{0:0.00}", item.CommitsDaily)
+            </td>
+            <td>
+                @string.Format("{0:0.00}", item.IssuesCreatedDaily)
+            </td>
+            <td>
+                @string.Format("{0:0.00}", item.IssuesSolvedDaily)
+            </td>
+            <td>
+                @string.Format("{0:0.00}", item.MergeRequestsDaily)
+            </td>
+            <td>
+                @string.Format("{0:0.00}", item.CommentsDaily)
+            </td>
+            <td>
+                @string.Format("{0:0.00}", item.GroupRating)
+            </td>
+        </tr>
         }
     </tbody>
 </table>

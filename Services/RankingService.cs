@@ -9,17 +9,17 @@ using HackerRank.Models.Groups;
 using HackerRank.Models.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using HackerRank.ViewModels;
 
 namespace HackerRank.Services
 {
     public interface IRankingService
     {
-        Task<List<User>> ListAllUsers();
         Task UpdateUserStats();
         Task CalculateDailyRating(User user);
         Task CalculateMonthlyRating(User user);
-        Task<List<User>> GetTopFiveUsers();
-        Task<List<Group>> GetTopFiveGroups();
+        Task<List<TopFiveUsersViewModel>> GetTopFiveUsers();
+        Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups();
     }
 
     public class RankingService : IRankingService
@@ -33,18 +33,18 @@ namespace HackerRank.Services
             _userManager = userManager;
         }
 
-        public async Task<List<User>> ListAllUsers()
-        {
-            return await _userManager.Users.ToListAsync();
-        }
-
         public async Task CalculateDailyRating(User user)
         {
             var today = DateTime.UtcNow;
 
             var transaction = await _context.Transaction.ToArrayAsync();
             var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArrayAsync();
-            var dailyRating = transaction[0].Points * usertransaction[0].Value + transaction[1].Points * usertransaction[1].Value + transaction[2].Points * usertransaction[2].Value + transaction[3].Points * usertransaction[3].Value + transaction[4].Points * usertransaction[4].Value;
+            var dailyRating = 
+                transaction[0].Points * usertransaction[0].Value + 
+                transaction[1].Points * usertransaction[1].Value + 
+                transaction[2].Points * usertransaction[2].Value + 
+                transaction[3].Points * usertransaction[3].Value + 
+                transaction[4].Points * usertransaction[4].Value;
             user.UserStats.DailyRating = dailyRating;
         }
 
@@ -54,11 +54,20 @@ namespace HackerRank.Services
 
             var transaction = await _context.Transaction.ToArrayAsync();
             var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month).ToArray();
-            var monthly = usertransaction.GroupBy(
-                t=> t.TransactionId, 
-                t => t.Value, 
+            
+            var monthly = usertransaction.GroupBy
+                (t=> t.TransactionId, 
+                 t => t.Value, 
                 (key, v) => new {TransactionId = key, Value = v.ToArray() }).ToArray();
-            var monthlyRating = (transaction[0].Points * monthly[0].Value[0] + transaction[1].Points * monthly[1].Value[0] + transaction[2].Points * monthly[2].Value[0] + transaction[3].Points * monthly[3].Value[0] + transaction[4].Points * monthly[4].Value[0]) / DateTime.DaysInMonth(today.Year,today.Month);
+
+            var monthlyRating = 
+                (transaction[0].Points * monthly[0].Value[0] + 
+                transaction[1].Points * monthly[1].Value[0] + 
+                transaction[2].Points * monthly[2].Value[0] + 
+                transaction[3].Points * monthly[3].Value[0] + 
+                transaction[4].Points * monthly[4].Value[0]) / 
+                DateTime.DaysInMonth(today.Year,today.Month);
+
             user.UserStats.MonthlyRating = monthlyRating;
         }
 
@@ -98,18 +107,55 @@ namespace HackerRank.Services
             }
         }
 
-        public async Task<List<Group>> GetTopFiveGroups()
+        public async Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups()
         {
+            var today = DateTime.UtcNow;
             List<Group> groups = await _context.Group.OrderByDescending(t => t.GroupRating).Take(5).ToListAsync();
+            List<TopFiveGroupsViewModel> topFiveGroups = new();
+            
+            foreach(var group in groups)
+            {
+                TopFiveGroupsViewModel topGroup = new() 
+                { 
+                    GroupName = group.GroupName,
+                    GroupRating = group.GroupRating
+                };
 
-            return groups;
+                foreach(var user in group.Users)
+                {
+                    var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArray();
+                    topGroup.CommitsDaily += usertransaction[0].Value;
+                    topGroup.IssuesCreatedDaily += usertransaction[1].Value;
+                    topGroup.IssuesSolvedDaily += usertransaction[2].Value;
+                    topGroup.MergeRequestsDaily += usertransaction[3].Value;
+                    topGroup.CommentsDaily += usertransaction[4].Value;
+                }
+                topFiveGroups.Add(topGroup);
+            }
+
+            return topFiveGroups;
         }
 
-        public async Task<List<User>> GetTopFiveUsers()
+        public async Task<List<TopFiveUsersViewModel>> GetTopFiveUsers()
         {
+            var today = DateTime.UtcNow;
+            List<TopFiveUsersViewModel> topFiveUsersViewModel = new();
             List<User> users = await _context.Users.Include("UserStats").OrderByDescending(x => x.UserStats.DailyRating).Take(5).ToListAsync();
-
-            return users;
+           
+            foreach(var user in users)
+            {
+                var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArray();
+                topFiveUsersViewModel.Add(  new() { UserName = user.UserName, 
+                    Commits = usertransaction[0].Value, 
+                    IssuesCreated = usertransaction[1].Value, 
+                    IssuesSolved = usertransaction[2].Value, 
+                    MergeRequest = usertransaction[3].Value, 
+                    Comments = usertransaction[4].Value,
+                    DailyRating = user.UserStats.DailyRating,
+                    MonthlyRating = user.UserStats.MonthlyRating
+                });
+            }
+            return topFiveUsersViewModel;
         }
     }
 }
