@@ -52,6 +52,11 @@ namespace HackerRank.Services
                 groupResponses.AddRange(result);
             }
 
+            //Hämta gruppp
+            //Hämta all användare 
+            //Jämföra med databasen om användare finns
+            //Om alla redan finns hoppa
+            
             foreach (var g in groupResponses)
             {
                 Group group = await _context.Group.Where(i => i.GitlabTeamId == g.id).Include("Users").FirstOrDefaultAsync();

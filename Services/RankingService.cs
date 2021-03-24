@@ -100,16 +100,14 @@ namespace HackerRank.Services
 
         public async Task<List<Group>> GetTopFiveGroups()
         {
-            List<Group> groups = await _context.Group.ToListAsync();
-            groups.OrderByDescending(t => t.GroupRating).Take(5).ToList();
+            List<Group> groups = await _context.Group.OrderByDescending(t => t.GroupRating).Take(5).ToListAsync();
+
             return groups;
         }
 
         public async Task<List<User>> GetTopFiveUsers()
         {
-            List<User> users = await _context.Users.Include("UserStats")
-                .ToListAsync();
-            users = users.OrderByDescending(u => u.UserStats.DailyRating).Take(5).ToList();
+            List<User> users = await _context.Users.Include("UserStats").OrderByDescending(x => x.UserStats.DailyRating).Take(5).ToListAsync();
 
             return users;
         }
