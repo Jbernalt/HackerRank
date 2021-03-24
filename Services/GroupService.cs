@@ -71,7 +71,7 @@ namespace HackerRank.Services
             return groupResponses;
         }
 
-        public async Task CreateGroup(GroupResponse response)
+        public async Task<Group> CreateGroup(GroupResponse response)
         {
             Group group = new();
             group.GitlabTeamId = response.id;
@@ -93,7 +93,8 @@ namespace HackerRank.Services
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
                 var response = await client.GetAsync(baseUrlPart1 + groupResponse.id.ToString() + baseUrlPart2);
 
-                var jsonResult = await response.Content.ReadAsStringAsync();
+                if (theGroup == null)
+                    await CreateGroup(group);
 
                 result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);                
             }
@@ -106,7 +107,9 @@ namespace HackerRank.Services
                     group.Users.Add(user);
                 }
             }
-            
+            var removeGroups = await _context.Group.Where(g => g.Users.Count <= 0).ToListAsync();
+            await _context.SaveChangesAsync();
+            _context.Group.RemoveRange(removeGroups);
             await _context.SaveChangesAsync();
         }
 
@@ -136,19 +139,17 @@ namespace HackerRank.Services
         public bool UserExists(Group group, User user)
         {
             bool result = false;
-            if (user != null)
+            if (user == null || group == null)
+                return result;
+
+            foreach(var u in group.Users)
             {
-                foreach (var u in group.Users)
+                if(u == user)
                 {
-                    if (u == user)
-                    {
-                        result = false;
-                        break;
-                    }
-                }
-                result = true;
+                    result = true;
+                    return result;
+                };
             }
-            
             return result;
         }
     }
