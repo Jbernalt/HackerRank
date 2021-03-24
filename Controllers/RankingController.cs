@@ -38,8 +38,8 @@ namespace HackerRank.Controllers
         {
             await _userService.GetAllUserData();
             await _rankingService.UpdateUserStats();
-            await _groupService.GetData();
-             _groupService.SummarizeGroup();
+            await _groupService.GetGroupData();
+            _groupService.SummarizeGroup();
 
             return View();
         }
