@@ -71,7 +71,7 @@ namespace HackerRank.Services
             return groupResponses;
         }
 
-        public async Task<Group> CreateGroup(GroupResponse response)
+        public async Task CreateGroup(GroupResponse response)
         {
             Group group = new();
             group.GitlabTeamId = response.id;
