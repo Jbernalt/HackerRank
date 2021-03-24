@@ -13,12 +13,13 @@ namespace HackerRank.Models.Users
         public User()
         {
             Groups = new List<Group>();
+            UserStats = new UserStats();
         }
         public int GitLabId { get; set; }
 
         public DateTime DateCreated { get; set; }
         public byte[] ImageBinaryData { get; set; }
         public List<Group> Groups { get; set; }
-        public UserStats userStats { get; set; }
+        public UserStats UserStats { get; set; }
     }
 }
