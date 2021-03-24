@@ -12,14 +12,14 @@ using HackerRank.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using AutoMapper;
+using System.Diagnostics;
 
 namespace HackerRank.Services
 {
     public interface IGroupService
     {
-        public Task<List<GroupResponse>> GetData();
-        public Task AddMembersToGroup(GroupResponse groupResponse);
-        public Task CreateGroup(GroupResponse response);
+        public Task GetGroupData();
+        public Task<bool> CreateGroup(Group group);
         public void SummarizeGroup();
     }
 
@@ -36,80 +36,128 @@ namespace HackerRank.Services
             _mapper = mapper;
         }
 
-        public async Task<List<GroupResponse>> GetData()
+        public async Task<List<GroupResponse>> GetAllGroups()
         {
-            string baseUrl = "https://gitlab.com/api/v4/groups";
             List<GroupResponse> groupResponses = new();
+            UriBuilder uriBuilder = new()
+            {
+                Scheme = "https",
+                Host = "gitlab.com/api/v4/groups"
+            };
 
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
-                var response = await client.GetAsync(baseUrl);
+                var response = await client.GetAsync(uriBuilder.ToString());
 
                 var jsonResult = await response.Content.ReadAsStringAsync();
 
                 List<GroupResponse> result = JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult);
                 groupResponses.AddRange(result);
             }
-
-            //Hämta gruppp
-            //Hämta all användare 
-            //Jämföra med databasen om användare finns
-            //Om alla redan finns hoppa
-            
-            foreach (var g in groupResponses)
-            {
-                Group group = await _context.Group.Where(i => i.GitlabTeamId == g.id).Include("Users").FirstOrDefaultAsync();
-                
-                if (group == null)
-                    await CreateGroup(g);
-
-                await AddMembersToGroup(g);
-            }
-
-            await _context.SaveChangesAsync();
             return groupResponses;
         }
 
-        public async Task CreateGroup(GroupResponse response)
+        public async Task<List<User>> GetUsersInGroup(Group group)
         {
-            Group group = new();
-            group.GitlabTeamId = response.id;
-            group.GroupName = response.name;
+            List<User> userlist = new();
+            UriBuilder uriBuilder = new()
+            {
+                Scheme = "https",
+                Host = "gitlab.com/api/v4/groups"
+            };
 
-            await _context.Group.AddAsync(group);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task AddMembersToGroup(GroupResponse groupResponse)
-        {
-            string baseUrlPart1 = "https://gitlab.com/api/v4/groups/";
-            string baseUrlPart2 = @"/members";
             List<UserResponse> result = new();
-            Group group = await _context.Group.Where(g => g.GitlabTeamId == groupResponse.id).Include("Users").FirstOrDefaultAsync();
 
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
-                var response = await client.GetAsync(baseUrlPart1 + groupResponse.id.ToString() + baseUrlPart2);
+                string path = group.GitlabTeamId.ToString() + $"/members";
+                uriBuilder.Path = path;
+
+                var response = await client.GetAsync(uriBuilder.ToString());
 
                 var jsonResult = await response.Content.ReadAsStringAsync();
 
-                result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);                
+                result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
             }
 
             foreach (var u in result)
             {
-                User user = await _context.Users.Where(x => x.GitLabId == u.id).FirstOrDefaultAsync();
-                if (UserExists(group, user))
+                var user = await _context.Users.Where(x => x.GitLabId == u.id).FirstOrDefaultAsync();
+                if (user != null)
+                    userlist.Add(user);
+            }
+
+            return userlist;
+        }
+
+        public async Task GetGroupData()
+        {
+            var groupListTotal = await GetAllGroups();
+            List<Group> groupListNotExist = new();
+            List<Group> groupListExit = new();
+
+            foreach (var g in groupListTotal)
+            {
+                var group = await _context.Group.Include("Users").Where(x => x.GitlabTeamId == g.id).FirstOrDefaultAsync();
+                if (group == null)
                 {
-                    group.Users.Add(user);
+                    Group newGroup = new() { GitlabTeamId = g.id, GroupName = g.name };
+                    groupListNotExist.Add(newGroup);
+                }
+                else
+                {
+                    groupListExit.Add(group);
                 }
             }
-            var removeGroups = await _context.Group.Where(g => g.Users.Count <= 0).ToListAsync();
-            await _context.SaveChangesAsync();
-            _context.Group.RemoveRange(removeGroups);
-            await _context.SaveChangesAsync();
+
+            if (groupListExit.Count > 0)
+            {
+                foreach (Group group in groupListExit)
+                {
+                    var userList = await GetUsersInGroup(group);
+                    foreach (var user in userList)
+                    {
+                        if (!UserExistsInGroup(group, user))
+                        {
+                            group.Users.Add(user);
+                        }
+                    }
+                }
+            }
+
+            if (groupListNotExist.Count > 0)
+            {
+                foreach (Group group in groupListNotExist)
+                {
+                    var userList = await GetUsersInGroup(group);
+
+                    if (userList.Count > 0)
+                    {
+                        if (await CreateGroup(group))
+                        {
+                            group.Users.AddRange(userList);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+        }
+
+        public async Task<bool> CreateGroup(Group group)
+        {
+            try
+            {
+                await _context.Group.AddAsync(group);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
         public void SummarizeGroup()
@@ -135,11 +183,9 @@ namespace HackerRank.Services
             }
         }
 
-        public bool UserExists(Group group, User user)
+        public bool UserExistsInGroup(Group group, User user)
         {
             bool result = false;
-            if (user == null || group == null)
-                return result;
 
             foreach(var u in group.Users)
             {
@@ -147,7 +193,7 @@ namespace HackerRank.Services
                 {
                     result = true;
                     return result;
-                };
+                }
             }
             return result;
         }
