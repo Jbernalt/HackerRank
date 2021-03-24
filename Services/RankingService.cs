@@ -110,7 +110,7 @@ namespace HackerRank.Services
         public async Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups()
         {
             var today = DateTime.UtcNow;
-            List<Group> groups = await _context.Group.OrderByDescending(t => t.GroupRating).Take(5).ToListAsync();
+            List<Group> groups = await _context.Group.Include("Users").OrderByDescending(t => t.GroupRating).Take(5).ToListAsync();
             List<TopFiveGroupsViewModel> topFiveGroups = new();
             
             foreach(var group in groups)
