@@ -11,7 +11,8 @@ namespace HackerRank.Data
     public class RolesData
     {
         private static readonly string[] roles = new[] {
-            "Administrator"
+            "Administrator",
+            "User"
         };
 
         public static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
