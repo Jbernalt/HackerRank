@@ -127,7 +127,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var username = info.Principal.Identity.Name;
-                var gitlabId = Int32.Parse(info.ProviderKey);
+                var gitlabId = int.Parse(info.ProviderKey);
                 var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId };
 
                 var result = await _userManager.CreateAsync(user);
@@ -140,11 +140,13 @@ namespace HackerRank.Areas.Identity.Pages.Account
 
                         if (!await _roleManager.RoleExistsAsync("Administrator"))
                             await _roleManager.CreateAsync(new IdentityRole("Administrator"));
+                        if (!await _roleManager.RoleExistsAsync("User"))
+                            await _roleManager.CreateAsync(new IdentityRole("User"));
 
                         if (_userManager.Users.ToArray().Length == 1)
-                        {
                             await _userManager.AddToRoleAsync(user, "Administrator");
-                        }
+
+                        await _userManager.AddToRoleAsync(user, "User");
 
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
