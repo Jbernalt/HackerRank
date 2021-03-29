@@ -14,15 +14,18 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HackerRank.ViewModels;
+using AutoMapper;
 
 using static HackerRank.Models.ActionTypes;
+
 
 namespace HackerRank.Services
 {
     public interface IUserService
     {
-        Task GetAllUserData();
-        Task UpdateUserAchivements(string username);
+        Task<UserViewModel> GetAllUserData();
+        Task<UserViewModel> UpdateUserAchivements(string username);
     }
 
     public class UserService : IUserService
@@ -30,20 +33,22 @@ namespace HackerRank.Services
         private readonly HackerRankContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
 
-        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration)
+        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _config = configuration;
+            _mapper = mapper;
         }
 
-        public async Task GetAllUserData()
+        public async Task<UserViewModel> GetAllUserData()
         {
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
-
+                
                 UriBuilder uriBuilder = new()
                 {
                     Scheme = "https",
@@ -51,6 +56,7 @@ namespace HackerRank.Services
                 };
 
                 List<EventResponse> eventResponses = new();
+                UserViewModel userView = new();
                 var users = await _context.Users.ToArrayAsync();
 
                 foreach (var user in users)
@@ -59,90 +65,119 @@ namespace HackerRank.Services
                     uriBuilder.Path = path;
                     uriBuilder.Query = "?per_page=100";
                     var response = await client.GetAsync(uriBuilder.ToString());
-                    var jsonResult = await response.Content.ReadAsStringAsync();
 
-                    eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
-
-                    int commitCounter = 0, issuesCreatedCounter = 0, issuesSolvedCounter = 0, mrCounter = 0, commentsCounter = 0;
-
-                    foreach (var e in eventResponses)
+                    if (response.IsSuccessStatusCode)
                     {
-                        if (e.action_name == "pushed to" || e.action_name == "pushed new")
+                        var jsonResult = await response.Content.ReadAsStringAsync();
+
+                        eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
+
+                        int commitCounter = 0, issuesCreatedCounter = 0, issuesSolvedCounter = 0, mrCounter = 0, commentsCounter = 0;
+
+                        foreach (var e in eventResponses)
                         {
-                            commitCounter++;
+                            if (e.action_name == "pushed to" || e.action_name == "pushed new")
+                            {
+                                commitCounter++;
+                            }
+                            else if (e.target_type == "Issue" && e.action_name == "opened")
+                            {
+                                issuesCreatedCounter++;
+                            }
+                            else if (e.target_type == "Issue" && e.action_name == "closed")
+                            {
+                                issuesSolvedCounter++;
+                            }
+                            else if (e.target_type == "MergeRequest" && e.action_name == "opened")
+                            {
+                                mrCounter++;
+                            }
+                            else if (e.action_name == "commented on")
+                            {
+                                commentsCounter++;
+                            }
                         }
-                        else if (e.target_type == "Issue" && e.action_name == "opened")
+
+                        UserTransaction commit = new()
                         {
-                            issuesCreatedCounter++;
-                        }
-                        else if (e.target_type == "Issue" && e.action_name == "closed")
+                            User = user,
+                            FetchDate = DateTime.UtcNow,
+                            Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault(),
+                            Value = commitCounter
+                        };
+
+                        UserTransaction issuesCreated = new()
                         {
-                            issuesSolvedCounter++;
-                        }
-                        else if (e.target_type == "MergeRequest" && e.action_name == "opened")
+                            User = user,
+                            FetchDate = DateTime.UtcNow,
+                            Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault(),
+                            Value = issuesCreatedCounter
+                        };
+
+                        UserTransaction issuesSolved = new()
                         {
-                            mrCounter++;
-                        }
-                        else if (e.action_name == "commented on")
+                            User = user,
+                            FetchDate = DateTime.UtcNow,
+                            Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault(),
+                            Value = issuesSolvedCounter
+                        };
+
+                        UserTransaction mergeRequests = new()
                         {
-                            commentsCounter++;
-                        }
+                            User = user,
+                            FetchDate = DateTime.UtcNow,
+                            Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault(),
+                            Value = mrCounter
+                        };
+
+                        UserTransaction comments = new()
+                        {
+                            User = user,
+                            FetchDate = DateTime.UtcNow,
+                            Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault(),
+                            Value = commentsCounter
+                        };
+
+                        List<UserTransaction> userTransactions = new() { commit, issuesSolved, issuesCreated, mergeRequests, comments };
+
+                        await _context.UserTransaction.AddRangeAsync(userTransactions);
+                    }
+                    else
+                    {
+                        _mapper.Map(response, userView);
+                        userView.Success = false;
                     }
 
-                    UserTransaction commit = new()
+                    try
                     {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault(),
-                        Value = commitCounter
-                    };
-
-                    UserTransaction issuesCreated = new()
+                        int result = await _context.SaveChangesAsync();
+                        if (result >= 1)
+                        {
+                            userView.Success = true;
+                        };
+                    }
+                    catch(Exception ex)
                     {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault(),
-                        Value = issuesCreatedCounter
-                    };
-
-                    UserTransaction issuesSolved = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault(),
-                        Value = issuesSolvedCounter
-                    };
-
-                    UserTransaction mergeRequests = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault(),
-                        Value = mrCounter
-                    };
-
-                    UserTransaction comments = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault(),
-                        Value = commentsCounter
-                    };
-
-                    List<UserTransaction> userTransactions = new() { commit, issuesSolved, issuesCreated, mergeRequests, comments };
-
-                    await _context.UserTransaction.AddRangeAsync(userTransactions);
+                        userView.Message = ex.Message;
+                        userView.Success = false;
+                    }
                 }
-
-                await _context.SaveChangesAsync();
+                return userView;
             }
         }
 
-        public async Task UpdateUserAchivements(string username)
+        public async Task<UserViewModel> UpdateUserAchivements(string username)
         {
             var user = await _context.Users.Where(u => u.UserName == username).FirstOrDefaultAsync();
             var achievements = _context.Achievement.ToArray();
-            
+            UserViewModel userView = new();
+            if(user == null)
+            {
+                userView.Success = false;
+                userView.Message = "Incorrect username";
+                return userView;
+            }
+
             foreach(var a in achievements)
             {
                 if (a.TypeOfAction == ActionType.Commit && user.UserStats.TotalCommits > a.NumberOfActions)
@@ -157,7 +192,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.IssueOpened && user.UserStats.TotalIssuesCreated > a.NumberOfActions)
+                else if (a.TypeOfAction == ActionType.IssueOpened && user.UserStats.TotalIssuesCreated > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -169,7 +204,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.IssueSolved && user.UserStats.TotalIssuesSolved > a.NumberOfActions)
+                else if (a.TypeOfAction == ActionType.IssueSolved && user.UserStats.TotalIssuesSolved > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -181,7 +216,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.MergeRequest && user.UserStats.TotalMergeRequests > a.NumberOfActions)
+                else if (a.TypeOfAction == ActionType.MergeRequest && user.UserStats.TotalMergeRequests > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -193,7 +228,7 @@ namespace HackerRank.Services
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
                 }
-                if (a.TypeOfAction == ActionType.Comment && user.UserStats.TotalComments > a.NumberOfActions)
+                else if (a.TypeOfAction == ActionType.Comment && user.UserStats.TotalComments > a.NumberOfActions)
                 {
                     UserAchievement userAchievement = new()
                     {
@@ -204,8 +239,16 @@ namespace HackerRank.Services
 
                     await _context.UserAchievement.AddAsync(userAchievement);
                     await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    userView.Success = false;
+                    userView.Message = "An error occurred while loading achievements";
+                    return userView;
                 }
             }
+            userView.Success = true;
+            return userView;
         }
     }
 }

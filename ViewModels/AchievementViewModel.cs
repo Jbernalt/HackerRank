@@ -21,5 +21,11 @@ namespace HackerRank.Models.Achievements
         [Range(0, int.MaxValue, ErrorMessage = "Select an item please")]
         public ActionType TypeOfAction { get; set; }
         public IFormFile Image { get; set; }
+
+        //Error management
+        public int StatusCode { get; set; }
+        public string ReasonPhrase { get; set; }
+        public string Message { get; set; }
+        public bool Success { get; set; }
     }
 }

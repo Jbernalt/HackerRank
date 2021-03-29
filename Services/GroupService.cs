@@ -11,8 +11,10 @@ using HackerRank.Models.Groups;
 using HackerRank.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using HackerRank.ViewModels;
 using AutoMapper;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http;
 
 namespace HackerRank.Services
 {
@@ -39,6 +41,7 @@ namespace HackerRank.Services
         public async Task<List<GroupResponse>> GetAllGroups()
         {
             List<GroupResponse> groupResponses = new();
+            GroupViewModel groupView = new();
             UriBuilder uriBuilder = new()
             {
                 Scheme = "https",
@@ -49,11 +52,12 @@ namespace HackerRank.Services
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
-
                 var jsonResult = await response.Content.ReadAsStringAsync();
 
                 List<GroupResponse> result = JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult);
                 groupResponses.AddRange(result);
+                
+
             }
             return groupResponses;
         }
