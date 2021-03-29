@@ -5,16 +5,17 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using HackerRank.Responses;
+using HackerRank.ViewModels;
 using System.Text.Json;
 using HackerRank.Data;
 using HackerRank.Models.Groups;
 using HackerRank.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using HackerRank.ViewModels;
 using AutoMapper;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HackerRank.Services
 {
@@ -41,7 +42,6 @@ namespace HackerRank.Services
         public async Task<List<GroupResponse>> GetAllGroups()
         {
             List<GroupResponse> groupResponses = new();
-            GroupViewModel groupView = new();
             UriBuilder uriBuilder = new()
             {
                 Scheme = "https",
@@ -52,12 +52,16 @@ namespace HackerRank.Services
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
-                var jsonResult = await response.Content.ReadAsStringAsync();
-
-                List<GroupResponse> result = JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult);
-                groupResponses.AddRange(result);
-                
-
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonResult = await response.Content.ReadAsStringAsync();
+                    List<GroupResponse> result = JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult);
+                    groupResponses.AddRange(result);
+                }
+                else
+                {
+                    Console.WriteLine($"Bad request when getting groups. {response.StatusCode} {response.RequestMessage}");
+                }
             }
             return groupResponses;
         }
@@ -80,10 +84,17 @@ namespace HackerRank.Services
                 uriBuilder.Path = path;
 
                 var response = await client.GetAsync(uriBuilder.ToString());
+                if (response.IsSuccessStatusCode) 
+                {
+                    var jsonResult = await response.Content.ReadAsStringAsync();
 
-                var jsonResult = await response.Content.ReadAsStringAsync();
+                    result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
+                }
+                else
+                {
+                    Console.WriteLine($"Bad request when getting group users. {response.StatusCode}, {response.RequestMessage}");
+                }
 
-                result = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
             }
 
             foreach (var u in result)
@@ -121,13 +132,21 @@ namespace HackerRank.Services
                 foreach (Group group in groupListExit)
                 {
                     var userList = await GetUsersInGroup(group);
-                    foreach (var user in userList)
+                    if(userList != null)
                     {
-                        if (!UserExistsInGroup(group, user))
+                        foreach (var user in userList)
                         {
-                            group.Users.Add(user);
+                            if (!UserExistsInGroup(group, user))
+                            {
+                                group.Users.Add(user);
+                            }
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine("Could not get users in group");
+                    }
+
                 }
             }
 
@@ -136,7 +155,6 @@ namespace HackerRank.Services
                 foreach (Group group in groupListNotExist)
                 {
                     var userList = await GetUsersInGroup(group);
-
                     if (userList.Count > 0)
                     {
                         if (await CreateGroup(group))
@@ -147,6 +165,7 @@ namespace HackerRank.Services
                     }
                 }
             }
+
         }
 
         public async Task<bool> CreateGroup(Group group)
@@ -167,24 +186,31 @@ namespace HackerRank.Services
         public void SummarizeGroup()
         {
             List<Group> groups = _context.Group.Include("Users").ToList();
-
-            foreach (var group in groups)
+            if(groups != null)
             {
-                double groupRating = 0;
-                if (group.Users.Count != 0)
+                foreach (var group in groups)
                 {
-                    foreach (var user in group.Users)
+                    double groupRating = 0;
+                    if (group.Users.Count != 0)
                     {
-                        groupRating += user.UserStats.DailyRating;
+                        foreach (var user in group.Users)
+                        {
+                            groupRating += user.UserStats.DailyRating;
+                        }
+
+                        groupRating /= group.Users.Count;
+                        group.GroupRating = groupRating;
+
+                        if (groupRating > 0)
+                            _context.SaveChanges();
                     }
-
-                    groupRating /= group.Users.Count;
-                    group.GroupRating = groupRating;
-
-                    if (groupRating > 0)
-                        _context.SaveChanges();
                 }
             }
+            else
+            {
+                Console.WriteLine("Could not get groups from database when summarizing");
+            }
+
         }
 
         public bool UserExistsInGroup(Group group, User user)

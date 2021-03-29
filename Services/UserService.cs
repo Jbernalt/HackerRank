@@ -24,8 +24,8 @@ namespace HackerRank.Services
 {
     public interface IUserService
     {
-        Task<UserViewModel> GetAllUserData();
-        Task<UserViewModel> UpdateUserAchivements(string username);
+        Task GetAllUserData();
+        Task UpdateUserAchivements(string username);
     }
 
     public class UserService : IUserService
@@ -43,7 +43,7 @@ namespace HackerRank.Services
             _mapper = mapper;
         }
 
-        public async Task<UserViewModel> GetAllUserData()
+        public async Task GetAllUserData()
         {
             using (var client = new HttpClient())
             {
@@ -56,7 +56,6 @@ namespace HackerRank.Services
                 };
 
                 List<EventResponse> eventResponses = new();
-                UserViewModel userView = new();
                 var users = await _context.Users.ToArrayAsync();
 
                 foreach (var user in users)
@@ -65,7 +64,6 @@ namespace HackerRank.Services
                     uriBuilder.Path = path;
                     uriBuilder.Query = "?per_page=100";
                     var response = await client.GetAsync(uriBuilder.ToString());
-
                     if (response.IsSuccessStatusCode)
                     {
                         var jsonResult = await response.Content.ReadAsStringAsync();
@@ -139,116 +137,100 @@ namespace HackerRank.Services
                         };
 
                         List<UserTransaction> userTransactions = new() { commit, issuesSolved, issuesCreated, mergeRequests, comments };
-
-                        await _context.UserTransaction.AddRangeAsync(userTransactions);
+                        try
+                        {
+                            await _context.UserTransaction.AddRangeAsync(userTransactions);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Could not add user transactions to database when retrieving userdata");
+                        }
+                        
                     }
                     else
                     {
-                        _mapper.Map(response, userView);
-                        userView.Success = false;
+                        Console.WriteLine($"Bad request when trying to get userdata. {response.StatusCode}, {response.RequestMessage}");
                     }
 
-                    try
-                    {
-                        int result = await _context.SaveChangesAsync();
-                        if (result >= 1)
-                        {
-                            userView.Success = true;
-                        };
-                    }
-                    catch(Exception ex)
-                    {
-                        userView.Message = ex.Message;
-                        userView.Success = false;
-                    }
-                }
-                return userView;
+                       await _context.SaveChangesAsync();
+                } 
             }
         }
 
-        public async Task<UserViewModel> UpdateUserAchivements(string username)
+        public async Task UpdateUserAchivements(string username)
         {
             var user = await _context.Users.Where(u => u.UserName == username).FirstOrDefaultAsync();
             var achievements = _context.Achievement.ToArray();
-            UserViewModel userView = new();
-            if(user == null)
+            if(user != null)
             {
-                userView.Success = false;
-                userView.Message = "Incorrect username";
-                return userView;
-            }
-
-            foreach(var a in achievements)
-            {
-                if (a.TypeOfAction == ActionType.Commit && user.UserStats.TotalCommits > a.NumberOfActions)
+                foreach (var a in achievements)
                 {
-                    UserAchievement userAchievement = new()
+                    if (a.TypeOfAction == ActionType.Commit && user.UserStats.TotalCommits > a.NumberOfActions)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = user,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                else if (a.TypeOfAction == ActionType.IssueOpened && user.UserStats.TotalIssuesCreated > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    else if (a.TypeOfAction == ActionType.IssueOpened && user.UserStats.TotalIssuesCreated > a.NumberOfActions)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = user,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                else if (a.TypeOfAction == ActionType.IssueSolved && user.UserStats.TotalIssuesSolved > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    else if (a.TypeOfAction == ActionType.IssueSolved && user.UserStats.TotalIssuesSolved > a.NumberOfActions)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = user,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                else if (a.TypeOfAction == ActionType.MergeRequest && user.UserStats.TotalMergeRequests > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    else if (a.TypeOfAction == ActionType.MergeRequest && user.UserStats.TotalMergeRequests > a.NumberOfActions)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = user,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                else if (a.TypeOfAction == ActionType.Comment && user.UserStats.TotalComments > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    else if (a.TypeOfAction == ActionType.Comment && user.UserStats.TotalComments > a.NumberOfActions)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = user,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                else
-                {
-                    userView.Success = false;
-                    userView.Message = "An error occurred while loading achievements";
-                    return userView;
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
-            userView.Success = true;
-            return userView;
+            else
+            {
+                Console.WriteLine("Could not find user when updating user achievements");
+            }
         }
     }
 }

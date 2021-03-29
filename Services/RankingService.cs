@@ -36,39 +36,52 @@ namespace HackerRank.Services
         public async Task CalculateDailyRating(User user)
         {
             var today = DateTime.UtcNow;
-
             var transaction = await _context.Transaction.ToArrayAsync();
             var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArrayAsync();
-            var dailyRating = 
-                transaction[0].Points * usertransaction[0].Value + 
-                transaction[1].Points * usertransaction[1].Value + 
-                transaction[2].Points * usertransaction[2].Value + 
-                transaction[3].Points * usertransaction[3].Value + 
-                transaction[4].Points * usertransaction[4].Value;
-            user.UserStats.DailyRating = dailyRating;
+            if(usertransaction != null)
+            {
+                var dailyRating =
+                    transaction[0].Points * usertransaction[0].Value +
+                    transaction[1].Points * usertransaction[1].Value +
+                    transaction[2].Points * usertransaction[2].Value +
+                    transaction[3].Points * usertransaction[3].Value +
+                    transaction[4].Points * usertransaction[4].Value;
+                    user.UserStats.DailyRating = dailyRating;
+            }
+            else
+            {
+                Console.WriteLine($"Error when calculating daily rating for user {user.UserName}. User transactions returned null");
+            }
+
         }
 
         public async Task CalculateMonthlyRating(User user)
         {
             var today = DateTime.UtcNow.AddMonths(-1);
-
             var transaction = await _context.Transaction.ToArrayAsync();
             var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month).ToArray();
-            
-            var monthly = usertransaction.GroupBy
-                (t=> t.TransactionId, 
-                 t => t.Value, 
-                (key, v) => new {TransactionId = key, Value = v.ToArray() }).ToArray();
+           
+            if(usertransaction != null)
+            {
+                var monthly = usertransaction.GroupBy
+                    (t => t.TransactionId,
+                     t => t.Value,
+                    (key, v) => new { TransactionId = key, Value = v.ToArray() }).ToArray();
 
-            var monthlyRating = 
-                (transaction[0].Points * monthly[0].Value[0] + 
-                transaction[1].Points * monthly[1].Value[0] + 
-                transaction[2].Points * monthly[2].Value[0] + 
-                transaction[3].Points * monthly[3].Value[0] + 
-                transaction[4].Points * monthly[4].Value[0]) / 
-                DateTime.DaysInMonth(today.Year,today.Month);
+                var monthlyRating =
+                    (transaction[0].Points * monthly[0].Value[0] +
+                    transaction[1].Points * monthly[1].Value[0] +
+                    transaction[2].Points * monthly[2].Value[0] +
+                    transaction[3].Points * monthly[3].Value[0] +
+                    transaction[4].Points * monthly[4].Value[0]) /
+                    DateTime.DaysInMonth(today.Year, today.Month);
 
-            user.UserStats.MonthlyRating = monthlyRating;
+                user.UserStats.MonthlyRating = monthlyRating;
+            }
+            else
+            {
+                Console.WriteLine($"Error when calculating montly rating for user {user.UserName}. User transactions returned null");
+            }
         }
 
         public async Task UpdateUserStats()
@@ -76,34 +89,44 @@ namespace HackerRank.Services
             var users = await _context.Users.Include("UserStats").ToListAsync();
 
             foreach (var u in users)
-            { 
-                var usertransaction = await _context.UserTransaction.Where(t => t.UserId == u.Id).ToArrayAsync();
-
-                foreach (var t in usertransaction)
+            {
+                if(u != null)
                 {
-                    if (t.TransactionId == 1)
+                    var usertransaction = await _context.UserTransaction.Where(t => t.UserId == u.Id).ToArrayAsync();
+
+                    if (usertransaction != null)
                     {
-                        u.UserStats.TotalCommits += t.Value;
-                    }
-                    if (t.TransactionId == 2)
-                    {
-                        u.UserStats.TotalIssuesCreated += t.Value;
-                    }
-                    if (t.TransactionId == 3)
-                    {
-                        u.UserStats.TotalIssuesSolved += t.Value;
-                    }
-                    if (t.TransactionId == 4)
-                    {
-                        u.UserStats.TotalMergeRequests += t.Value;
-                    }
-                    if (t.TransactionId == 5)
-                    {
-                        u.UserStats.TotalComments += t.Value;
+                        foreach (var t in usertransaction)
+                        {
+                            if (t.TransactionId == 1)
+                            {
+                                u.UserStats.TotalCommits += t.Value;
+                            }
+                            if (t.TransactionId == 2)
+                            {
+                                u.UserStats.TotalIssuesCreated += t.Value;
+                            }
+                            if (t.TransactionId == 3)
+                            {
+                                u.UserStats.TotalIssuesSolved += t.Value;
+                            }
+                            if (t.TransactionId == 4)
+                            {
+                                u.UserStats.TotalMergeRequests += t.Value;
+                            }
+                            if (t.TransactionId == 5)
+                            {
+                                u.UserStats.TotalComments += t.Value;
+                            }
+                        }
+                        await CalculateDailyRating(u);
+                        await _context.SaveChangesAsync();
                     }
                 }
-                await CalculateDailyRating(u);
-                await _context.SaveChangesAsync();
+                else
+                {
+                    Console.WriteLine("Could not find user when updating stats. User returned null");
+                }
             }
         }
 
@@ -145,7 +168,9 @@ namespace HackerRank.Services
             foreach(var user in users)
             {
                 var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArray();
-                topFiveUsersViewModel.Add(  new() { UserName = user.UserName, 
+                topFiveUsersViewModel.Add(  new() 
+                { 
+                    UserName = user.UserName, 
                     Commits = usertransaction[0].Value, 
                     IssuesCreated = usertransaction[1].Value, 
                     IssuesSolved = usertransaction[2].Value, 
