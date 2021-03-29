@@ -17,15 +17,18 @@ namespace HackerRank.Controllers
     public class AchievementController : Controller
     {
         private readonly IAchievementService _achievementService;
+        private readonly IUserService _userService;
 
-        public AchievementController(IAchievementService achievementService)
+        public AchievementController(IAchievementService achievementService, IUserService userService)
         {
             _achievementService = achievementService;
+            _userService = userService;
         }
 
         // GET: Achievement
         public async Task<IActionResult> Index()
         {
+            await _userService.UpdateAchievemtnsOnUsers();
             return View(await _achievementService.ListAllAchievements());
         }
 

@@ -22,7 +22,7 @@ namespace HackerRank.Services
     public interface IUserService
     {
         Task GetAllUserData();
-        Task UpdateUserAchivements(string username);
+        Task UpdateAchievemtnsOnUsers();
     }
 
     public class UserService : IUserService
@@ -138,72 +138,76 @@ namespace HackerRank.Services
             }
         }
 
-        public async Task UpdateUserAchivements(string username)
+        public async Task UpdateAchievemtnsOnUsers()
         {
-            var user = await _context.Users.Where(u => u.UserName == username).FirstOrDefaultAsync();
-            var achievements = _context.Achievement.ToArray();
-            
-            foreach(var a in achievements)
+            var users = await _context.Users.Include("UserStats").ToArrayAsync();
+            var achievements = await _context.Achievement.ToArrayAsync();
+
+            foreach (var u in users)
             {
-                if (a.TypeOfAction == ActionType.Commit && user.UserStats.TotalCommits > a.NumberOfActions)
+                foreach (var a in achievements)
                 {
-                    UserAchievement userAchievement = new()
+                    var userachievemnts = await _context.UserAchievement.Include("Achievement").Where(ua => ua.Achievement.AchievementId == a.AchievementId && ua.User.Id == u.Id).FirstOrDefaultAsync();
+                    if (a.TypeOfAction == ActionType.Commit && u.UserStats.TotalCommits >= a.NumberOfActions && userachievemnts == null)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = u,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                if (a.TypeOfAction == ActionType.IssueOpened && user.UserStats.TotalIssuesCreated > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    if (a.TypeOfAction == ActionType.IssueOpened && u.UserStats.TotalIssuesCreated >= a.NumberOfActions && userachievemnts == null)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = u,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                if (a.TypeOfAction == ActionType.IssueSolved && user.UserStats.TotalIssuesSolved > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    if (a.TypeOfAction == ActionType.IssueSolved && u.UserStats.TotalIssuesSolved >= a.NumberOfActions && userachievemnts == null)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = u,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                if (a.TypeOfAction == ActionType.MergeRequest && user.UserStats.TotalMergeRequests > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    if (a.TypeOfAction == ActionType.MergeRequest && u.UserStats.TotalMergeRequests >= a.NumberOfActions && userachievemnts == null)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = u,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
-                }
-                if (a.TypeOfAction == ActionType.Comment && user.UserStats.TotalComments > a.NumberOfActions)
-                {
-                    UserAchievement userAchievement = new()
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
+                    if (a.TypeOfAction == ActionType.Comment && u.UserStats.TotalComments >= a.NumberOfActions && userachievemnts == null)
                     {
-                        IsUnlocked = true,
-                        User = user,
-                        Achievement = a
-                    };
+                        UserAchievement userAchievement = new()
+                        {
+                            IsUnlocked = true,
+                            User = u,
+                            Achievement = a
+                        };
 
-                    await _context.UserAchievement.AddAsync(userAchievement);
-                    await _context.SaveChangesAsync();
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
         }
