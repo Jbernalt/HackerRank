@@ -1,5 +1,6 @@
 ﻿using HackerRank.Data;
 using HackerRank.Models.Achievements;
+using HackerRank.Models.Projects;
 using HackerRank.Models.Users;
 using HackerRank.Responses;
 
@@ -63,75 +64,77 @@ namespace HackerRank.Services
 
                     eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
 
-                    int commitCounter = 0, issuesCreatedCounter = 0, issuesSolvedCounter = 0, mrCounter = 0, commentsCounter = 0;
+                    List<UserTransaction> userTransactions = new();
+                    Project[] projects = await _context.Project.ToArrayAsync();
 
                     foreach (var e in eventResponses)
                     {
+                        UserTransaction tran = new();
+
                         if (e.action_name == "pushed to" || e.action_name == "pushed new")
                         {
-                            commitCounter++;
+                            tran = new()
+                            {
+                                User = user,
+                                FetchDate = DateTime.UtcNow,
+                                Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault(),
+                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                                TransactionId = 1,
+                                UserId = user.Id
+                            };
                         }
                         else if (e.target_type == "Issue" && e.action_name == "opened")
                         {
-                            issuesCreatedCounter++;
+                            tran = new()
+                            {
+                                User = user,
+                                FetchDate = DateTime.UtcNow,
+                                Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault(),
+                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                                TransactionId = 2,
+                                UserId = user.Id
+                            };
                         }
                         else if (e.target_type == "Issue" && e.action_name == "closed")
                         {
-                            issuesSolvedCounter++;
+                            tran = new()
+                            {
+                                User = user,
+                                FetchDate = DateTime.UtcNow,
+                                Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault(),
+                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                                TransactionId = 3,
+                                UserId = user.Id
+                            };
                         }
                         else if (e.target_type == "MergeRequest" && e.action_name == "opened")
                         {
-                            mrCounter++;
+                            tran = new()
+                            {
+                                User = user,
+                                FetchDate = DateTime.UtcNow,
+                                Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault(),
+                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                                TransactionId = 4,
+                                UserId = user.Id
+                            };
                         }
                         else if (e.action_name == "commented on")
                         {
-                            commentsCounter++;
+                            tran = new()
+                            {
+                                User = user,
+                                FetchDate = DateTime.UtcNow,
+                                Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault(),
+                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                                TransactionId = 5,
+                                UserId = user.Id
+                            };
                         }
+                        if (tran.UserId != null)
+                            userTransactions.Add(tran);
                     }
-
-                    UserTransaction commit = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault(),
-                        Value = commitCounter
-                    };
-
-                    UserTransaction issuesCreated = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault(),
-                        Value = issuesCreatedCounter
-                    };
-
-                    UserTransaction issuesSolved = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault(),
-                        Value = issuesSolvedCounter
-                    };
-
-                    UserTransaction mergeRequests = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault(),
-                        Value = mrCounter
-                    };
-
-                    UserTransaction comments = new()
-                    {
-                        User = user,
-                        FetchDate = DateTime.UtcNow,
-                        Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault(),
-                        Value = commentsCounter
-                    };
-
-                    List<UserTransaction> userTransactions = new() { commit, issuesSolved, issuesCreated, mergeRequests, comments };
-
-                    await _context.UserTransaction.AddRangeAsync(userTransactions);
+                    _context.UserTransaction.AddRange(userTransactions);
                 }
 
                 await _context.SaveChangesAsync();

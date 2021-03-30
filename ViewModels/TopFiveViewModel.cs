@@ -2,13 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HackerRank.Models.Users;
-using HackerRank.Models.Transactions;
 
 namespace HackerRank.ViewModels
 {
-    public class TopFiveUsersViewModel
+    public class TopFiveViewModel
     {
+        //Group
+        public string GroupName { get; set; }
+        public int CommitsDaily { get; set; }
+        public int IssuesCreatedDaily { get; set; }
+        public int IssuesSolvedDaily { get; set; }
+        public int MergeRequestsDaily { get; set; }
+        public int CommentsDaily { get; set; }
+        public double GroupRating { get; set; }
+
         //User
         public string UserName { get; set; }
 
@@ -22,6 +29,5 @@ namespace HackerRank.ViewModels
         public int IssuesSolved { get; set; }
         public int MergeRequest { get; set; }
         public int Comments { get; set; }
-
     }
 }

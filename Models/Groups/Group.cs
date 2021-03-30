@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HackerRank.Models.Users;
 using System.ComponentModel.DataAnnotations;
+using HackerRank.Models.Projects;
 
 namespace HackerRank.Models.Groups
 {
@@ -18,8 +19,7 @@ namespace HackerRank.Models.Groups
         public int GitlabTeamId { get; set; }
         public string GroupName { get; set; }
         public double GroupRating { get; set; }
+        public List<Project> Projects { get; set; }
         public List<User> Users { get; set; }
-
-
     }
 }
