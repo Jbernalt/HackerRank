@@ -1,8 +1,11 @@
-﻿using HackerRank.Data;
+﻿using AutoMapper;
+
+using HackerRank.Data;
 using HackerRank.Models.Achievements;
 using HackerRank.Models.Projects;
 using HackerRank.Models.Users;
 using HackerRank.Responses;
+using HackerRank.ViewModels;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -23,7 +27,8 @@ namespace HackerRank.Services
     public interface IUserService
     {
         Task GetAllUserData();
-        Task UpdateAchievemtnsOnUsers();
+        Task UpdateAchievementsOnUsers();
+        Task<UserViewModel> GetUserByUsername(string username);
     }
 
     public class UserService : IUserService
@@ -31,12 +36,32 @@ namespace HackerRank.Services
         private readonly HackerRankContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
 
-        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration)
+        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _config = configuration;
+            _mapper = mapper;
+        }
+
+        public async Task<UserViewModel> GetUserByUsername(string username)
+        {
+            username = username.ToUpper();
+            var user = await _context.Users.Where(x => x.NormalizedUserName == username).Include(u => u.UserStats).Include(g => g.Groups).ThenInclude(p => p.Projects).FirstOrDefaultAsync();
+            var achievements = await _context.UserAchievement.Where(a => a.User == user && a.IsUnlocked == true).Include(a => a.Achievement).Include(a => a.User).ToListAsync();
+            List<Project> projects = new();
+            UserViewModel model = new();
+
+            foreach (var g in user.Groups)
+            {
+                projects.AddRange(g.Projects);
+            }
+            _mapper.Map(user, model);
+            model.Projects = projects;
+            model.UserAchievements = achievements;
+            return model;
         }
 
         public async Task GetAllUserData()
@@ -141,7 +166,7 @@ namespace HackerRank.Services
             }
         }
 
-        public async Task UpdateAchievemtnsOnUsers()
+        public async Task UpdateAchievementsOnUsers()
         {
             var users = await _context.Users.Include("UserStats").ToArrayAsync();
             var achievements = await _context.Achievement.ToArrayAsync();

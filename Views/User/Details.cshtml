@@ -1,27 +1,75 @@
-﻿@model HackerRank.Models.Users.User;
+﻿@model HackerRank.ViewModels.UserViewModel
+@using Microsoft.AspNetCore.Identity
+@using HackerRank.Models.Users;
+@inject SignInManager<User> SignInManager
+<h1>Profile page</h1>
 
-@{
-    ViewData["Title"] = @Html.DisplayFor(model => model.UserName);
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="page-link">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
+    </li>
 }
 
-<h1>Details</h1>
-
 <div>
-    <h4>Achievement</h4>
     <hr />
     <br />
     <dl class="col">
         <dt class="col-sm-2">
-            @Html.DisplayName("User")
+            @Html.DisplayNameFor(model => model.Username)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UserName)
+            @Html.DisplayFor(model => model.Username)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Email)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DateCreated)
+            @Html.DisplayFor(model => model.Email)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayName("Date created")
+        </dt>
+        <dd class="col-sm-10">
+            @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Groups)
+        </dt>
+        @foreach (var item in Model.Groups)
+        {
+            <dd class="col-sm-10">
+                @item.GroupName
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Projects)
+        </dt>
+        @foreach (var item in Model.Projects)
+        {
+            <dd class="col-sm-10">
+                @item.ProjectName
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayName("Achievements")
+        </dt>
+        @foreach (var item in Model.UserAchievements)
+        {
+            <dd class="col-sm-10">
+                @item.Achievement.AchievementName
+            </dd>
+            <dd class="col-sm-10">
+                @item.Achievement.Description
+            </dd>
+
+            <dd><img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" style="max-width:25%" /></dd>
+        }
     </dl>
 </div>
