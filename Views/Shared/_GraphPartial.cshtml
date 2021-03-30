@@ -1,0 +1,36 @@
+﻿@model IEnumerable<HackerRank.Models.ChartData>
+    <div id="line_chart" style="width: 900px; height: 500px"></div>
+    @section Scripts
+    {
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+            function drawChart()
+            {
+                var data = google.visualization.arrayToDataTable([
+                    ['Time', 'Data'],
+
+                @foreach (var data in Model)
+                {
+                    <text>['@data.TimeStamp', @data.NumOfCommits],</text>
+
+                }]);
+
+                var options =
+                {
+                    title: 'User commits',
+                    curveType: 'function',
+                    pointsVisible: true,
+                    lineWidth: 3,
+                    hAxis: { title: 'Time' },
+                    vAxis: { title: 'Commits' },
+                    width: 500,
+                    height: 500
+                };
+
+                var chart = new google.visualization.LineChart(document.getElementById('line_chart'));
+                chart.draw(data, options);
+            }
+        </script>
+    }

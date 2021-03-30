@@ -1,4 +1,5 @@
 ﻿using HackerRank.Data;
+using HackerRank.Models;
 using HackerRank.Models.Achievements;
 using HackerRank.Models.Projects;
 using HackerRank.Models.Users;
@@ -22,6 +23,7 @@ namespace HackerRank.Services
 {
     public interface IUserService
     {
+        Task<List<ChartData>> GetChartData();
         Task GetAllUserData();
         Task UpdateAchievemtnsOnUsers();
     }
@@ -213,6 +215,26 @@ namespace HackerRank.Services
                     }
                 }
             }
+        }
+        public async Task<List<ChartData>> GetChartData()
+        {
+            User user = _context.Users.FirstOrDefault();
+            List<ChartData> chart = new();
+            List<UserTransaction> userTransactions = await _context.UserTransaction.Include("User").Where(u => u.TransactionId == 1 && u.User == user).ToListAsync();
+
+            int count = 0;
+            foreach (var transaction in userTransactions)
+            {
+                count++;
+                ChartData data = new()
+                {
+                    TimeStamp = transaction.FetchDate.AddDays(count)
+
+                };
+                data.NumOfCommits += count;
+                chart.Add(data);
+            }
+            return chart;
         }
     }
 }
