@@ -28,9 +28,15 @@ namespace HackerRank.Controllers
             return View();
         }
 
-        // GET: UserController/Details/5
-        public ActionResult Details(int id)
+        // GET: user/details/username
+        public ActionResult Details(string username)
         {
+            //if (User.Identity.IsAuthenticated)
+            //{
+            //    var claim = User.Claims.Where(x => x.Type == "AspNet.Identity.SecurityStamp").FirstOrDefault();
+            //    var user = await _userService.GetUserByClaim(claim);
+            //    return View(user);
+            //}
             return View();
         }
 

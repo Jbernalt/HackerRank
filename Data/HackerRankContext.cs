@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using HackerRank.Models.Groups;
 using HackerRank.Models.Achievements;
 using HackerRank.Models.Users;
+using HackerRank.Models.Projects;
 
 namespace HackerRank.Data
 {
@@ -18,15 +19,15 @@ namespace HackerRank.Data
         public DbSet<Achievement> Achievement { get; set; }
         public DbSet<UserAchievement> UserAchievement { get; set; }
         public DbSet<Group> Group { get; set; }
-        public DbSet<GroupTransaction> GroupTransaction { get; set; }
         public DbSet<UserTransaction> UserTransaction { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
         public DbSet<UserStats> UserStats { get; set; }
+        public DbSet<Project> Project { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<GroupTransaction>().HasKey(t => new { t.GroupId, t.TransactionId, t.FetchDate });
+            modelBuilder.Entity<Project>().Property(p => p.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<UserTransaction>().HasKey(t => new { t.UserId, t.TransactionId, t.FetchDate });
             modelBuilder.Entity<Transaction>().HasData(
                 new Transaction() { TransactionId = 1, Description = "Commits", Points = 0.15 },

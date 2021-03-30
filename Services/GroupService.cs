@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using AutoMapper;
 using System.Diagnostics;
+using HackerRank.Models.Projects;
 
 namespace HackerRank.Services
 {
@@ -20,7 +21,8 @@ namespace HackerRank.Services
     {
         public Task GetGroupData();
         public Task<bool> CreateGroup(Group group);
-        public void SummarizeGroup();
+        public void CalculateGroupRating();
+        public Task GetProjectIdsForGroups();
     }
 
     public class GroupService : IGroupService
@@ -145,6 +147,67 @@ namespace HackerRank.Services
             }
         }
 
+        public async Task GetProjectIdsForGroups()
+        {
+            var groupList = await _context.Group.ToListAsync();
+
+            UriBuilder uriBuilder = new()
+            {
+                Scheme = "https",
+                Host = "gitlab.com/api/v4/groups",
+                Query = "?per_page=100"
+            };
+
+            foreach (var group in groupList)
+            {
+                List<ProjectResponse> projectResponses = new();
+                using (var client = new HttpClient())
+                {
+                    string path = group.GitlabTeamId.ToString() + $"/projects";
+                    uriBuilder.Path = path;
+
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+                    var response = await client.GetAsync(uriBuilder.ToString());
+                    var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
+
+                    var jsonResult = await response.Content.ReadAsStringAsync();
+
+                    projectResponses.AddRange(JsonSerializer.Deserialize<List<ProjectResponse>>(jsonResult));
+
+                    if (totalPages > 1)
+                    {
+                        for (int i = 2; i <= totalPages; i++)
+                        {
+                            response = await client.GetAsync(uriBuilder.ToString());
+
+                            jsonResult = await response.Content.ReadAsStringAsync();
+
+                            projectResponses.AddRange(JsonSerializer.Deserialize<List<ProjectResponse>>(jsonResult));
+                        }
+                    }
+                }
+
+                foreach (var response in projectResponses)
+                {
+                    var p = await _context.Project.Where(p => p.GitLabId == response.id).FirstOrDefaultAsync();
+                    if (p == null)
+                    {
+                        Project project = new()
+                        {
+                            GitLabId = response.id,
+                            ProjectName = response.name
+                        };
+                        group.Projects.Add(project);
+                    }
+                    else
+                    {
+                        group.Projects.Add(p);
+                    }
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<bool> CreateGroup(Group group)
         {
             try
@@ -160,9 +223,10 @@ namespace HackerRank.Services
             }
         }
 
-        public void SummarizeGroup()
+        public void CalculateGroupRating()
         {
-            List<Group> groups = _context.Group.Include("Users").ToList();
+            List<Group> groups = _context.Group.Include("Users").Include("Projects").ToList();
+            var transaction = _context.Transaction.ToArray();
 
             foreach (var group in groups)
             {
@@ -171,7 +235,26 @@ namespace HackerRank.Services
                 {
                     foreach (var user in group.Users)
                     {
-                        groupRating += user.UserStats.DailyRating;
+                        foreach (var project in group.Projects)
+                        {
+                            var transactions = _context.UserTransaction.Where(x => x.UserId == user.Id && x.Project.GitLabId == project.GitLabId).ToArray();
+
+                            double rating = 0;
+                            foreach (var tran in transactions)
+                            {
+                                if (tran.Transaction.TransactionId == transaction[0].TransactionId)
+                                    rating += transaction[0].Points;
+                                if (tran.Transaction.TransactionId == transaction[1].TransactionId)
+                                    rating += transaction[1].Points;
+                                if (tran.Transaction.TransactionId == transaction[2].TransactionId)
+                                    rating += transaction[2].Points;
+                                if (tran.Transaction.TransactionId == transaction[3].TransactionId)
+                                    rating += transaction[3].Points;
+                                if (tran.Transaction.TransactionId == transaction[4].TransactionId)
+                                    rating += transaction[4].Points;
+                            }
+                            groupRating += rating;
+                        }
                     }
 
                     groupRating /= group.Users.Count;

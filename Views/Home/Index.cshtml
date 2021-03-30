@@ -1,8 +1,129 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<HackerRank.ViewModels.TopFiveViewModel>
+
+@{
+    ViewData["Title"] = "Ranking";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayName("Username")
+                </th>
+                <th>
+                    @Html.DisplayName("Commits")
+                </th>
+                <th>
+                    @Html.DisplayName("Issues created")
+                </th>
+                <th>
+                    @Html.DisplayName("Issues solved")
+                </th>
+                <th>
+                    @Html.DisplayName("Merge requests")
+                </th>
+                <th>
+                    @Html.DisplayName("Comments")
+                </th>
+                <th>
+                    @Html.DisplayName("Daily rating")
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                @if (item.DailyRating != 0)
+                {
+                    <tr>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserName)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.Commits)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.IssuesCreated)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.IssuesSolved)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.MergeRequest)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.Comments)
+                        </td>
+                        <td>
+                            @string.Format("{0:0.00}", item.DailyRating)
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayName("Name")
+                </th>
+                <th>
+                    @Html.DisplayName("Commits")
+                </th>
+                <th>
+                    @Html.DisplayName("Issues created")
+                </th>
+                <th>
+                    @Html.DisplayName("Issues solved")
+                </th>
+                <th>
+                    @Html.DisplayName("Merge requests")
+                </th>
+                <th>
+                    @Html.DisplayName("Comments")
+                </th>
+                <th>
+                    @Html.DisplayName("Daily rating")
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                if (item.GroupRating != 0)
+                {
+                    <tr>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.GroupName)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.CommitsDaily)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.IssuesCreatedDaily)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.IssuesSolvedDaily)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.MergeRequestsDaily)
+                        </td>
+                        <td>
+                            @string.Format("{0:0}", item.CommentsDaily)
+                        </td>
+                        <td>
+                            @string.Format("{0:0.00}", item.GroupRating)
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 </div>
