@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 
 using HackerRank.Models.Achievements;
+using HackerRank.Models.Users;
+using HackerRank.ViewModels;
 
 namespace HackerRank.Data
 {
@@ -15,6 +17,7 @@ namespace HackerRank.Data
         public MappingProfile()
         {
             CreateMap<AchievementViewModel, Achievement>().ReverseMap().ForMember(x => x.Image, opt => opt.Ignore());
+            CreateMap<UserViewModel, User>().ReverseMap();
         }
     }
 }

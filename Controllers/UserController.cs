@@ -29,15 +29,10 @@ namespace HackerRank.Controllers
         }
 
         // GET: user/details/username
-        public ActionResult Details(string username)
+        [Route("/user/details/{username}")]
+        public async Task<ActionResult> Details(string username)
         {
-            //if (User.Identity.IsAuthenticated)
-            //{
-            //    var claim = User.Claims.Where(x => x.Type == "AspNet.Identity.SecurityStamp").FirstOrDefault();
-            //    var user = await _userService.GetUserByClaim(claim);
-            //    return View(user);
-            //}
-            return View();
+            return View(await _userService.GetUserByUsername(username));
         }
 
         // GET: UserController/Create

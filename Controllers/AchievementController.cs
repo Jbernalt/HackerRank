@@ -28,7 +28,7 @@ namespace HackerRank.Controllers
         // GET: Achievement
         public async Task<IActionResult> Index()
         {
-            await _userService.UpdateAchievemtnsOnUsers();
+            await _userService.UpdateAchievementsOnUsers();
             return View(await _achievementService.ListAllAchievements());
         }
 
