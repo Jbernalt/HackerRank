@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using HackerRank.Models;
+using HackerRank.Models.Users;
 using HackerRank.Services;
 
 using Microsoft.AspNetCore.Mvc;
@@ -35,10 +36,12 @@ namespace HackerRank.Controllers
         public async Task<IActionResult> Data()
         {
             await _groupService.GetGroupData();
-            _groupService.CalculateGroupRating();
             await _groupService.GetProjectIdsForGroups();
             await _userService.GetAllUserData();
             await _rankingService.UpdateUserStats();
+
+            await _rankingService.CalculateAllUsersRating(true);
+            await _rankingService.CalculateAllUsersRating(false);
 
             return View();
         }

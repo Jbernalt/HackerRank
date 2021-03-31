@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using AutoMapper;
 using System.Diagnostics;
 using HackerRank.Models.Projects;
+using HackerRank.ViewModels;
+using HackerRank.Models.Transactions;
 
 namespace HackerRank.Services
 {
@@ -21,7 +23,6 @@ namespace HackerRank.Services
     {
         public Task GetGroupData();
         public Task<bool> CreateGroup(Group group);
-        public void CalculateGroupRating();
         public Task GetProjectIdsForGroups();
     }
 
@@ -220,49 +221,6 @@ namespace HackerRank.Services
             {
                 Console.WriteLine(e);
                 return false;
-            }
-        }
-
-        public void CalculateGroupRating()
-        {
-            List<Group> groups = _context.Group.Include("Users").Include("Projects").ToList();
-            var transaction = _context.Transaction.ToArray();
-
-            foreach (var group in groups)
-            {
-                double groupRating = 0;
-                if (group.Users.Count != 0)
-                {
-                    foreach (var user in group.Users)
-                    {
-                        foreach (var project in group.Projects)
-                        {
-                            var transactions = _context.UserTransaction.Where(x => x.UserId == user.Id && x.Project.GitLabId == project.GitLabId).ToArray();
-
-                            double rating = 0;
-                            foreach (var tran in transactions)
-                            {
-                                if (tran.Transaction.TransactionId == transaction[0].TransactionId)
-                                    rating += transaction[0].Points;
-                                if (tran.Transaction.TransactionId == transaction[1].TransactionId)
-                                    rating += transaction[1].Points;
-                                if (tran.Transaction.TransactionId == transaction[2].TransactionId)
-                                    rating += transaction[2].Points;
-                                if (tran.Transaction.TransactionId == transaction[3].TransactionId)
-                                    rating += transaction[3].Points;
-                                if (tran.Transaction.TransactionId == transaction[4].TransactionId)
-                                    rating += transaction[4].Points;
-                            }
-                            groupRating += rating;
-                        }
-                    }
-
-                    groupRating /= group.Users.Count;
-                    group.GroupRating = groupRating;
-
-                    if (groupRating > 0)
-                        _context.SaveChanges();
-                }
             }
         }
 

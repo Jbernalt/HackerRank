@@ -100,69 +100,40 @@ namespace HackerRank.Services
 
                     foreach (var e in eventResponses)
                     {
-                        UserTransaction tran = new();
+                        UserTransaction tran = new()
+                        {
+                            User = user,
+                            FetchDate = DateTime.UtcNow,
+                            Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                            UserId = user.Id
+                        };
 
                         if (e.action_name == "pushed to" || e.action_name == "pushed new")
                         {
-                            tran = new()
-                            {
-                                User = user,
-                                FetchDate = DateTime.UtcNow,
-                                Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault(),
-                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                                TransactionId = 1,
-                                UserId = user.Id
-                            };
+                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault();
+                            tran.TransactionId = 1;
                         }
                         else if (e.target_type == "Issue" && e.action_name == "opened")
                         {
-                            tran = new()
-                            {
-                                User = user,
-                                FetchDate = DateTime.UtcNow,
-                                Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault(),
-                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                                TransactionId = 2,
-                                UserId = user.Id
-                            };
+                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault();
+                            tran.TransactionId = 2;
                         }
                         else if (e.target_type == "Issue" && e.action_name == "closed")
                         {
-                            tran = new()
-                            {
-                                User = user,
-                                FetchDate = DateTime.UtcNow,
-                                Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault(),
-                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                                TransactionId = 3,
-                                UserId = user.Id
-                            };
+                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault();
+                            tran.TransactionId = 3;
                         }
                         else if (e.target_type == "MergeRequest" && e.action_name == "opened")
                         {
-                            tran = new()
-                            {
-                                User = user,
-                                FetchDate = DateTime.UtcNow,
-                                Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault(),
-                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                                TransactionId = 4,
-                                UserId = user.Id
-                            };
+                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault();
+                            tran.TransactionId = 4;
                         }
                         else if (e.action_name == "commented on")
                         {
-                            tran = new()
-                            {
-                                User = user,
-                                FetchDate = DateTime.UtcNow,
-                                Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault(),
-                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                                TransactionId = 5,
-                                UserId = user.Id
-                            };
+                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault();
+                            tran.TransactionId = 5;
                         }
-                        if (tran.UserId != null)
+                        if (tran.User != null && tran.Transaction != null)
                             userTransactions.Add(tran);
                     }
                     _context.UserTransaction.AddRange(userTransactions);
@@ -182,66 +153,36 @@ namespace HackerRank.Services
                 foreach (var a in achievements)
                 {
                     var userachievemnts = await _context.UserAchievement.Include("Achievement").Where(ua => ua.Achievement.AchievementId == a.AchievementId && ua.User.Id == u.Id).FirstOrDefaultAsync();
+
+                    UserAchievement userAchievement = new()
+                    {
+                        IsUnlocked = true,
+                        User = u,
+                        Achievement = a
+                    };
+
                     if (a.TypeOfAction == ActionType.Commit && u.UserStats.TotalCommits >= a.NumberOfActions && userachievemnts == null)
                     {
-                        UserAchievement userAchievement = new()
-                        {
-                            IsUnlocked = true,
-                            User = u,
-                            Achievement = a
-                        };
-
                         await _context.UserAchievement.AddAsync(userAchievement);
-                        await _context.SaveChangesAsync();
                     }
-                    if (a.TypeOfAction == ActionType.IssueOpened && u.UserStats.TotalIssuesCreated >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.IssueOpened && u.UserStats.TotalIssuesCreated >= a.NumberOfActions && userachievemnts == null)
                     {
-                        UserAchievement userAchievement = new()
-                        {
-                            IsUnlocked = true,
-                            User = u,
-                            Achievement = a
-                        };
-
                         await _context.UserAchievement.AddAsync(userAchievement);
-                        await _context.SaveChangesAsync();
                     }
-                    if (a.TypeOfAction == ActionType.IssueSolved && u.UserStats.TotalIssuesSolved >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.IssueSolved && u.UserStats.TotalIssuesSolved >= a.NumberOfActions && userachievemnts == null)
                     {
-                        UserAchievement userAchievement = new()
-                        {
-                            IsUnlocked = true,
-                            User = u,
-                            Achievement = a
-                        };
-
                         await _context.UserAchievement.AddAsync(userAchievement);
-                        await _context.SaveChangesAsync();
                     }
-                    if (a.TypeOfAction == ActionType.MergeRequest && u.UserStats.TotalMergeRequests >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.MergeRequest && u.UserStats.TotalMergeRequests >= a.NumberOfActions && userachievemnts == null)
                     {
-                        UserAchievement userAchievement = new()
-                        {
-                            IsUnlocked = true,
-                            User = u,
-                            Achievement = a
-                        };
-
                         await _context.UserAchievement.AddAsync(userAchievement);
-                        await _context.SaveChangesAsync();
                     }
-                    if (a.TypeOfAction == ActionType.Comment && u.UserStats.TotalComments >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.Comment && u.UserStats.TotalComments >= a.NumberOfActions && userachievemnts == null)
                     {
-                        UserAchievement userAchievement = new()
-                        {
-                            IsUnlocked = true,
-                            User = u,
-                            Achievement = a
-                        };
-
                         await _context.UserAchievement.AddAsync(userAchievement);
-                        await _context.SaveChangesAsync();
                     }
+                    
+                    await _context.SaveChangesAsync();
                 }
             }
         }
