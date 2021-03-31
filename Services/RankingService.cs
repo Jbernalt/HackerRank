@@ -10,6 +10,7 @@ using HackerRank.Models.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using HackerRank.ViewModels;
+using HackerRank.Models.Transactions;
 
 namespace HackerRank.Services
 {
@@ -37,7 +38,7 @@ namespace HackerRank.Services
             var today = DateTime.UtcNow;
 
             var transaction = await _context.Transaction.ToArrayAsync();
-            var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArrayAsync();
+            var usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Date == today.Date && t.UserId == user.Id).ToArrayAsync();
 
             double rating = 0;
             foreach (var tran in usertransaction)
@@ -115,6 +116,7 @@ namespace HackerRank.Services
         {
             var today = DateTime.UtcNow;
             List<Group> groups = await _context.Group.Include("Users").Include("Projects").OrderByDescending(t => t.GroupRating).Take(5).ToListAsync();
+            List<Transaction> transactions = await _context.Transaction.ToListAsync();
             List<TopFiveViewModel> topFiveModel = new();
             
             foreach(var group in groups)
@@ -127,32 +129,30 @@ namespace HackerRank.Services
 
                 foreach(var user in group.Users)
                 {
-                    var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.FetchDate.Day == today.Day && t.UserId == user.Id).ToArray();
-                    foreach (var p in group.Projects)
+                    var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Date == today.Date && t.UserId == user.Id).AsEnumerable().GroupBy(i => new { i.Project.Id, i.TransactionId}).ToArray();
+                    foreach (var t in usertransaction)
                     {
-                        foreach (var t in usertransaction)
-                        {
-                            if (p.GitLabId == t.Project.GitLabId)
-                            {
-                                if (t.TransactionId == 1)
-                                    topFive.CommitsDaily += 1;
+                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 1)
+                            topFive.CommitsDaily = t.Count();
 
-                                if (t.TransactionId == 2)
-                                    topFive.IssuesCreatedDaily += 1;
+                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 2)
+                            topFive.IssuesCreatedDaily = t.Count();
 
-                                if (t.TransactionId == 3)
-                                    topFive.IssuesSolvedDaily += 1;
+                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 3)
+                            topFive.IssuesSolvedDaily = t.Count();
 
-                                if (t.TransactionId == 4)
-                                    topFive.MergeRequestsDaily += 1;
+                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 4)
+                            topFive.MergeRequestsDaily = t.Count();
 
-                                if (t.TransactionId == 5)
-                                    topFive.CommentsDaily += 1;
-                            }
-                        }
+                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 5)
+                            topFive.CommentsDaily = t.Count();
                     }
                 }
-                topFive.GroupRating = topFive.CommentsDaily * 0.05 + topFive.CommitsDaily * 0.15 + topFive.MergeRequestsDaily * 0.35 + topFive.IssuesCreatedDaily * 0.15 + topFive.IssuesSolvedDaily * 0.3;
+                topFive.GroupRating = topFive.CommitsDaily * transactions.Where(t => t.TransactionId == 1).FirstOrDefault().Points
+                    + topFive.IssuesCreatedDaily * transactions.Where(t => t.TransactionId == 2).FirstOrDefault().Points
+                    + topFive.IssuesSolvedDaily * transactions.Where(t => t.TransactionId == 3).FirstOrDefault().Points
+                    + topFive.MergeRequestsDaily * transactions.Where(t => t.TransactionId == 4).FirstOrDefault().Points
+                    + topFive.CommentsDaily * transactions.Where(t => t.TransactionId == 5).FirstOrDefault().Points;
                 topFiveModel.Add(topFive);
             }
 
@@ -162,18 +162,16 @@ namespace HackerRank.Services
             {
                 await CalculateMonthlyRating(user);
                 await CalculateDailyRating(user);
-            }
 
-            foreach (var user in users)
-            {
+                var usertransactions = _context.UserTransaction.Where(x => x.FetchDate.Date == today.Date && x.UserId == user.Id).AsEnumerable().GroupBy(i => i.TransactionId).ToArray();
                 topFiveModel.Add(new()
                 {
                     UserName = user.UserName,
-                    Commits = user.UserStats.TotalCommits,
-                    IssuesCreated = user.UserStats.TotalIssuesCreated,
-                    IssuesSolved = user.UserStats.TotalIssuesSolved,
-                    MergeRequest = user.UserStats.TotalMergeRequests,
-                    Comments = user.UserStats.TotalComments,
+                    Commits = usertransactions.Where(t => t.Key == 1).FirstOrDefault().Count(),
+                    IssuesCreated = usertransactions.Where(t => t.Key == 2).FirstOrDefault().Count(),
+                    IssuesSolved = usertransactions.Where(t => t.Key == 3).FirstOrDefault().Count(),
+                    MergeRequest = usertransactions.Where(t => t.Key == 4).FirstOrDefault().Count(),
+                    Comments = usertransactions.Where(t => t.Key == 5).FirstOrDefault().Count(),
                     DailyRating = user.UserStats.DailyRating,
                     MonthlyRating = user.UserStats.MonthlyRating
                 });
