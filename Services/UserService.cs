@@ -1,4 +1,6 @@
-﻿using HackerRank.Data;
+﻿using AutoMapper;
+
+using HackerRank.Data;
 using HackerRank.Models;
 using HackerRank.Models.Achievements;
 using HackerRank.Models.Projects;
@@ -25,7 +27,7 @@ namespace HackerRank.Services
 {
     public interface IUserService
     {
-        Task<List<ChartData>> GetChartData();
+        List<ChartData> GetUserCommitChartData(User user);
         Task GetAllUserData();
         Task UpdateAchievementsOnUsers();
         Task<UserViewModel> GetUserByUsername(string username);
@@ -58,9 +60,13 @@ namespace HackerRank.Services
             {
                 projects.AddRange(g.Projects);
             }
+
+            var data = GetUserCommitChartData(user);
+
             _mapper.Map(user, model);
             model.Projects = projects;
             model.UserAchievements = achievements;
+            model.ChartDatas = data;
             return model;
         }
 
@@ -239,22 +245,20 @@ namespace HackerRank.Services
                 }
             }
         }
-        public async Task<List<ChartData>> GetChartData()
-        {
-            User user = _context.Users.FirstOrDefault();
-            List<ChartData> chart = new();
-            List<UserTransaction> userTransactions = await _context.UserTransaction.Include("User").Where(u => u.TransactionId == 1 && u.User == user).ToListAsync();
 
-            int count = 0;
+        public List<ChartData> GetUserCommitChartData(User user)
+        {
+            List<ChartData> chart = new();
+            var userTransactions = _context.UserTransaction.Include("User").Where(u => u.TransactionId == 1 && u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.Date).ToArray();
+
             foreach (var transaction in userTransactions)
             {
-                count++;
                 ChartData data = new()
                 {
-                    TimeStamp = transaction.FetchDate.AddDays(count)
-
+                    TimeStamp = transaction.Key.Date,
+                    NumOfCommits = transaction.Count()
                 };
-                data.NumOfCommits += count;
+
                 chart.Add(data);
             }
             return chart;

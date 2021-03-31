@@ -35,6 +35,11 @@ namespace HackerRank.Controllers
             return View(await _userService.GetUserByUsername(username));
         }
 
+        public PartialViewResult GraphPartial()
+        {
+            return PartialView("_GraphPartial");
+        }
+
         // GET: UserController/Create
         public ActionResult Create()
         {

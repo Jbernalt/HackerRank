@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using HackerRank.Models;
 using HackerRank.Models.Achievements;
 using HackerRank.Models.Groups;
 using HackerRank.Models.Projects;
@@ -21,5 +22,6 @@ namespace HackerRank.ViewModels
         public List<Project> Projects { get; set; }
         public UserStats UserStats { get; set; }
         public List<UserAchievement> UserAchievements { get; set; }
+        public List<ChartData> ChartDatas { get; set; }
     }
 }

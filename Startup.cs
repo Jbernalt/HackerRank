@@ -11,6 +11,7 @@ using HackerRank.Services;
 
 using Hangfire;
 using Hangfire.Common;
+using Hangfire.Dashboard;
 using Hangfire.SqlServer;
 
 using Microsoft.AspNetCore.Antiforgery;
@@ -199,7 +200,10 @@ namespace HackerRank
 
             RolesData.SeedRoles(roleManager).Wait();
 
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                IsReadOnlyFunc = (DashboardContext context) => true
+            });
 
             //Add methods to run recurringly here:
             //recurringJobManager.AddOrUpdate("GetUserData", Job.FromExpression(() => userService.GetAllUserData()), Cron.Daily());

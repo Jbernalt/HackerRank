@@ -14,12 +14,11 @@ namespace HackerRank.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IRankingService _rankingService;
         private readonly IGroupService _groupService;
         private readonly IUserService _userService;
 
-        public HomeController(ILogger<HomeController> logger, IRankingService rankingService, IGroupService groupService, IUserService userService)
+        public HomeController(IRankingService rankingService, IGroupService groupService, IUserService userService)
         {
             _rankingService = rankingService;
             _groupService = groupService;
