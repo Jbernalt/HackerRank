@@ -9,5 +9,7 @@ namespace HackerRank.Models
     {
         public DateTime TimeStamp { get; set; }
         public int NumOfCommits { get; set; }
+        public int NumOfIssuesCreated { get; set; }
+        public int NumOfIssuesSolved { get; set; }
     }
 }

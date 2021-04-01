@@ -190,14 +190,16 @@ namespace HackerRank.Services
         public List<ChartData> GetUserCommitChartData(User user)
         {
             List<ChartData> chart = new();
-            var userTransactions = _context.UserTransaction.Include("User").Where(u => u.TransactionId == 1 && u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.Date).ToArray();
+            var userTransactions = _context.UserTransaction.Include("User").Where(u => u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.Date).ToArray();
 
             foreach (var transaction in userTransactions)
             {
                 ChartData data = new()
                 {
                     TimeStamp = transaction.Key.Date,
-                    NumOfCommits = transaction.Count()
+                    NumOfCommits = transaction.Where(u => u.TransactionId == 1).Count(),
+                    NumOfIssuesCreated = transaction.Where(u => u.TransactionId == 2).Count(),
+                    NumOfIssuesSolved = transaction.Where(u => u.TransactionId == 3).Count()
                 };
 
                 chart.Add(data);
