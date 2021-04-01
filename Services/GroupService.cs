@@ -150,7 +150,7 @@ namespace HackerRank.Services
 
         public async Task GetProjectIdsForGroups()
         {
-            var groupList = await _context.Group.ToListAsync();
+            var groupList = await _context.Group.Include(x => x.Projects).ToListAsync();
 
             UriBuilder uriBuilder = new()
             {
