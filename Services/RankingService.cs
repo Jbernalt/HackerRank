@@ -96,16 +96,16 @@ namespace HackerRank.Services
                         if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 1)
                             topFive.CommitsDaily = t.Count();
 
-                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 2)
+                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 2)
                             topFive.IssuesCreatedDaily = t.Count();
 
-                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 3)
+                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 3)
                             topFive.IssuesSolvedDaily = t.Count();
 
-                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 4)
+                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 4)
                             topFive.MergeRequestsDaily = t.Count();
 
-                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 5)
+                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 5)
                             topFive.CommentsDaily = t.Count();
                     }
                 }
@@ -114,7 +114,9 @@ namespace HackerRank.Services
                     + topFive.IssuesSolvedDaily * transactions.Where(t => t.TransactionId == 3).FirstOrDefault().Points
                     + topFive.MergeRequestsDaily * transactions.Where(t => t.TransactionId == 4).FirstOrDefault().Points
                     + topFive.CommentsDaily * transactions.Where(t => t.TransactionId == 5).FirstOrDefault().Points;
-                topFiveModel.Add(topFive);
+                if(topFive.GroupRating != 0)
+                    topFiveModel.Add(topFive);
+                
             }
 
             return topFiveModel.OrderByDescending(x => x.GroupRating).Take(5).ToList();
@@ -164,11 +166,11 @@ namespace HackerRank.Services
                     topFiveModel.Add(new()
                     {
                         UserName = user.UserName,
-                        Commits = usertransactions.Where(t => t.Key == 1).FirstOrDefault().Count(),
-                        IssuesCreated = usertransactions.Where(t => t.Key == 2).FirstOrDefault().Count(),
-                        IssuesSolved = usertransactions.Where(t => t.Key == 3).FirstOrDefault().Count(),
-                        MergeRequest = usertransactions.Where(t => t.Key == 4).FirstOrDefault().Count(),
-                        Comments = usertransactions.Where(t => t.Key == 5).FirstOrDefault().Count(),
+                        Commits = usertransactions.Where(t => t.Key == 1).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 1).FirstOrDefault().Count(),
+                        IssuesCreated = usertransactions.Where(t => t.Key == 2).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 2).FirstOrDefault().Count(),
+                        IssuesSolved = usertransactions.Where(t => t.Key == 3).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 3).FirstOrDefault().Count(),
+                        MergeRequest = usertransactions.Where(t => t.Key == 4).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 4).FirstOrDefault().Count(),
+                        Comments = usertransactions.Where(t => t.Key == 5).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 5).FirstOrDefault().Count(),
                         DailyRating = user.UserStats.DailyRating,
                         MonthlyRating = user.UserStats.MonthlyRating
                     });
