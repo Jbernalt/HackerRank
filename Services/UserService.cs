@@ -199,7 +199,9 @@ namespace HackerRank.Services
                     TimeStamp = transaction.Key.Date,
                     NumOfCommits = transaction.Where(u => u.TransactionId == 1).Count(),
                     NumOfIssuesCreated = transaction.Where(u => u.TransactionId == 2).Count(),
-                    NumOfIssuesSolved = transaction.Where(u => u.TransactionId == 3).Count()
+                    NumOfIssuesSolved = transaction.Where(u => u.TransactionId == 3).Count(),
+                    NumOfMergeRequests = transaction.Where(u => u.TransactionId == 4).Count(),
+                    NumOfComments = transaction.Where(u => u.TransactionId == 5).Count()
                 };
 
                 chart.Add(data);

@@ -82,45 +82,67 @@
             <button type="submit" name="submit" value="comments"> Comments</button>
         }*@
 
-    <input type="button" id="sales" value="Commit" />
-    <input type="button" id="expenses" value="IssuesCreated" />
-    <input type="button" id="revenue" value="IssuesSolved" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <div class="Chart-Buttons">
+        <input type="button" id="commit" value="Commit" />
+        <input type="button" id="issuesCreated" value="IssuesCreated" />
+        <input type="button" id="issuesSolved" value="IssuesSolved" />
+        <input type="button" id="mergeRequests" value="MergeRequests" />
+        <input type="button" id="comments" value="Comments" />
+    </div>
+
 
     <div id="chart_div"></div>
 
-    <div id="line_chart" style="width: 900px; height: 500px"></div>
     @section Scripts
     {
-        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
         <script type="text/javascript">
             google.charts.load('current', {
               'callback': function () {
                 var data = google.visualization.arrayToDataTable([
-                        ['Time', 'Data'],
+                    ['Time', 'Commit'],
 
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfCommits],</text>
-                        }
-                    ]);
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>['@data.TimeStamp', @data.NumOfCommits],</text>
+                    }
+                ]);
 
                 var data2 = google.visualization.arrayToDataTable([
-                        ['Time', 'Data2'],
+                    ['Time', 'IssuesCreated'],
 
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfIssuesCreated],</text>
-                        }
-                    ]);
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>['@data.TimeStamp', @data.NumOfIssuesCreated],</text>
+                    }
+                ]);
 
                 var data3 = google.visualization.arrayToDataTable([
-                        ['Time', 'Data3'],
+                    ['Time', 'IssuesSolved'],
 
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfIssuesSolved],</text>
-                        }
-                    ]);
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>['@data.TimeStamp', @data.NumOfIssuesSolved],</text>
+                    }
+                ]);
+                var data4 = google.visualization.arrayToDataTable([
+                    ['Time', 'MergeRequests'],
+
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>['@data.TimeStamp', @data.NumOfMergeRequests],</text>
+                    }
+                ]);
+
+                var data5 = google.visualization.arrayToDataTable([
+                    ['Time', 'Comments'],
+
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>['@data.TimeStamp', @data.NumOfComments],</text>
+                    }
+                ]);
 
                 var options =
                 {
@@ -137,58 +159,38 @@
                     var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
                     chart.draw(data, options);
 
-                document.getElementById('Data').addEventListener('click', function () {
-                    chart.draw(data, options);
-                }, false);
+                    document.getElementById('commit').addEventListener('click', function () {
+                        options.title = 'User Commits';
+                        options.vAxis.title = 'Commits';
+                        chart.draw(data, options);
+                    }, false);
 
-                document.getElementById('Data2').addEventListener('click', function () {
-                    chart.draw(data2, options);
-                }, false);
+                    document.getElementById('issuesCreated').addEventListener('click', function () {
+                        options.title = 'User IssuesCreated';
+                        options.vAxis.title = 'IssuesCreated';
+                        chart.draw(data2, options);
+                    }, false);
 
-                document.getElementById('Data3').addEventListener('click', function () {
-                  chart.draw(data3, options);
-                }, false);
+                    document.getElementById('issuesSolved').addEventListener('click', function () {
+                        options.title = 'User IssuesSolved';
+                        options.vAxis.title = 'IssuesSolved';
+                        chart.draw(data3, options);
+                    }, false);
+
+                    document.getElementById('mergeRequests').addEventListener('click', function () {
+                        options.title = 'User MergeRequests';
+                        options.vAxis.title = 'MergeRequests';
+                        chart.draw(data4, options);
+                    }, false);
+
+                    document.getElementById('comments').addEventListener('click', function () {
+                        options.title = 'User Comments';
+                        options.vAxis.title = 'Comments';
+                        chart.draw(data5, options);
+                    }, false);
               },
               'packages':['corechart']
             });
         </script>
     }
-
-
-
-    @*<div id="line_chart" style="width: 900px; height: 500px"></div>
-        @section Scripts
-        {
-            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-            <script type="text/javascript">
-            google.charts.load('current', { packages: ['corechart'] });
-            google.charts.setOnLoadCallback(drawChart);
-                function drawChart()
-                {
-                    var data = google.visualization.arrayToDataTable([
-                        ['Time', 'Data'],
-
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfCommits],</text>
-                        }
-                    ]);
-
-                    var options =
-                    {
-                        title: 'User commits',
-                        curveType: 'function',
-                        pointsVisible: true,
-                        lineWidth: 3,
-                        hAxis: { title: 'Time' },
-                        vAxis: { title: 'Commits' },
-                        width: 500,
-                        height: 500
-                    };
-
-                    var chart = new google.visualization.LineChart(document.getElementById('line_chart'));
-                    chart.draw(data, options);
-                }
-            </script>
-        }*@
 </div>
