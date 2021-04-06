@@ -1,0 +1,188 @@
+﻿@model HackerRank.ViewModels.UserViewModel
+@using Microsoft.AspNetCore.Identity
+@using HackerRank.Models.Users;
+@inject SignInManager<User> SignInManager
+<h1>Profile page</h1>
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="page-link">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
+    </li>
+}
+
+<div>
+    <hr />
+    <br />
+    <dl class="col">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Username)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Username)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayName("Date created")
+        </dt>
+        <dd class="col-sm-10">
+            @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Groups)
+        </dt>
+        @foreach (var item in Model.Groups)
+        {
+            <dd class="col-sm-10">
+                @item.GroupName
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Projects)
+        </dt>
+        @foreach (var item in Model.Projects)
+        {
+            <dd class="col-sm-10">
+                @item.ProjectName
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayName("Achievements")
+        </dt>
+        @foreach (var item in Model.UserAchievements)
+        {
+            <dd class="col-sm-10">
+                @item.Achievement.AchievementName
+            </dd>
+            <dd class="col-sm-10">
+                @item.Achievement.Description
+            </dd>
+
+            <dd><img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" style="max-width:25%" /></dd>
+        }
+    </dl>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <div class="Chart-Buttons">
+        <input type="button" id="commit" value="Commit" class="btn btn-primary"/>
+        <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary"/>
+        <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary"/>
+        <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary"/>
+        <input type="button" id="comments" value="Comments" class="btn btn-primary"/>
+    </div>
+
+    <div id="chart_div"></div>
+
+    @section Scripts
+    {
+        <script type="text/javascript">
+            google.charts.load('current',
+            {
+                'callback': function ()
+                {
+                    var data = google.visualization.arrayToDataTable([
+                        ['Time', 'Commit'],
+
+                        @foreach (var data in Model.ChartDatas)
+                        {
+                            <text>['@data.TimeStamp', @data.NumOfCommits],</text>
+                        }
+                    ]);
+
+                    var data2 = google.visualization.arrayToDataTable([
+                        ['Time', 'IssuesCreated'],
+
+                        @foreach (var data in Model.ChartDatas)
+                        {
+                            <text>['@data.TimeStamp', @data.NumOfIssuesCreated],</text>
+                        }
+                    ]);
+
+                    var data3 = google.visualization.arrayToDataTable([
+                        ['Time', 'IssuesSolved'],
+
+                        @foreach (var data in Model.ChartDatas)
+                        {
+                            <text>['@data.TimeStamp', @data.NumOfIssuesSolved],</text>
+                        }
+                    ]);
+
+                    var data4 = google.visualization.arrayToDataTable([
+                        ['Time', 'MergeRequests'],
+
+                        @foreach (var data in Model.ChartDatas)
+                        {
+                            <text>['@data.TimeStamp', @data.NumOfMergeRequests],</text>
+                        }
+                    ]);
+
+                    var data5 = google.visualization.arrayToDataTable([
+                        ['Time', 'Comments'],
+
+                        @foreach (var data in Model.ChartDatas)
+                        {
+                            <text>['@data.TimeStamp', @data.NumOfComments],</text>
+                        }
+                    ]);
+
+                    var options =
+                    {
+                        title: 'User commits',
+                        curveType: 'function',
+                        pointsVisible: true,
+                        lineWidth: 3,
+                        hAxis: { title: 'Time' },
+                        vAxis: { title: 'Commits' },
+                        width: 500,
+                        height: 500
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+                    chart.draw(data, options);
+
+                    document.getElementById('commit').addEventListener('click', function () {
+                        options.title = 'User Commits';
+                        options.vAxis.title = 'Commits';
+                        chart.draw(data, options);
+                    }, false);
+
+                    document.getElementById('issuesCreated').addEventListener('click', function () {
+                        options.title = 'User IssuesCreated';
+                        options.vAxis.title = 'IssuesCreated';
+                        chart.draw(data2, options);
+                    }, false);
+
+                    document.getElementById('issuesSolved').addEventListener('click', function () {
+                        options.title = 'User IssuesSolved';
+                        options.vAxis.title = 'IssuesSolved';
+                        chart.draw(data3, options);
+                    }, false);
+
+                    document.getElementById('mergeRequests').addEventListener('click', function () {
+                        options.title = 'User MergeRequests';
+                        options.vAxis.title = 'MergeRequests';
+                        chart.draw(data4, options);
+                    }, false);
+
+                    document.getElementById('comments').addEventListener('click', function () {
+                        options.title = 'User Comments';
+                        options.vAxis.title = 'Comments';
+                        chart.draw(data5, options);
+                    }, false);
+                },
+                'packages':['corechart']
+            });
+        </script>
+    }
+</div>
