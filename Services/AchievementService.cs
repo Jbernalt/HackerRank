@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +10,7 @@ using AutoMapper;
 
 using HackerRank.Data;
 using HackerRank.Models.Achievements;
+using HackerRank.ViewModels;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,12 +21,12 @@ namespace HackerRank.Services
 {
     public interface IAchievementService
     {
-        Task<List<Achievement>> ListAllAchievements();
-        Task<Achievement> FindAchievementById(int id);
-        Task<AchievementViewModel> FindAchievementModelById(int id);
-        Task Create(AchievementViewModel achievementModel, IFormFile file);
-        Task Edit(AchievementViewModel achievementModel, IFormFile file);
-        Task<Achievement> Details(int id);
+        Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user);
+        Task<AchievementViewModel> FindAchievementById(int id);
+        Task<AchievementInputModel> FindAchievementModelById(int id);
+        Task Create(AchievementInputModel achievementModel, IFormFile file);
+        Task Edit(AchievementInputModel achievementModel, IFormFile file);
+        Task<AchievementViewModel> Details(int id);
         Task Delete(int id);
         Task<string> SaveImage(IFormFile file);
     }
@@ -42,24 +44,52 @@ namespace HackerRank.Services
             _mapper = mapper;
         }
 
-        public async Task<List<Achievement>> ListAllAchievements()
+        public async Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user)
         {
-            return await _context.Achievement.ToListAsync();
+            List<AchievementViewModel> viewModelList = new();
+
+            if (user.Identity.IsAuthenticated)
+            {
+                var userAchievements = await _context.UserAchievement
+                    .Include(a => a.Achievement)
+                    .Where(x => x.User.UserName == user.Identity.Name).ToListAsync();
+
+                var achievements = await _context.Achievement.ToListAsync();
+
+                _mapper.Map(achievements, viewModelList);
+
+                foreach (var a in viewModelList)
+                {
+                    if (userAchievements.Where(x => x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
+                    {
+                        a.IsUnlocked = true;
+                    }
+                }
+
+                return viewModelList.OrderByDescending(x => x.IsUnlocked).ToList();
+            }
+            else
+            {
+                _mapper.Map(await _context.Achievement.ToListAsync(), viewModelList);
+                return viewModelList;
+            }
         }
 
-        public async Task<Achievement> FindAchievementById(int id)
+        public async Task<AchievementViewModel> FindAchievementById(int id)
         {
-            return await _context.Achievement.FindAsync(id);
+            AchievementViewModel viewModel = new();
+            _mapper.Map(await _context.Achievement.FindAsync(id), viewModel);
+            return viewModel;
         }
 
-        public async Task<AchievementViewModel> FindAchievementModelById(int id)
+        public async Task<AchievementInputModel> FindAchievementModelById(int id)
         {
             Achievement achievement = await _context.Achievement.FindAsync(id);
 
-            return _mapper.Map<AchievementViewModel>(achievement);
+            return _mapper.Map<AchievementInputModel>(achievement);
         }
 
-        public async Task Create(AchievementViewModel achievementModel, IFormFile file)
+        public async Task Create(AchievementInputModel achievementModel, IFormFile file)
         {
             Achievement achievement =_mapper.Map<Achievement>(achievementModel);
             achievement.Image = await SaveImage(file);
@@ -68,7 +98,7 @@ namespace HackerRank.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task Edit(AchievementViewModel achievementModel, IFormFile file)
+        public async Task Edit(AchievementInputModel achievementModel, IFormFile file)
         {
             Achievement achievement = _mapper.Map<Achievement>(achievementModel);
 
@@ -96,16 +126,19 @@ namespace HackerRank.Services
             }
         }
 
-        public async Task<Achievement> Details(int id)
+        public async Task<AchievementViewModel> Details(int id)
         {
-            var achievement = await _context.Achievement
-                .FirstOrDefaultAsync(m => m.AchievementId == id);
-            return achievement;
+            var achievement = await _context.Achievement.FirstOrDefaultAsync(m => m.AchievementId == id);
+            AchievementViewModel viewModel = new();
+
+            return _mapper.Map(achievement, viewModel);
         }
 
         public async Task Delete(int id)
         {
             var achievement = await _context.Achievement.FindAsync(id);
+            var ua = _context.UserAchievement.Where(i => i.Achievement.AchievementId == id).FirstOrDefault();
+            _context.UserAchievement.Remove(ua);
             _context.Achievement.Remove(achievement);
             await _context.SaveChangesAsync();
         }

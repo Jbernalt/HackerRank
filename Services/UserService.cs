@@ -152,7 +152,7 @@ namespace HackerRank.Services
             {
                 foreach (var a in achievements)
                 {
-                    var userachievemnts = await _context.UserAchievement.Include("Achievement").Where(ua => ua.Achievement.AchievementId == a.AchievementId && ua.User.Id == u.Id).FirstOrDefaultAsync();
+                    var userachievements = await _context.UserAchievement.Include("Achievement").Where(ua => ua.Achievement.AchievementId == a.AchievementId && ua.User.Id == u.Id).FirstOrDefaultAsync();
 
                     UserAchievement userAchievement = new()
                     {
@@ -161,23 +161,23 @@ namespace HackerRank.Services
                         Achievement = a
                     };
 
-                    if (a.TypeOfAction == ActionType.Commit && u.UserStats.TotalCommits >= a.NumberOfActions && userachievemnts == null)
+                    if (a.TypeOfAction == ActionType.Commit && u.UserStats.TotalCommits >= a.NumberOfActions && userachievements == null)
                     {
                         await _context.UserAchievement.AddAsync(userAchievement);
                     }
-                    else if (a.TypeOfAction == ActionType.IssueOpened && u.UserStats.TotalIssuesCreated >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.IssueOpened && u.UserStats.TotalIssuesCreated >= a.NumberOfActions && userachievements == null)
                     {
                         await _context.UserAchievement.AddAsync(userAchievement);
                     }
-                    else if (a.TypeOfAction == ActionType.IssueSolved && u.UserStats.TotalIssuesSolved >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.IssueSolved && u.UserStats.TotalIssuesSolved >= a.NumberOfActions && userachievements == null)
                     {
                         await _context.UserAchievement.AddAsync(userAchievement);
                     }
-                    else if (a.TypeOfAction == ActionType.MergeRequest && u.UserStats.TotalMergeRequests >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.MergeRequest && u.UserStats.TotalMergeRequests >= a.NumberOfActions && userachievements == null)
                     {
                         await _context.UserAchievement.AddAsync(userAchievement);
                     }
-                    else if (a.TypeOfAction == ActionType.Comment && u.UserStats.TotalComments >= a.NumberOfActions && userachievemnts == null)
+                    else if (a.TypeOfAction == ActionType.Comment && u.UserStats.TotalComments >= a.NumberOfActions && userachievements == null)
                     {
                         await _context.UserAchievement.AddAsync(userAchievement);
                     }
