@@ -11,7 +11,7 @@ using static HackerRank.Models.ActionTypes;
 
 namespace HackerRank.Models.Achievements
 {
-    public class AchievementViewModel
+    public class AchievementInputModel
     {
         public int AchievementId { get; set; }
         public string AchievementName { get; set; }

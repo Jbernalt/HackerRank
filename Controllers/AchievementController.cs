@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using HackerRank.Services;
+using HackerRank.ViewModels;
 
 namespace HackerRank.Controllers
 {
@@ -28,8 +29,9 @@ namespace HackerRank.Controllers
         // GET: Achievement
         public async Task<IActionResult> Index()
         {
+            var user = User;
             await _userService.UpdateAchievementsOnUsers();
-            return View(await _achievementService.ListAllAchievements());
+            return View(await _achievementService.ListAllAchievements(user));
         }
 
         // GET: Achievement/Details/5
@@ -40,7 +42,7 @@ namespace HackerRank.Controllers
                 return NotFound();
             }
 
-            Achievement achievement = await _achievementService.Details((int)id);
+            AchievementViewModel achievement = await _achievementService.Details((int)id);
 
             return View(achievement);
         }
@@ -56,7 +58,7 @@ namespace HackerRank.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AchievementId,AchievementName,Description,NumberOfActions, TypeOfAction")] AchievementViewModel achievementModel, [FromForm(Name = "file")] IFormFile file)
+        public async Task<IActionResult> Create([Bind("AchievementId,AchievementName,Description,NumberOfActions, TypeOfAction")] AchievementInputModel achievementModel, [FromForm(Name = "file")] IFormFile file)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +90,7 @@ namespace HackerRank.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AchievementId,AchievementName,Description,NumberOfActions,TypeOfAction,Image")] AchievementViewModel achievementModel, [FromForm(Name = "editFile")] IFormFile file)
+        public async Task<IActionResult> Edit(int id, [Bind("AchievementId,AchievementName,Description,NumberOfActions,TypeOfAction,Image")] AchievementInputModel achievementModel, [FromForm(Name = "editFile")] IFormFile file)
         {
             if (id != achievementModel.AchievementId)
             {

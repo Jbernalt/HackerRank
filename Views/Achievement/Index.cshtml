@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HackerRank.Models.Achievements.Achievement>
+﻿@model IEnumerable<HackerRank.ViewModels.AchievementViewModel>
 
 @{
     ViewData["Title"] = "Achievement";
@@ -34,16 +34,21 @@
     <tbody>
         @foreach (var item in Model)
         {
+            string style = string.Empty;
+            if (User.Identity.IsAuthenticated)
+            {
+                style = item.IsUnlocked == false ? "opacity: 50%" : null;
+            }
             <tr>
-                <td>
+                <td style="@style">
                     <img src="~/achievementImg/@item.Image"
                          height="60" width="60"
                          asp-append-version="true" />
                 </td>
-                <td>
+                <td style="@style">
                     @Html.DisplayFor(modelItem => item.AchievementName)
                 </td>
-                <td>
+                <td style="@style">
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
                 <td>
@@ -54,9 +59,9 @@
                         if (User.IsInRole("Administrator"))
                         {
                             <a asp-action="Edit" asp-route-id="@item.AchievementId"> | Edit | </a>
-                            <a asp-action = "Delete" asp-route-id="@item.AchievementId">Delete</a>
+                            <a asp-action="Delete" asp-route-id="@item.AchievementId">Delete</a>
                         }
-                     }
+                    }
                 </td>
             </tr>
         }
