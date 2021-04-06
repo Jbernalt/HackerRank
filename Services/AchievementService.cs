@@ -137,8 +137,10 @@ namespace HackerRank.Services
         public async Task Delete(int id)
         {
             var achievement = await _context.Achievement.FindAsync(id);
-            var ua = _context.UserAchievement.Where(i => i.Achievement.AchievementId == id).FirstOrDefault();
-            _context.UserAchievement.Remove(ua);
+            var ua = _context.UserAchievement.Where(i => i.Achievement.AchievementId == id).ToList();
+            if (ua.Count > 0)
+                _context.UserAchievement.RemoveRange(ua);
+
             _context.Achievement.Remove(achievement);
             await _context.SaveChangesAsync();
         }
