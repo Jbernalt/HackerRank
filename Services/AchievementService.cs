@@ -110,6 +110,10 @@ namespace HackerRank.Services
                 {
                     _context.Entry(achievement).Property(p => p.Image).IsModified = false;
                 }
+                else
+                {
+                    achievement.Image = await SaveImage(file);
+                }
 
                 await _context.SaveChangesAsync();
             }
