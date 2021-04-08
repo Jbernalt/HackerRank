@@ -39,8 +39,8 @@ VS Code: <br>
 
 **Update both databases:** <br>
 VS: <br>
-`update-database Init -Context HackerRankContext` <br>
-`update-database Init -Context HangFireContext`
+`update-database -Context HackerRankContext` <br>
+`update-database -Context HangFireContext`
 
 VS Code: <br>
 `dotnet ef database update --context HackerRankContext` <br>
