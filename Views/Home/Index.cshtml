@@ -1,35 +1,35 @@
-﻿@model IEnumerable<HackerRank.ViewModels.TopFiveViewModel>
+@model IEnumerable<HackerRank.ViewModels.TopFiveViewModel>
 
 @{
     ViewData["Title"] = "Ranking";
 }
 
 <div class="text-center">
-    <table class="table table-responsive">
-        <thead>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
             <tr>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Username")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Commits")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Issues created")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Issues solved")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Merge requests")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Comments")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Daily rating")
                 </th>
-                <th></th>
+                
             </tr>
         </thead>
         <tbody>
@@ -38,7 +38,6 @@
                 @if (item.DailyRating != 0)
                 {
                     <tr>
-
                         <td>
                             @Html.DisplayFor(modelItem => item.UserName)
                         </td>
@@ -66,31 +65,31 @@
         </tbody>
     </table>
 
-    <table class="table table-responsive">
-        <thead>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
             <tr>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Name")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Commits")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Issues created")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Issues solved")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Merge requests")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Comments")
                 </th>
-                <th>
+                <th scope="col">
                     @Html.DisplayName("Daily rating")
                 </th>
-                <th></th>
+                
             </tr>
         </thead>
         <tbody>

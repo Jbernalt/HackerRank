@@ -142,14 +142,14 @@ namespace HackerRank
 
             services.AddAntiforgery(options =>
             {
-                // Set Cookie properties using CookieBuilder properties†.
+                // Set Cookie properties using CookieBuilder propertiesâ€ .
                 options.FormFieldName = "AntiforgeryFieldname";
                 options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
                 options.SuppressXFrameOptionsHeader = false;
             });
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
-
+            services.AddControllersWithViews();
             services.AddAuthorizationCore(options =>
             {
                 options.AddPolicy("RequireAdministrator",
