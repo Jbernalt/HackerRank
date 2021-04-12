@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 using AutoMapper;
 
 using HackerRank.Data;
 using HackerRank.Models.Achievements;
+using HackerRank.Responses;
 using HackerRank.ViewModels;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HackerRank.Services
@@ -23,9 +22,9 @@ namespace HackerRank.Services
     {
         Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user);
         Task<AchievementViewModel> FindAchievementById(int id);
-        Task<AchievementInputModel> FindAchievementModelById(int id);
-        Task Create(AchievementInputModel achievementModel, IFormFile file);
-        Task Edit(AchievementInputModel achievementModel, IFormFile file);
+        Task<AchievementResponse> FindAchievementModelById(int id);
+        Task Create(AchievementResponse achievementModel, IFormFile file);
+        Task Edit(AchievementResponse achievementModel, IFormFile file);
         Task<AchievementViewModel> Details(int id);
         Task Delete(int id);
         Task<string> SaveImage(IFormFile file);
@@ -82,14 +81,14 @@ namespace HackerRank.Services
             return viewModel;
         }
 
-        public async Task<AchievementInputModel> FindAchievementModelById(int id)
+        public async Task<AchievementResponse> FindAchievementModelById(int id)
         {
             Achievement achievement = await _context.Achievement.FindAsync(id);
 
-            return _mapper.Map<AchievementInputModel>(achievement);
+            return _mapper.Map<AchievementResponse>(achievement);
         }
 
-        public async Task Create(AchievementInputModel achievementModel, IFormFile file)
+        public async Task Create(AchievementResponse achievementModel, IFormFile file)
         {
             Achievement achievement =_mapper.Map<Achievement>(achievementModel);
             achievement.Image = await SaveImage(file);
@@ -98,7 +97,7 @@ namespace HackerRank.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task Edit(AchievementInputModel achievementModel, IFormFile file)
+        public async Task Edit(AchievementResponse achievementModel, IFormFile file)
         {
             Achievement achievement = _mapper.Map<Achievement>(achievementModel);
 
