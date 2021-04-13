@@ -9,14 +9,12 @@ namespace HackerRank.Responses
     public class WebHookIssueResponse
     {
 
-        public class Rootobject
-        {
-            public string object_kind { get; set; }
-            public string event_type { get; set; }
-            public User user { get; set; }
-            public ProjectResponse project { get; set; }
-            public Object_Attributes object_attributes { get; set; }
-        }
+        public string object_kind { get; set; }
+        public string event_type { get; set; }
+        public User user { get; set; }
+        public ProjectResponse project { get; set; }
+        public Object_Attributes object_attributes { get; set; }
+
 
         public class User
         {
@@ -39,6 +37,7 @@ namespace HackerRank.Responses
             public DateTime created_at { get; set; }
             public DateTime updated_at { get; set; }
             public string description { get; set; }
+            public string state { get; set; }
         }
     }
 }

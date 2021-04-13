@@ -13,5 +13,8 @@ namespace HackerRank.Responses
         public string user_name { get; set; }
         public string user_username { get; set; }
         public int project_id { get; set; }
+        public ProjectResponse project { get; set; }
     }
+
+
 }

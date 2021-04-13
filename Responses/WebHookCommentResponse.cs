@@ -8,13 +8,12 @@ namespace HackerRank.Responses
 {
     public class WebHookCommentResponse
     {
-        public class Rootobject
-        {
-            public string object_kind { get; set; }
-            public User user { get; set; }
-            public int project_id { get; set; }
-            public Object_Attributes object_attributes { get; set; }
-        }
+        public string object_kind { get; set; }
+        public User user { get; set; }
+        public int project_id { get; set; }
+        public Object_Attributes object_attributes { get; set; }
+        public ProjectResponse project { get; set; }
+
 
         public class User
         {

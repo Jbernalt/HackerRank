@@ -9,13 +9,11 @@ namespace HackerRank.Responses
     public class WebHookMergeResponse
     {
 
-        public class Rootobject
-        {
-            public string object_kind { get; set; }
-            public User user { get; set; }
-            public ProjectResponse project { get; set; }
-            public Object_Attributes object_attributes { get; set; }
-        }
+        public string object_kind { get; set; }
+        public User user { get; set; }
+        public ProjectResponse project { get; set; }
+        public Object_Attributes object_attributes { get; set; }
+
 
         public class User
         {

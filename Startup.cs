@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 
 using HackerRank.Data;
+using HackerRank.Hubs;
 using HackerRank.Models.Users;
 using HackerRank.Services;
 
@@ -48,6 +49,9 @@ namespace HackerRank
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
+
+            services.AddSignalR();
+
 
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
@@ -207,6 +211,7 @@ namespace HackerRank
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
                 endpoints.MapHangfireDashboard();
+                endpoints.MapHub<LiveFeedHub>("/LiveFeedHub");
             });
         }
     }
