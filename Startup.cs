@@ -149,7 +149,9 @@ namespace HackerRank
             });
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
-            services.AddControllersWithViews();
+
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
             services.AddAuthorizationCore(options =>
             {
                 options.AddPolicy("RequireAdministrator",
@@ -197,6 +199,11 @@ namespace HackerRank
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+            });
 
             RolesData.SeedRoles(roleManager).Wait();
 
@@ -210,6 +217,16 @@ namespace HackerRank
 
             app.UseEndpoints(endpoints =>
             {
+                
+                endpoints.MapControllerRoute(
+                  name: "index",
+                  pattern: "index",
+                 defaults: new { controller = "Home", action = "index" });                
+               
+                //endpoints.MapControllerRoute(
+                //name: "product",
+                //pattern: "{controller=Product}/{action=Details}/{urlSlug}");
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

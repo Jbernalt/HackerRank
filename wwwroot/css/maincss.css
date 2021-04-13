@@ -1,0 +1,189 @@
+﻿
+.my-container{
+    display:none;
+}
+@media screen and (min-width:768px){
+    /*Header start*/
+.site-header {
+background-color: #ddd;
+padding: 20px;
+}
+
+.site-header .row {
+}
+
+.header-nav .navbar {
+padding: 0;
+}
+
+.site-header .top-left input {
+border-radius: 10px;
+margin-left: 20px;
+}
+
+.site-header .icons i {
+font-size: 40px;
+margin-left: 15px;
+}
+/*Header end*/
+
+/*Hero start*/
+.main-hero {
+width: 100%;
+}
+
+.hero .hero-container {
+margin-top: 10px;
+width: 100%;
+display: flex;
+justify-content: space-between;
+
+}
+
+.hero .hero-container .hero-image {
+    width: 70%;
+    order: 2;
+}
+
+.hero-container img {
+width: 100%;
+}
+
+.hero-container .hero-text {
+width: 26%;
+padding: 20px;
+}
+
+.hero-container .hero-text button {
+    width: 50%;
+}
+/*Hero end*/
+
+/*Categories Start*/
+.my-container {
+margin-top: 20px;
+display: flex;
+justify-content: space-between;
+}
+
+.my-container div {
+    flex-basis: 32%;
+}
+
+    .my-container div input {
+        width: 90%;
+        height: 200px;
+    }
+
+.container-dresses div {
+margin-top: 10px;
+}
+
+.container-dresses div img {
+    width: 100%;
+}
+/*Categories end*/
+ 
+
+.popular {
+    padding: 10px 0px;
+}
+/*Details page start*/
+.main-hero {
+margin-top: 10px;
+display: flex;
+justify-content: space-between;
+}
+
+.main-hero-image {
+width: 50%;
+}
+
+.main-hero-image img {
+    width: 50%;
+    height: 50%;
+}
+
+.main-hero-text {
+width: 47%;
+}
+
+.main-hero-text .center,
+#price {
+    text-align: left;
+}
+
+.main-hero-text .lorem {
+    width: 70%;
+    font-size: 0.8rem;
+}
+
+.main-hero-text #small {
+    font-size: 1rem;
+}
+
+.main-hero-text h2 {
+    display: inline;
+}
+
+.main-hero-select-size select {
+width: 80px;
+padding: 3px;
+}
+
+.main-hero-select-size button {
+width: 100px;
+display: inline-block;
+padding: 5px;
+}
+
+.four-items {
+display: block;
+margin: 10px;
+}
+
+.container-four-items {
+display: flex;
+justify-content: space-between;
+}
+
+.container-four-items div {
+    flex-basis: 24%;
+}
+
+    .container-four-items div img {
+        width: 100%;
+    }
+/*Details page end*/
+
+/*Footer start*/
+.footer {
+background-color: #ddd;
+padding: 5px;
+margin-bottom: 0;
+}
+
+.footer-icons span {
+padding: 10px;
+}
+
+.footer-icons i {
+margin: 10px;
+font-size: 1.4rem;
+}
+
+.footer .nav ul {
+padding: 0;
+list-style: none;
+}
+
+.footer .nav ul li {
+    margin: 0;
+    padding: 0;
+}
+
+.footer .nav nav {
+margin: 20px;
+}
+/*Footer end*/
+} 

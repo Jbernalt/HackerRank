@@ -4,11 +4,21 @@
     ViewData["Title"] = "Ranking";
 }
 
-<div class="text-center">
+@using Microsoft.AspNetCore.Identity
+@using HackerRank.Models.Users;
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+
+<div class="container text-center">
+    <h1>HackerRank</h1>
+</div>
+
+<div class="text-center table-responsive">
     <table class="table table-striped table-bordered">
         <thead class="thead-dark">
             <tr>
-                <th scope="col">
+                <th scope="col" class="site-header">
                     @Html.DisplayName("Username")
                 </th>
                 <th scope="col">
@@ -29,10 +39,11 @@
                 <th scope="col">
                     @Html.DisplayName("Daily rating")
                 </th>
-                
+
             </tr>
         </thead>
         <tbody>
+
             @foreach (var item in Model)
             {
                 @if (item.DailyRating != 0)
@@ -40,6 +51,11 @@
                     <tr>
                         <td>
                             @Html.DisplayFor(modelItem => item.UserName)
+                            @*@if (SignInManager.IsSignedIn(User))
+        {
+            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">@Html.DisplayFor(modelItem => item.UserName)</a>
+        }*@
+
                         </td>
                         <td>
                             @string.Format("{0:0}", item.Commits)
@@ -89,7 +105,7 @@
                 <th scope="col">
                     @Html.DisplayName("Daily rating")
                 </th>
-                
+
             </tr>
         </thead>
         <tbody>
