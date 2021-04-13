@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -50,28 +51,31 @@ namespace HackerRank.Controllers
             if (gitLabEvent == "Push Hook")
             {
                 model.WebHookResponse.WebHookCommitResponse = JsonSerializer.Deserialize<WebHookCommitResponse>(json);
-                message = $"{model.WebHookResponse.WebHookCommitResponse.user_name} just made a push to {model.WebHookResponse.WebHookCommitResponse.project.name}";
+                message = $"{model.WebHookResponse.WebHookCommitResponse.user_name} made a push to {model.WebHookResponse.WebHookCommitResponse.project.name}"
+                    + $", " + DateTime.UtcNow.ToString("dddd, dd MMMM yyyy HH:mm");
             }
 
             else if (gitLabEvent == "Issue Hook")
             {
                 model.WebHookResponse.WebHookIssueResponse = JsonSerializer.Deserialize<WebHookIssueResponse>(json);
-                message = $"{model.WebHookResponse.WebHookIssueResponse.user.name} just " +
-                    $"{model.WebHookResponse.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookResponse.WebHookIssueResponse.object_attributes.title}";
+                message = $"{model.WebHookResponse.WebHookIssueResponse.user.name} " +
+                    $"{model.WebHookResponse.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookResponse.WebHookIssueResponse.object_attributes.title}"
+                    + $", " + DateTime.UtcNow.ToString("dddd, dd MMMM yyyy HH:mm");
             }
 
             else if (gitLabEvent == "Merge Request Hook")
             {
                 model.WebHookResponse.WebHookMergeResponse = JsonSerializer.Deserialize<WebHookMergeResponse>(json);
-                message = $"{model.WebHookResponse.WebHookMergeResponse.user.name} just {model.WebHookResponse.WebHookMergeResponse.object_attributes.state} a merge " +
+                message = $"{model.WebHookResponse.WebHookMergeResponse.user.name} {model.WebHookResponse.WebHookMergeResponse.object_attributes.state} " +
                     $"from {model.WebHookResponse.WebHookMergeResponse.object_attributes.source_branch} to {model.WebHookResponse.WebHookMergeResponse.object_attributes.target_branch}" +
-                    $" on project {model.WebHookResponse.WebHookMergeResponse.project.name}";
+                    $" on project {model.WebHookResponse.WebHookMergeResponse.project.name}, " + DateTime.UtcNow.ToString("dddd, dd MMMM yyyy HH:mm");
             }
 
             else if (gitLabEvent == "Note Hook")
             {
                 model.WebHookResponse.WebHookCommentResponse = JsonSerializer.Deserialize<WebHookCommentResponse>(json);
-                message = $"{model.WebHookResponse.WebHookCommentResponse.user.name} just commented on {model.WebHookResponse.WebHookCommentResponse.project.name}";
+                message = $"{model.WebHookResponse.WebHookCommentResponse.user.name} commented on {model.WebHookResponse.WebHookCommentResponse.project.name}"
+                    + $", " + DateTime.UtcNow.ToString("dddd, dd MMMM yyyy HH:mm");
             }
 
             if (message != string.Empty)

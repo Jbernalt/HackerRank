@@ -7,6 +7,7 @@ var liveFeedHubconnection = new signalR.HubConnectionBuilder().withUrl("/LiveFee
 liveFeedHubconnection.on("ReceiveMessage", function (message) {
     var li = document.createElement("li");
     li.textContent = message;
+    li.classList.add("list-group-item");
     document.getElementById("live_feed").appendChild(li);
 });
 
