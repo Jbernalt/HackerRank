@@ -13,6 +13,8 @@
 
 <div>
     <hr />
+    <img src="~/profileImg/@Model.ProfileImage"
+         asp-append-version="true" style="max-width:25%" />
     <br />
     <dl class="col">
         <dt class="col-sm-2">
@@ -75,11 +77,11 @@
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <div class="Chart-Buttons">
-        <input type="button" id="commit" value="Commit" class="btn btn-primary"/>
-        <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary"/>
-        <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary"/>
-        <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary"/>
-        <input type="button" id="comments" value="Comments" class="btn btn-primary"/>
+        <input type="button" id="commit" value="Commit" class="btn btn-primary" />
+        <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
+        <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
+        <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary" />
+        <input type="button" id="comments" value="Comments" class="btn btn-primary" />
     </div>
 
     <div id="chart_div"></div>

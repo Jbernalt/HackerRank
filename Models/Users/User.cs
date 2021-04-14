@@ -18,6 +18,7 @@ namespace HackerRank.Models.Users
         public int GitLabId { get; set; }
         public string Description { get; set; }
         public DateTime DateCreated { get; set; }
+        public string ProfileImage { get; set; }
         public List<Group> Groups { get; set; }
         public UserStats UserStats { get; set; }
     }
