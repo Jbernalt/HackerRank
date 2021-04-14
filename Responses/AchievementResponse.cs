@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 
 using static HackerRank.Models.ActionTypes;
 
-namespace HackerRank.Models.Achievements
+namespace HackerRank.Responses
 {
-    public class AchievementInputModel
+    public class AchievementResponse
     {
         public int AchievementId { get; set; }
         public string AchievementName { get; set; }
