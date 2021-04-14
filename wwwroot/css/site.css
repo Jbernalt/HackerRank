@@ -61,11 +61,57 @@ html {
 body {
   /* Margin bottom by footer height */
   margin-bottom: 60px;
-}
+  
+    background-image: url("../img/rings.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    
+} 
+
 .footer {
   position: absolute;
   bottom: 0;
   width: 100%;
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
+}
+
+.blå{
+  color: blue;
+}
+
+#main
+{
+padding: 20px;
+
+border-radius: 0 4px 4px 4px;
+}
+a
+{
+color: #034af3;
+}
+/* Menu Styles ------------------------------*/
+ul#menu
+{
+padding: 0px;
+position: relative;
+margin: 0;
+}
+ul#menu li
+{
+display: inline;
+}
+ul#menu li a
+{
+background-color: #e8eef4;
+padding: 10px 20px;
+text-decoration: none;
+line-height: 2.8em;
+/*CSS3 properties*/
+border-radius: 4px 4px 0 0;
+}
+ul#menu li a:hover
+{
+background-color: #ffffff;
 }

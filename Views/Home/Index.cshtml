@@ -4,23 +4,24 @@
     ViewData["Title"] = "Ranking";
 }
 
-<div class="text-center">
-    <table class="table table-responsive">
-        <thead>
+<div class="text-center background-container">
+    @* <button onclick="Test()">Clicka mig</button> *@
+    
+        @* <thead>
             <tr>
-                <th>
+                <th style="color:green;">
                     @Html.DisplayName("Username")
                 </th>
-                <th>
+                <th class="färg">
                     @Html.DisplayName("Commits")
                 </th>
-                <th>
+                <th style="color:blue;">
                     @Html.DisplayName("Issues created")
                 </th>
-                <th>
+                <th class="färg">
                     @Html.DisplayName("Issues solved")
                 </th>
-                <th>
+                <th class="blå">
                     @Html.DisplayName("Merge requests")
                 </th>
                 <th>
@@ -29,10 +30,87 @@
                 <th>
                     @Html.DisplayName("Daily rating")
                 </th>
-                <th></th>
+                
             </tr>
-        </thead>
-        <tbody>
+        </thead> *@
+
+
+        @*User*@
+        <div class="head-row thead-dark1">
+            <p >Username</p>
+            <p>Commits</p>
+            <p>Issues created</p>
+            <p>Issues solved</p>
+            <p>Merge request</p>
+            <p>Comments</p>
+            <p class="text-design">Daily rating</p>
+        </div>
+        <div class="kort">
+             @foreach (var item in Model)
+            {
+                @if (item.DailyRating != 0)
+                {
+                        <p>@Html.DisplayFor(modelItem => item.UserName)</p>
+                        <p>@string.Format("{0:0}", item.Commits)</p>
+                        <p> @string.Format("{0:0}", item.IssuesCreated)</p>
+                        <p>@string.Format("{0:0}", item.IssuesSolved)</p>
+                        <p>@string.Format("{0:0}", item.MergeRequest)</p>
+                        <p>@string.Format("{0:0}", item.Comments)</p>
+                        <p class="text-design">@string.Format("{0:0.00}", item.DailyRating)</p>
+                }
+            }         
+        </div>
+
+
+        @*Team*@
+        <div class="head-row">
+            <p  >Name</p>
+            <p >Commits</p>
+            <p >Issues created</p>
+            <p >Issues solved</p>
+            <p>Merge request</p>
+            <p>Comments</p>
+            <p class="text-design">Daily rating</p>
+        </div>
+        <div class="kort>
+             @foreach (var item in Model)
+            {
+                @if (item.DailyRating != 0)
+                {
+                        <p class="bredd">@Html.DisplayFor(modelItem => item.UserName)</p>
+                        <p>@string.Format("{0:0}", item.Commits)</p>
+                        <p> @string.Format("{0:0}", item.IssuesCreated)</p>
+                        <p>@string.Format("{0:0}", item.IssuesSolved)</p>
+                        <p>@string.Format("{0:0}", item.MergeRequest)</p>
+                        <p>@string.Format("{0:0}", item.Comments)</p>
+                        <p class="text-design">@string.Format("{0:0.00}", item.DailyRating)</p>
+                
+                }
+            }
+          
+        </div>
+        <div class="kort">
+             @foreach (var item in Model)
+            {
+                @if (item.GroupRating != 0)
+                {
+                        <p class="bredd">@Html.DisplayFor(modelItem => item.GroupName)</p>
+                        <p>@string.Format("{0:0}", item.CommitsDaily)</p>
+                        <p> @string.Format("{0:0}", item.IssuesCreatedDaily)</p>
+                        <p>@string.Format("{0:0}", item.IssuesSolvedDaily)</p>
+                        <p>@string.Format("{0:0}", item.MergeRequestsDaily)</p>
+                        <p>@string.Format("{0:0}", item.CommentsDaily)</p>
+                        <p class="text-design">@string.Format("{0:0.00}", item.GroupRating)</p>
+                
+                }
+               
+            }
+          
+        </div>
+
+
+
+        @* <tbody class="b-color">
             @foreach (var item in Model)
             {
                 @if (item.DailyRating != 0)
@@ -63,10 +141,12 @@
                     </tr>
                 }
             }
-        </tbody>
-    </table>
+        </tbody> *@
+    
 
-    <table class="table table-responsive">
+
+
+    @* <table class="table table-responsive">
         <thead>
             <tr>
                 <th>
@@ -125,5 +205,5 @@
                 }
             }
         </tbody>
-    </table>
+    </table> *@
 </div>

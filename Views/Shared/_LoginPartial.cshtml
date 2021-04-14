@@ -7,11 +7,11 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Hello @User.Identity.Name!</a>
+        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Hello @User.Identity.Name!<img src="~/img/log/name_user_3716.png" /></a>
     </li>
     <li class="nav-item">
         <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+            <button  type="submit" class="nav-link btn btn-link text-dark"><img src="~/img/log/sign-out-option_icon-icons.com_73413.png" /></button>
         </form>
     </li>
 }
@@ -21,7 +21,7 @@ else
         <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login"><img src="~/img/log/log_in_icon_128822.png" /></a>
     </li>
 }
 </ul>
