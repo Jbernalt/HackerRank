@@ -16,6 +16,8 @@ REQUIREMENTS
 
 UltraHook<br>
 
+Ruby & RubyGems<br>
+
 INSTALLATION
 
 Install .NET Core:
@@ -24,8 +26,15 @@ Install .NET Core:
 Install tools:
 [.NET tools - .NET CLI | Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
 
-Install ultrhook:
+Install UltraHook:
 [UltraHook - Receive webhooks on localhost](https://www.ultrahook.com/faq)
+
+Install Ruby:
+
+[RubyInstaller for Windows](https://rubyinstaller.org/)
+
+Install RubyGems:
+[Download RubyGems](https://rubygems.org/pages/download)
 
 Clone the project
 
@@ -69,7 +78,7 @@ For this command, use a password manager to generate a long random string of cha
 
 `dotnet user-secrets set "Authentication:GitLab:WebHookAuthentication" "SecretToken"`<br>
 
-**Ultrahook:**<br>
+**UltraHook:**<br>
 
 Run this command after installing ultrahook and following the instructions to get an API key<br>
 
