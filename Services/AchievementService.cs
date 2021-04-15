@@ -28,6 +28,7 @@ namespace HackerRank.Services
         Task<AchievementViewModel> Details(int id);
         Task Delete(int id);
         Task<string> SaveImage(IFormFile file);
+        Task SetShowCase(List<string> achievementIds, ClaimsPrincipal user);
     }
 
     public class AchievementService : IAchievementService
@@ -42,7 +43,25 @@ namespace HackerRank.Services
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
         }
+        public async Task SetShowCase(List<string> achievementIds, ClaimsPrincipal claimsUser)
+        {
+            List<UserAchievement> userAchievements = await _context.UserAchievement.Include("Achievement").Include("User").Where(u => u.User.UserName == claimsUser.Identity.Name).ToListAsync();
+            foreach (var achievement in userAchievements)
+            {
+                achievement.IsShowCase = false;
+                foreach(var id in achievementIds)
+                {
+                    if (achievement.Achievement.AchievementId == int.Parse(id))
+                    {
+                        achievement.IsShowCase = true;
+                     
+                    }
+                }
 
+            }
+            await _context.SaveChangesAsync();
+
+        }
         public async Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user)
         {
             List<AchievementViewModel> viewModelList = new();
@@ -62,6 +81,10 @@ namespace HackerRank.Services
                     if (userAchievements.Where(x => x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
                     {
                         a.IsUnlocked = true;
+                    }
+                    if (userAchievements.Where(x => x.IsShowCase == true && x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
+                    {
+                        a.IsShowCase = true;
                     }
                 }
 

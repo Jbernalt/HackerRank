@@ -14,5 +14,6 @@ namespace HackerRank.Models.Achievements
         public bool IsUnlocked { get; set; }
         public Achievement Achievement { get; set; }
         public User User { get; set; }
+        public bool IsShowCase { get; set; }
     }
 }

@@ -3,6 +3,7 @@
 using HackerRank.Responses;
 using HackerRank.Services;
 using HackerRank.ViewModels;
+using Microsoft.AspNetCore.Routing;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace HackerRank.Controllers
     {
         private readonly IAchievementService _achievementService;
         private readonly IUserService _userService;
+
 
         public AchievementController(IAchievementService achievementService, IUserService userService)
         {
@@ -39,6 +41,15 @@ namespace HackerRank.Controllers
             AchievementViewModel achievement = await _achievementService.Details((int)id);
 
             return View(achievement);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetShowcase()
+        {
+            var a = Request.Form["IsChecked"].ToList();
+            await _achievementService.SetShowCase(a, User);
+
+            return RedirectToAction("details", "user", new { id = User.Identity.Name });
         }
 
         // GET: Achievement/Create

@@ -16,29 +16,39 @@
         </p>
     }
 }
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayName("")
-            </th>
-            <th>
-                @Html.DisplayName("Achievement")
-            </th>
-            <th>
-                @Html.DisplayName("Description")
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            string style = string.Empty;
-            if (User.Identity.IsAuthenticated)
-            {
-                style = item.IsUnlocked == false ? "opacity: 50%" : null;
-            }
+<form id="showcase" asp-action="SetShowcase" asp-controller="Achievement" method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayName("")
+                </th>
+                <th>
+                    @Html.DisplayName("Achievement")
+                </th>
+                <th>
+                    @Html.DisplayName("Description")
+                </th>
+                <th>
+                    @Html.DisplayName("Set showcase")
+                </th>
+
+                <th></th>
+            </tr>
+        </thead>
+
+
+
+        <tbody>
+
+            @foreach (var item in Model)
+             {
+
+                string style = string.Empty;
+                if (User.Identity.IsAuthenticated)
+                {
+                    style = item.IsUnlocked == false ? "opacity: 50%" : null;
+                }
             <tr>
                 <td style="@style">
                     <img src="~/achievementImg/@item.Image"
@@ -51,6 +61,25 @@
                 <td style="@style">
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
+
+
+                <td>
+                    @if (item.IsUnlocked)
+                    {
+                        if (item.IsShowCase)
+                        {
+                            <input class="IsChecked" type="checkbox" value="@item.AchievementId" asp-for="@item.IsShowCase" name="IsChecked" checked="checked" />
+                        }
+                        else
+                        {
+                            <input class="IsChecked" type="checkbox" value="@item.AchievementId" asp-for="@item.IsShowCase" name="IsChecked" />
+
+                        }
+
+                    }
+
+                </td>
+
                 <td>
                     <a asp-action="Details" asp-route-id="@item.AchievementId">Details</a>
 
@@ -64,6 +93,16 @@
                     }
                 </td>
             </tr>
-        }
-    </tbody>
-</table>
+             }
+
+
+        </tbody>
+
+    </table>
+</form>
+<div class="form-group">
+    <input type="submit" form="showcase" name="action" value="Save" class="btn btn-primary" />
+</div>
+
+
+
