@@ -30,7 +30,6 @@ Install UltraHook:
 [UltraHook - Receive webhooks on localhost](https://www.ultrahook.com/faq)
 
 Install Ruby:
-
 [RubyInstaller for Windows](https://rubyinstaller.org/)
 
 Install RubyGems:
