@@ -27,7 +27,6 @@ namespace HackerRank.Services
         Task Edit(AchievementResponse achievementModel, IFormFile file);
         Task<AchievementViewModel> Details(int id);
         Task Delete(int id);
-        Task<string> SaveImage(IFormFile file);
         Task SetShowCase(List<string> achievementIds, ClaimsPrincipal user);
     }
 
@@ -55,15 +54,13 @@ namespace HackerRank.Services
                 {
                     if (achievement.Achievement.AchievementId == int.Parse(id))
                     {
-                        achievement.IsShowCase = true;
-                     
+                        achievement.IsShowCase = true;                     
                     }
                 }
-
             }
             await _context.SaveChangesAsync();
-
         }
+
         public async Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user)
         {
             List<AchievementViewModel> viewModelList = new();

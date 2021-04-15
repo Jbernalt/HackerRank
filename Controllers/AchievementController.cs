@@ -3,10 +3,10 @@
 using HackerRank.Responses;
 using HackerRank.Services;
 using HackerRank.ViewModels;
-using Microsoft.AspNetCore.Routing;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace HackerRank.Controllers
 {
@@ -14,7 +14,6 @@ namespace HackerRank.Controllers
     {
         private readonly IAchievementService _achievementService;
         private readonly IUserService _userService;
-
 
         public AchievementController(IAchievementService achievementService, IUserService userService)
         {
