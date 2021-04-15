@@ -25,7 +25,6 @@ Install tools:
 [.NET tools - .NET CLI | Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
 
 Install ultrhook:
-
 [UltraHook - Receive webhooks on localhost](https://www.ultrahook.com/faq)
 
 Clone the project
