@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HackerRank.Models.Users;
+using Microsoft.AspNetCore.Http;
+using HackerRank.Data;
+using HackerRank.Services;
+using System.IO;
 
 namespace HackerRank.Areas.Identity.Pages.Account.Manage
 {
@@ -14,13 +18,15 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly HackerRankContext _context;
+        private readonly IImageService _imageService;
 
-        public IndexModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager)
+        public IndexModel(UserManager<User> userManager, SignInManager<User> signInManager, HackerRankContext context, IImageService imageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
+            _imageService = imageService;
         }
 
         public string Username { get; set; }
@@ -36,6 +42,9 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Profile image")]
+            public IFormFile Image { get; set; }
         }
 
         private async Task LoadAsync(User user)
@@ -63,7 +72,7 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(IFormFile formFile)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -85,6 +94,20 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
                 {
                     StatusMessage = "Unexpected error when trying to set phone number.";
                     return RedirectToPage();
+                }
+            }
+
+            if (HttpContext.Request.Form.Files.Count > 0)
+            {
+                var _tempProfileImg = user.ProfileImage;
+
+                var file = HttpContext.Request.Form.Files[0];
+                user.ProfileImage = await _imageService.SaveImage(file, true) ?? _tempProfileImg;
+
+                if (_tempProfileImg != user.ProfileImage)
+                {
+                    _imageService.DeleteImage(_tempProfileImg, true);
+                    await _context.SaveChangesAsync();
                 }
             }
 

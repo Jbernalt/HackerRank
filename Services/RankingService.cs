@@ -166,6 +166,7 @@ namespace HackerRank.Services
                     topFiveModel.Add(new()
                     {
                         UserName = user.UserName,
+                        ProfileImage = user.ProfileImage,
                         Commits = usertransactions.Where(t => t.Key == 1).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 1).FirstOrDefault().Count(),
                         IssuesCreated = usertransactions.Where(t => t.Key == 2).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 2).FirstOrDefault().Count(),
                         IssuesSolved = usertransactions.Where(t => t.Key == 3).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 3).FirstOrDefault().Count(),
