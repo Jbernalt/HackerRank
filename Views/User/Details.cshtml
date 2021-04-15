@@ -60,7 +60,7 @@
         <dt class="col-sm-2">
             @Html.DisplayName("Achievements")
         </dt>
-        @foreach (var item in Model.UserAchievements)
+        @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
         {
             <dd class="col-sm-10">
                 @item.Achievement.AchievementName
