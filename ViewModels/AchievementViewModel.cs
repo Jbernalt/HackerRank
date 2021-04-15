@@ -17,5 +17,6 @@ namespace HackerRank.ViewModels
         public ActionType TypeOfAction { get; set; }
         public string Image { get; set; }
         public bool IsUnlocked { get; set; }
+        public bool IsShowCase { get; set; }
     }
 }

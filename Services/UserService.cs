@@ -28,7 +28,7 @@ namespace HackerRank.Services
     public interface IUserService
     {
         List<ChartData> GetUserCommitChartData(User user);
-        Task GetAllUserData();
+        Task GetAllUserData(int days);
         Task UpdateAchievementsOnUsers();
         Task<UserViewModel> GetUserByUsername(string username);
     }
@@ -70,8 +70,9 @@ namespace HackerRank.Services
             return model;
         }
 
-        public async Task GetAllUserData()
+        public async Task GetAllUserData(int days)
         {
+            string after = DateTime.Today.AddDays(-days).ToString("yyyy-MM-dd");
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
@@ -89,7 +90,7 @@ namespace HackerRank.Services
                 {
                     string path = user.GitLabId.ToString() + $"/events";
                     uriBuilder.Path = path;
-                    uriBuilder.Query = "?per_page=100";
+                    uriBuilder.Query = $"?per_page=100&after={after}";
                     var response = await client.GetAsync(uriBuilder.ToString());
                     var jsonResult = await response.Content.ReadAsStringAsync();
 

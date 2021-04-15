@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 using AutoMapper;
 
 using HackerRank.Data;
 using HackerRank.Models.Achievements;
+using HackerRank.Responses;
 using HackerRank.ViewModels;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HackerRank.Services
@@ -23,12 +22,12 @@ namespace HackerRank.Services
     {
         Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user);
         Task<AchievementViewModel> FindAchievementById(int id);
-        Task<AchievementInputModel> FindAchievementModelById(int id);
-        Task Create(AchievementInputModel achievementModel, IFormFile file);
-        Task Edit(AchievementInputModel achievementModel, IFormFile file);
+        Task<AchievementResponse> FindAchievementModelById(int id);
+        Task Create(AchievementResponse achievementModel, IFormFile file);
+        Task Edit(AchievementResponse achievementModel, IFormFile file);
         Task<AchievementViewModel> Details(int id);
         Task Delete(int id);
-        Task<string> SaveImage(IFormFile file);
+        Task SetShowCase(List<string> achievementIds, ClaimsPrincipal user);
     }
 
     public class AchievementService : IAchievementService
@@ -36,12 +35,30 @@ namespace HackerRank.Services
         private readonly HackerRankContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
+        private readonly IImageService _imageService;
 
-        public AchievementService (HackerRankContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public AchievementService (HackerRankContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper, IImageService imageService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
+            _imageService = imageService;
+        }
+        public async Task SetShowCase(List<string> achievementIds, ClaimsPrincipal claimsUser)
+        {
+            List<UserAchievement> userAchievements = await _context.UserAchievement.Include("Achievement").Include("User").Where(u => u.User.UserName == claimsUser.Identity.Name).ToListAsync();
+            foreach (var achievement in userAchievements)
+            {
+                achievement.IsShowCase = false;
+                foreach(var id in achievementIds)
+                {
+                    if (achievement.Achievement.AchievementId == int.Parse(id))
+                    {
+                        achievement.IsShowCase = true;                     
+                    }
+                }
+            }
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user)
@@ -64,6 +81,10 @@ namespace HackerRank.Services
                     {
                         a.IsUnlocked = true;
                     }
+                    if (userAchievements.Where(x => x.IsShowCase == true && x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
+                    {
+                        a.IsShowCase = true;
+                    }
                 }
 
                 return viewModelList.OrderByDescending(x => x.IsUnlocked).ToList();
@@ -82,34 +103,35 @@ namespace HackerRank.Services
             return viewModel;
         }
 
-        public async Task<AchievementInputModel> FindAchievementModelById(int id)
+        public async Task<AchievementResponse> FindAchievementModelById(int id)
         {
             Achievement achievement = await _context.Achievement.FindAsync(id);
 
-            return _mapper.Map<AchievementInputModel>(achievement);
+            return _mapper.Map<AchievementResponse>(achievement);
         }
 
-        public async Task Create(AchievementInputModel achievementModel, IFormFile file)
+        public async Task Create(AchievementResponse achievementModel, IFormFile file)
         {
             Achievement achievement =_mapper.Map<Achievement>(achievementModel);
-            achievement.Image = await SaveImage(file);
+            achievement.Image = await _imageService.SaveImage(file, false);
 
             _context.Add(achievement);
             await _context.SaveChangesAsync();
         }
 
-        public async Task Edit(AchievementInputModel achievementModel, IFormFile file)
+        public async Task Edit(AchievementResponse achievementModel, IFormFile file)
         {
             Achievement achievement = _mapper.Map<Achievement>(achievementModel);
 
             try
             {
+                var _tempImg = _context.Achievement.Where(a => a.AchievementId == achievement.AchievementId).Select(p => p.Image).FirstOrDefault();
                 _context.Achievement.Update(achievement);
 
-                if (file == null)
-                {
-                    _context.Entry(achievement).Property(p => p.Image).IsModified = false;
-                }
+                achievement.Image = await _imageService.SaveImage(file, false) ?? _tempImg;
+
+                if (_tempImg != achievement.Image)
+                    _imageService.DeleteImage(_tempImg, false);
 
                 await _context.SaveChangesAsync();
             }
@@ -148,27 +170,6 @@ namespace HackerRank.Services
         private bool AchievementExists(int id)
         {
             return _context.Achievement.Any(e => e.AchievementId == id);
-        }
-
-        public async Task<string> SaveImage(IFormFile file)
-        {
-            string uniqueFileName = null;
-
-            if (file != null)
-            {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "achievementImg");
-
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(fileStream);
-                }
-            }
-            return uniqueFileName;
         }
     }
 }

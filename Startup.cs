@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 
 using HackerRank.Data;
+using HackerRank.Hubs;
 using HackerRank.Models.Users;
 using HackerRank.Services;
 
@@ -27,8 +28,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using Westwind.AspNetCore.LiveReload;
-
 namespace HackerRank
 {
     public class Startup
@@ -45,13 +44,14 @@ namespace HackerRank
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLiveReload();
-
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
+
+            services.AddSignalR();
+
 
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
@@ -78,6 +78,7 @@ namespace HackerRank
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IRankingService, RankingService>();
+            services.AddScoped<IImageService, ImageService>();
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();
@@ -143,8 +144,8 @@ namespace HackerRank
             services.AddAntiforgery(options =>
             {
                 // Set Cookie properties using CookieBuilder properties†.
-                options.FormFieldName = "AntiforgeryFieldname";
-                options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
+                options.FormFieldName = "AntiforgeryField";
+                options.HeaderName = "X-CSRF-TOKEN";
                 options.SuppressXFrameOptionsHeader = false;
             });
 
@@ -160,8 +161,6 @@ namespace HackerRank
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager)
         {
-            app.UseLiveReload();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -210,11 +209,10 @@ namespace HackerRank
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDefaultControllerRoute();
                 endpoints.MapRazorPages();
                 endpoints.MapHangfireDashboard();
+                endpoints.MapHub<LiveFeedHub>("/LiveFeedHub");
             });
         }
     }

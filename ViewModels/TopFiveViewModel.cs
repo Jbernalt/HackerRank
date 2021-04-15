@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using HackerRank.Responses;
+
 namespace HackerRank.ViewModels
 {
     public class TopFiveViewModel
     {
+        public TopFiveViewModel()
+        {
+            WebHookResponse = new WebHookResponse();
+        }
         //Group
         public string GroupName { get; set; }
         public int CommitsDaily { get; set; }
@@ -18,6 +24,7 @@ namespace HackerRank.ViewModels
 
         //User
         public string UserName { get; set; }
+        public string ProfileImage { get; set; }
 
         //Stats
         public double DailyRating { get; set; }
@@ -29,5 +36,8 @@ namespace HackerRank.ViewModels
         public int IssuesSolved { get; set; }
         public int MergeRequest { get; set; }
         public int Comments { get; set; }
+
+        //LiveWebHookFeed
+        public WebHookResponse WebHookResponse { get; set; }
     }
 }
