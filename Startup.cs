@@ -78,6 +78,7 @@ namespace HackerRank
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IRankingService, RankingService>();
+            services.AddScoped<IImageService, ImageService>();
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();

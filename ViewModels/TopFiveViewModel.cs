@@ -24,6 +24,7 @@ namespace HackerRank.ViewModels
 
         //User
         public string UserName { get; set; }
+        public string ProfileImage { get; set; }
 
         //Stats
         public double DailyRating { get; set; }

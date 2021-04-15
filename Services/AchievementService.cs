@@ -36,12 +36,14 @@ namespace HackerRank.Services
         private readonly HackerRankContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
+        private readonly IImageService _imageService;
 
-        public AchievementService (HackerRankContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public AchievementService (HackerRankContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper, IImageService imageService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
+            _imageService = imageService;
         }
         public async Task SetShowCase(List<string> achievementIds, ClaimsPrincipal claimsUser)
         {
@@ -114,7 +116,7 @@ namespace HackerRank.Services
         public async Task Create(AchievementResponse achievementModel, IFormFile file)
         {
             Achievement achievement =_mapper.Map<Achievement>(achievementModel);
-            achievement.Image = await SaveImage(file);
+            achievement.Image = await _imageService.SaveImage(file, false);
 
             _context.Add(achievement);
             await _context.SaveChangesAsync();
@@ -126,16 +128,13 @@ namespace HackerRank.Services
 
             try
             {
+                var _tempImg = _context.Achievement.Where(a => a.AchievementId == achievement.AchievementId).Select(p => p.Image).FirstOrDefault();
                 _context.Achievement.Update(achievement);
 
-                if (file == null)
-                {
-                    _context.Entry(achievement).Property(p => p.Image).IsModified = false;
-                }
-                else
-                {
-                    achievement.Image = await SaveImage(file);
-                }
+                achievement.Image = await _imageService.SaveImage(file, false) ?? _tempImg;
+
+                if (_tempImg != achievement.Image)
+                    _imageService.DeleteImage(_tempImg, false);
 
                 await _context.SaveChangesAsync();
             }
@@ -174,27 +173,6 @@ namespace HackerRank.Services
         private bool AchievementExists(int id)
         {
             return _context.Achievement.Any(e => e.AchievementId == id);
-        }
-
-        public async Task<string> SaveImage(IFormFile file)
-        {
-            string uniqueFileName = null;
-
-            if (file != null)
-            {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "achievementImg");
-
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(fileStream);
-                }
-            }
-            return uniqueFileName;
         }
     }
 }

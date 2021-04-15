@@ -1,32 +1,42 @@
-CONTENTS OF THIS FILE
----------------------
+## **CONTENT**
 
- * Introduction
- * Requirements
- * Installation
+- Introduction
+- Requirements
+- Installation
+- Setup
 
+# **INTRODUCTION**
 
-INTRODUCTION
-------------
+HackerRank is a project designed with the intention to gamify the development process and create incentives for the developer through achievements and scoring systems.<br><br>
 
-HackerRank is a project designed with the intention to gamify the development process and create incentives for the developer through achievements and scoring systems.
+# **REQUIREMENTS**<br>
 
+.NET Core 5 <br>
 
-REQUIREMENTS
-------------
+.NET Tools<br>
 
-.NET Core 5 <br>
-.NET Tools
+UltraHook<br>
 
+Ruby & RubyGems<br><br>
 
-INSTALLATION
-------------
+# **INSTALLATION**<br>
 
 Install .NET Core:
-https://dotnet.microsoft.com/download
+[Download .NET (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download)
 
-Install tools:
-https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools
+Install .NET Tools:
+[.NET tools - .NET CLI | Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
+
+Install UltraHook:
+[UltraHook - Receive webhooks on localhost](https://www.ultrahook.com/faq)
+
+Install Ruby:
+[RubyInstaller for Windows](https://rubyinstaller.org/)
+
+Install RubyGems:
+[Download RubyGems](https://rubygems.org/pages/download)<br><br>
+
+# **SETUP**<br>
 
 Clone the project
 
@@ -65,5 +75,29 @@ Change each value for the corresponding values generated in the previous step <b
 `dotnet user-secrets set "Authentication:GitLab:ClientSecret" "ClientSecret"` <br>
 `dotnet user-secrets set "Authentication:GitLab:ClientId" "ClientId"` <br>
 `dotnet user-secrets set "Authentication:GitLab:APIKey" "AccessToken"` <br>
+
+For this command, use a password manager to generate a long random string of characters to use as the "SecretToken"<br>
+
+`dotnet user-secrets set "Authentication:GitLab:WebHookAuthentication" "SecretToken"`<br>
+
+**UltraHook:**<br>
+
+Run this command after installing ultrahook and following the instructions to get an API key<br>
+
+`ultrahook gitlab https://localhost:YOUR_PORT_HERE/api/webhook/receive`<br>
+
+If for some reason ultrahook cannot read the API key stored on your device use this command instead<br>
+
+`ultrahook gitlab -k API_KEY_HERE https://localhost:YOUR_PORT_HERE/api/webhook/receive`<br>
+
+Copy the URL which ultrahook generates (should look something like this: username-gitlab.ultrahook.com)<br>
+
+Go to the project you want to track -> settings -> webhooks<br>
+
+Add the URL you copied in the previous step to the URL field<br>
+
+Add "SecretToken" you generated earlier to the secret token field<br>
+
+Check the following scopes: push events, comments, merge request events, issue events and then click "Add webhook"<br>
 
 **That's it!**
