@@ -1,14 +1,15 @@
-CONTENTS OF THIS FILE
+## **CONTENT**
 
 - Introduction
 - Requirements
 - Installation
+- Setup
 
-INTRODUCTION
+# **INTRODUCTION**
 
-HackerRank is a project designed with the intention to gamify the development process and create incentives for the developer through achievements and scoring systems.
+HackerRank is a project designed with the intention to gamify the development process and create incentives for the developer through achievements and scoring systems.<br><br>
 
-REQUIREMENTS
+# **REQUIREMENTS**<br>
 
 .NET Core 5 <br>
 
@@ -16,9 +17,9 @@ REQUIREMENTS
 
 UltraHook<br>
 
-Ruby & RubyGems<br>
+Ruby & RubyGems<br><br>
 
-INSTALLATION
+# **INSTALLATION**<br>
 
 Install .NET Core:
 [Download .NET (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download)
@@ -33,7 +34,9 @@ Install Ruby:
 [RubyInstaller for Windows](https://rubyinstaller.org/)
 
 Install RubyGems:
-[Download RubyGems](https://rubygems.org/pages/download)
+[Download RubyGems](https://rubygems.org/pages/download)<br><br>
+
+# **SETUP**<br>
 
 Clone the project
 
