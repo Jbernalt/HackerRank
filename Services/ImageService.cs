@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +14,7 @@ namespace HackerRank.Services
     {
         Task<string> SaveImage(IFormFile file, bool isProfileImage);
         bool DeleteImage(string filename, bool isProfileImage);
+        Task Compressimage(string filename, IFormFile file);
     }
 
     public class ImageService : IImageService
@@ -23,6 +24,98 @@ namespace HackerRank.Services
         public ImageService(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
+        }
+
+        public async Task Compressimage(string filepath, IFormFile file)
+        {
+            try
+            {
+                float maxHeight = 500.0f;
+                float maxWidth = 500.0f;
+                int newWidth;
+                int newHeight;
+
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                using var image  = Image.FromStream(memoryStream);
+
+                string extension = image.RawFormat.ToString().ToLower();
+                Bitmap originalBMP = new(image);
+                int originalWidth = originalBMP.Width;
+                int originalHeight = originalBMP.Height;
+
+                if (originalWidth > maxWidth || originalHeight > maxHeight)
+                {
+                    // To preserve the aspect ratio  
+                    float ratioX = (float)maxWidth / originalWidth;
+                    float ratioY = (float)maxHeight / originalHeight;
+                    float ratio = Math.Min(ratioX, ratioY);
+                    newWidth = (int)(originalWidth * ratio);
+                    newHeight = (int)(originalHeight * ratio);
+                }
+                else
+                {
+                    newWidth = originalWidth;
+                    newHeight = originalHeight;
+                }
+
+                Bitmap bitMAP1 = new(originalBMP, newWidth, newHeight);
+                Graphics imgGraph = Graphics.FromImage(bitMAP1);
+
+                if (extension == "png")
+                {
+                    imgGraph.SmoothingMode = SmoothingMode.AntiAlias;
+                    imgGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    imgGraph.DrawImage(originalBMP, 0, 0, newWidth, newHeight);
+
+                    bitMAP1.Save(filepath);
+
+                    bitMAP1.Dispose();
+                    imgGraph.Dispose();
+                    originalBMP.Dispose();
+                }
+                else if (extension == "jpg" || extension == "jpeg")
+                {
+                    imgGraph.SmoothingMode = SmoothingMode.AntiAlias;
+                    imgGraph.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    imgGraph.DrawImage(originalBMP, 0, 0, newWidth, newHeight);
+
+                    ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+                    Encoder myEncoder = Encoder.Quality;
+                    EncoderParameters myEncoderParameters = new(1);
+                    EncoderParameter myEncoderParameter = new(myEncoder, 75L);
+                    myEncoderParameters.Param[0] = myEncoderParameter;
+
+                    bitMAP1.Save(filepath, jpgEncoder, myEncoderParameters);
+
+                    bitMAP1.Dispose();
+                    imgGraph.Dispose();
+                    originalBMP.Dispose();
+                }
+                else if (extension == "gif")
+                {
+                    using var fileStream = new FileStream(filepath, FileMode.Create);
+                    await file.CopyToAsync(fileStream);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public static ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
         }
 
         public bool DeleteImage(string filename, bool isProfileImage)
@@ -63,8 +156,8 @@ namespace HackerRank.Services
 
                 uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using var fileStream = new FileStream(filePath, FileMode.Create);
-                await file.CopyToAsync(fileStream);
+
+                await Compressimage(filePath, file);
             }
             return uniqueFileName;
         }
