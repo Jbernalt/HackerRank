@@ -23,7 +23,7 @@ INSTALLATION
 Install .NET Core:
 [Download .NET (Linux, macOS, and Windows)](https://dotnet.microsoft.com/download)
 
-Install tools:
+Install .NET Tools:
 [.NET tools - .NET CLI | Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools)
 
 Install UltraHook:
