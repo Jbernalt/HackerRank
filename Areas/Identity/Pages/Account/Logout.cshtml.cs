@@ -12,6 +12,7 @@ using HackerRank.Models.Users;
 namespace HackerRank.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
+    [IgnoreAntiforgeryToken]
     public class LogoutModel : PageModel
     {
         private readonly SignInManager<User> _signInManager;
