@@ -56,3 +56,7 @@
 .bredd{
     width: 70px;
 }
+.hej{
+    max-width: 1000px;
+    min-width: 600px;
+}
