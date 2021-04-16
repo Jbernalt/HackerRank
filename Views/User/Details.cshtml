@@ -76,6 +76,8 @@
     </dl>
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    @*Buttons to Change Charts*@
     <div class="Chart-Buttons">
         <input type="button" id="commit" value="Commit" class="btn btn-primary" />
         <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
@@ -86,105 +88,151 @@
 
     <div id="chart_div"></div>
 
+    @*Buttons to Change TimeSpan on Charts*@
+    <div class="Chart-Buttons-TimeSpan">
+        <input type="button" id="day" value="Day" class="btn btn-primary" />
+        <input type="button" id="week" value="Week" class="btn btn-primary" />
+        <input type="button" id="month" value="Month" class="btn btn-primary" />
+        <input type="button" id="year" value="Year" class="btn btn-primary" />
+        <input type="button" id="allTime" value="AllTime" class="btn btn-primary" />
+    </div>
+
     @section Scripts
     {
         <script type="text/javascript">
-            google.charts.load('current',
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart()
             {
-                'callback': function ()
-                {
-                    var data = google.visualization.arrayToDataTable([
-                        ['Time', 'Commit'],
+                var data = google.visualization.arrayToDataTable([
+                    ['Time', 'Commit'],
 
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfCommits],</text>
-                        }
-                    ]);
-
-                    var data2 = google.visualization.arrayToDataTable([
-                        ['Time', 'IssuesCreated'],
-
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfIssuesCreated],</text>
-                        }
-                    ]);
-
-                    var data3 = google.visualization.arrayToDataTable([
-                        ['Time', 'IssuesSolved'],
-
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfIssuesSolved],</text>
-                        }
-                    ]);
-
-                    var data4 = google.visualization.arrayToDataTable([
-                        ['Time', 'MergeRequests'],
-
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfMergeRequests],</text>
-                        }
-                    ]);
-
-                    var data5 = google.visualization.arrayToDataTable([
-                        ['Time', 'Comments'],
-
-                        @foreach (var data in Model.ChartDatas)
-                        {
-                            <text>['@data.TimeStamp', @data.NumOfComments],</text>
-                        }
-                    ]);
-
-                    var options =
+                    @foreach (var data in Model.ChartDatas)
                     {
-                        title: 'User commits',
-                        curveType: 'function',
-                        pointsVisible: true,
-                        lineWidth: 3,
-                        hAxis: { title: 'Time' },
-                        vAxis: { title: 'Commits' },
-                        width: 500,
-                        height: 500
-                    };
+                        <text>[new Date('@data.TimeStamp'), @data.NumOfCommits],</text>
+                    }
+                ]);
 
-                    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+                var data2 = google.visualization.arrayToDataTable([
+                    ['Time', 'IssuesCreated'],
+
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesCreated],</text>
+                    }
+                ]);
+
+                var data3 = google.visualization.arrayToDataTable([
+                    ['Time', 'IssuesSolved'],
+
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesSolved],</text>
+                    }
+                ]);
+
+                var data4 = google.visualization.arrayToDataTable([
+                    ['Time', 'MergeRequests'],
+
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>[new Date('@data.TimeStamp'), @data.NumOfMergeRequests],</text>
+                    }
+                ]);
+
+                var data5 = google.visualization.arrayToDataTable([
+                    ['Time', 'Comments'],
+
+                    @foreach (var data in Model.ChartDatas)
+                    {
+                        <text>[new Date('@data.TimeStamp'), @data.NumOfComments],</text>
+                    }
+                ]);
+
+                var d = new Date();
+                var month = d.getMonth(); // From 0-11
+                var year = d.getFullYear(); // Get year
+                var day = d.getDate(); // From 1-31
+
+                var options =
+                {
+                    title: 'User Commits',
+                    curveType: 'function',
+                    width: 800,
+                    height: 400,
+                    hAxis: {
+                        title: 'Time',
+                        format: 'yyyy/MM/dd',
+                    },
+                    vAxis: {
+                        title: 'Commits',
+                        format: ''
+                    }
+                };
+
+                var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+                chart.draw(data, options);
+
+                //#region Listens for button click to change TimeSpan
+                document.getElementById('day').addEventListener('click', function () {
+                    options.hAxis.viewWindow.min = (year, month, day - 1);
+                    options.hAxis.viewWindow.max = (year, month, day);
                     chart.draw(data, options);
+                }, false);
 
-                    document.getElementById('commit').addEventListener('click', function () {
-                        options.title = 'User Commits';
-                        options.vAxis.title = 'Commits';
-                        chart.draw(data, options);
-                    }, false);
+                document.getElementById('week').addEventListener('click', function () {
+                    options.hAxis.viewWindow.min = (year, month, day - 7);
+                    options.hAxis.viewWindow.max = (year, month, day);
+                    chart.draw(data, options);
+                }, false);
 
-                    document.getElementById('issuesCreated').addEventListener('click', function () {
-                        options.title = 'User IssuesCreated';
-                        options.vAxis.title = 'IssuesCreated';
-                        chart.draw(data2, options);
-                    }, false);
+                document.getElementById('month').addEventListener('click', function () {
+                    options.hAxis.viewWindow.min = (year, month - 1, day);
+                    options.hAxis.viewWindow.max = (year, month, day);
+                    chart.draw(data, options);
+                }, false);
 
-                    document.getElementById('issuesSolved').addEventListener('click', function () {
-                        options.title = 'User IssuesSolved';
-                        options.vAxis.title = 'IssuesSolved';
-                        chart.draw(data3, options);
-                    }, false);
+                document.getElementById('year').addEventListener('click', function () {
+                    options.hAxis.viewWindow.min = (year - 1, month, day);
+                    options.hAxis.viewWindow.max = (year, month, day);
+                    chart.draw(data, options);
+                }, false);
+                //#endregion
 
-                    document.getElementById('mergeRequests').addEventListener('click', function () {
-                        options.title = 'User MergeRequests';
-                        options.vAxis.title = 'MergeRequests';
-                        chart.draw(data4, options);
-                    }, false);
+                //#region Listens for button click to change options and Data
+                document.getElementById('commit').addEventListener('click', function () {
+                    options.title = 'User Commits';
+                    options.vAxis.title = 'Commits';
+                    chart.draw(data, options);
+                }, false);
 
-                    document.getElementById('comments').addEventListener('click', function () {
-                        options.title = 'User Comments';
-                        options.vAxis.title = 'Comments';
-                        chart.draw(data5, options);
-                    }, false);
-                },
-                'packages':['corechart']
-            });
+                document.getElementById('issuesCreated').addEventListener('click', function () {
+                    options.title = 'User IssuesCreated';
+                    options.vAxis.title = 'IssuesCreated';
+                    chart.draw(data2, options);
+                }, false);
+
+                document.getElementById('issuesSolved').addEventListener('click', function () {
+                    options.title = 'User IssuesSolved';
+                    options.vAxis.title = 'IssuesSolved';
+                    chart.draw(data3, options);
+                }, false);
+
+                document.getElementById('mergeRequests').addEventListener('click', function () {
+                    options.title = 'User MergeRequests';
+                    options.vAxis.title = 'MergeRequests';
+                    chart.draw(data4, options);
+                }, false);
+
+                document.getElementById('comments').addEventListener('click', function () {
+                    options.title = 'User Comments';
+                    options.vAxis.title = 'Comments';
+                    chart.draw(data5, options);
+                }, false);
+                //#endregion
+            }
         </script>
     }
 </div>
