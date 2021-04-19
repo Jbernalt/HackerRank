@@ -88,57 +88,61 @@ namespace HackerRank.Services
 
                 foreach (var user in users)
                 {
-                    string path = user.GitLabId.ToString() + $"/events";
-                    uriBuilder.Path = path;
-                    uriBuilder.Query = $"?per_page=100&after={after}";
-                    var response = await client.GetAsync(uriBuilder.ToString());
-                    var jsonResult = await response.Content.ReadAsStringAsync();
-
-                    eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
-
-                    List<UserTransaction> userTransactions = new();
-                    Project[] projects = await _context.Project.ToArrayAsync();
-
-                    foreach (var e in eventResponses)
+                    if(user.GitLabId != 0)
                     {
-                        UserTransaction tran = new()
-                        {
-                            User = user,
-                            FetchDate = DateTime.UtcNow,
-                            Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                            UserId = user.Id
-                        };
+                        string path = user.GitLabId.ToString() + $"/events";
+                        uriBuilder.Path = path;
+                        uriBuilder.Query = $"?per_page=100&after={after}";
+                        var response = await client.GetAsync(uriBuilder.ToString());
+                        var jsonResult = await response.Content.ReadAsStringAsync();
 
-                        if (e.action_name == "pushed to" || e.action_name == "pushed new")
+                        eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
+
+                        List<UserTransaction> userTransactions = new();
+                        Project[] projects = await _context.Project.ToArrayAsync();
+
+                        foreach (var e in eventResponses)
                         {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault();
-                            tran.TransactionId = 1;
+                            UserTransaction tran = new()
+                            {
+                                User = user,
+                                FetchDate = DateTime.UtcNow,
+                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                                UserId = user.Id
+                            };
+
+                            if (e.action_name == "pushed to" || e.action_name == "pushed new")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault();
+                                tran.TransactionId = 1;
+                            }
+                            else if (e.target_type == "Issue" && e.action_name == "opened")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault();
+                                tran.TransactionId = 2;
+                            }
+                            else if (e.target_type == "Issue" && e.action_name == "closed")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault();
+                                tran.TransactionId = 3;
+                            }
+                            else if (e.target_type == "MergeRequest" && e.action_name == "opened")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault();
+                                tran.TransactionId = 4;
+                            }
+                            else if (e.action_name == "commented on")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault();
+                                tran.TransactionId = 5;
+                            }
+                            if (tran.User != null && tran.Transaction != null)
+                                userTransactions.Add(tran);
                         }
-                        else if (e.target_type == "Issue" && e.action_name == "opened")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault();
-                            tran.TransactionId = 2;
-                        }
-                        else if (e.target_type == "Issue" && e.action_name == "closed")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault();
-                            tran.TransactionId = 3;
-                        }
-                        else if (e.target_type == "MergeRequest" && e.action_name == "opened")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault();
-                            tran.TransactionId = 4;
-                        }
-                        else if (e.action_name == "commented on")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault();
-                            tran.TransactionId = 5;
-                        }
-                        if (tran.User != null && tran.Transaction != null)
-                            userTransactions.Add(tran);
+                        _context.UserTransaction.AddRange(userTransactions);
+                        await UpdateUserStats(user, userTransactions);
                     }
-                    _context.UserTransaction.AddRange(userTransactions);
-                    await UpdateUserStats(user, userTransactions);
+
                 }
 
                 await _context.SaveChangesAsync();
