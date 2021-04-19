@@ -61,6 +61,9 @@ namespace HackerRank.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            public int GitLabId { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -73,9 +76,9 @@ namespace HackerRank.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && User.IsInRole("Administrator"))
             {
-                var user = new User { UserName = Input.Email, Email = Input.Email };
+                var user = new User { UserName = Input.Email, Email = Input.Email, GitLabId = Input.GitLabId };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -89,8 +92,11 @@ namespace HackerRank.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"{HtmlEncoder.Default.Encode(callbackUrl)}", user.UserName);
+                    await _emailSender.SendEmailAsync(
+                        Input.Email,
+                        "Confirm your email",
+                        HtmlEncoder.Default.Encode(callbackUrl),
+                        user.UserName);
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
