@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using HackerRank.Models.Users;
+using HackerRank.Services;
 
 namespace HackerRank.Areas.Identity.Pages.Account
 {
@@ -90,7 +90,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        $"{HtmlEncoder.Default.Encode(callbackUrl)}", user.UserName);
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
