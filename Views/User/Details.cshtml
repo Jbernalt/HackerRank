@@ -77,42 +77,81 @@
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-    @*Buttons to Change Charts*@
-    <div class="Chart-Buttons">
-        <input type="button" id="commit" value="Commit" class="btn btn-primary" />
-        <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
-        <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
-        <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary" />
-        <input type="button" id="comments" value="Comments" class="btn btn-primary" />
-    </div>
+    @if (Model.ChartDatas.Count > 0)
+    {
+        @*Buttons to Change Charts*@
+        <div class="Chart-Buttons">
+            <input type="button" id="commit" value="Commit" class="btn btn-primary" />
+            <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
+            <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
+            <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary" />
+            <input type="button" id="comments" value="Comments" class="btn btn-primary" />
+        </div>
 
-    <div id="chart_div"></div>
-
-    @*Buttons to Change TimeSpan on Charts*@
-    <div class="Chart-Buttons-TimeSpan">
-        <input type="button" id="day" value="Day" class="btn btn-primary" />
-        <input type="button" id="week" value="Week" class="btn btn-primary" />
-        <input type="button" id="month" value="Month" class="btn btn-primary" />
-        <input type="button" id="year" value="Year" class="btn btn-primary" />
-        <input type="button" id="allTime" value="AllTime" class="btn btn-primary" />
-    </div>
+        <div id="dashboard">
+            <div id="chart" style='width: 915px; height: 300px;'></div>
+            <div id="control" style='width: 915px; height: 50px;'></div>
+        </div>
+    }
 
     @section Scripts
     {
         <script type="text/javascript">
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(drawChart);
 
-            function drawChart()
-            {
-                var data = google.visualization.arrayToDataTable([
+            google.load('visualization', '1.1', { packages: ['corechart', 'controls'] });
+
+            function drawVisualization() {
+                var dashboard = new google.visualization.Dashboard(
+                    document.getElementById('dashboard'));
+
+                var control = new google.visualization.ControlWrapper({
+                    controlType: 'ChartRangeFilter',
+                    containerId: 'control',
+                    options: {
+                        // Filter by the date axis.
+                        filterColumnIndex: 0,
+                        ui: {
+                            chartType: 'LineChart',
+                            chartOptions: {
+                                chartArea: { 'width': '90%' },
+                                hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd" }
+                            },
+                            // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
+                            minRangeSize: 86400000
+                        }
+                    },
+                });
+
+                var chart = new google.visualization.ChartWrapper({
+                    chartType: 'LineChart',
+                    containerId: 'chart',
+                    options: {
+                        // Use the same chart area width as the control for axis alignment.
+                        chartArea: { 'height': '70%', 'width': '90%' },
+                        legend: { 'position': 'none' },
+                        title: 'User Commits',
+                        hAxis: {
+                            title: 'Time',
+                            slantedText: false,
+                            format: 'yyyy/MM/dd',
+                            viewWindow: {},
+                        },
+                        vAxis: {
+                            title: 'Commits',
+                            format: ''
+                        }
+                    },
+                });
+
+                 var data = google.visualization.arrayToDataTable([
                     ['Time', 'Commit'],
 
                     @foreach (var data in Model.ChartDatas)
                     {
                         <text>[new Date('@data.TimeStamp'), @data.NumOfCommits],</text>
                     }
-                ]);
+
+                 ]);
 
                 var data2 = google.visualization.arrayToDataTable([
                     ['Time', 'IssuesCreated'],
@@ -150,89 +189,103 @@
                     }
                 ]);
 
-                var d = new Date();
-                var month = d.getMonth(); // From 0-11
-                var year = d.getFullYear(); // Get year
-                var day = d.getDate(); // From 1-31
-
-                var options =
-                {
-                    title: 'User Commits',
-                    curveType: 'function',
-                    width: 800,
-                    height: 400,
-                    hAxis: {
-                        title: 'Time',
-                        format: 'yyyy/MM/dd',
-                    },
-                    vAxis: {
-                        title: 'Commits',
-                        format: ''
-                    }
-                };
-
-                var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-
-                chart.draw(data, options);
-
-                //#region Listens for button click to change TimeSpan
-                document.getElementById('day').addEventListener('click', function () {
-                    options.hAxis.viewWindow.min = (year, month, day - 1);
-                    options.hAxis.viewWindow.max = (year, month, day);
-                    chart.draw(data, options);
-                }, false);
-
-                document.getElementById('week').addEventListener('click', function () {
-                    options.hAxis.viewWindow.min = (year, month, day - 7);
-                    options.hAxis.viewWindow.max = (year, month, day);
-                    chart.draw(data, options);
-                }, false);
-
-                document.getElementById('month').addEventListener('click', function () {
-                    options.hAxis.viewWindow.min = (year, month - 1, day);
-                    options.hAxis.viewWindow.max = (year, month, day);
-                    chart.draw(data, options);
-                }, false);
-
-                document.getElementById('year').addEventListener('click', function () {
-                    options.hAxis.viewWindow.min = (year - 1, month, day);
-                    options.hAxis.viewWindow.max = (year, month, day);
-                    chart.draw(data, options);
-                }, false);
-                //#endregion
+                dashboard.bind(control, chart);
+                dashboard.draw(data);
 
                 //#region Listens for button click to change options and Data
                 document.getElementById('commit').addEventListener('click', function () {
-                    options.title = 'User Commits';
-                    options.vAxis.title = 'Commits';
-                    chart.draw(data, options);
+                    chart.setOptions({
+                        chartArea: { 'height': '70%', 'width': '90%' },
+                        legend: { 'position': 'none' },
+                        title: 'User Commits',
+                        hAxis: {
+                            title: 'Time',
+                            slantedText: false,
+                            format: 'yyyy/MM/dd',
+                        },
+                        vAxis: {
+                            title: 'Commits',
+                            format: ''
+                        }
+                    })
+                    dashboard.draw(data);
                 }, false);
 
                 document.getElementById('issuesCreated').addEventListener('click', function () {
-                    options.title = 'User IssuesCreated';
-                    options.vAxis.title = 'IssuesCreated';
-                    chart.draw(data2, options);
+                    chart.setOptions({
+                        chartArea: { 'height': '70%', 'width': '90%' },
+                        legend: { 'position': 'none' },
+                        title: 'User IssuesCreated',
+                        hAxis: {
+                            title: 'Time',
+                            slantedText: false,
+                            format: 'yyyy/MM/dd',
+                        },
+                        vAxis: {
+                            title: 'IssuesCreated',
+                            format: ''
+                        }
+                    })
+                    dashboard.draw(data2);
                 }, false);
 
                 document.getElementById('issuesSolved').addEventListener('click', function () {
-                    options.title = 'User IssuesSolved';
-                    options.vAxis.title = 'IssuesSolved';
-                    chart.draw(data3, options);
+                    chart.setOptions({
+                        chartArea: { 'height': '70%', 'width': '90%' },
+                        legend: { 'position': 'none' },
+                        title: 'User IssuesSolved',
+                        hAxis: {
+                            title: 'Time',
+                            slantedText: false,
+                            format: 'yyyy/MM/dd',
+                        },
+                        vAxis: {
+                            title: 'IssuesSolved',
+                            format: ''
+                        }
+                    })
+                    dashboard.draw(data3);
                 }, false);
 
                 document.getElementById('mergeRequests').addEventListener('click', function () {
-                    options.title = 'User MergeRequests';
-                    options.vAxis.title = 'MergeRequests';
-                    chart.draw(data4, options);
+                    chart.setOptions({
+                        chartArea: { 'height': '70%', 'width': '90%' },
+                        legend: { 'position': 'none' },
+                        title: 'User MergeRequests',
+                        hAxis: {
+                            title: 'Time',
+                            slantedText: false,
+                            format: 'yyyy/MM/dd',
+                        },
+                        vAxis: {
+                            title: 'MergeRequests',
+                            format: ''
+                        }
+                    })
+                    dashboard.draw(data4);
                 }, false);
 
                 document.getElementById('comments').addEventListener('click', function () {
-                    options.title = 'User Comments';
-                    options.vAxis.title = 'Comments';
-                    chart.draw(data5, options);
+                    chart.setOptions({
+                        chartArea: { 'height': '70%', 'width': '90%' },
+                        legend: { 'position': 'none' },
+                        title: 'User Comments',
+                        hAxis: {
+                            title: 'Time',
+                            slantedText: false,
+                            format: 'yyyy/MM/dd',
+                        },
+                        vAxis: {
+                            title: 'Comments',
+                            format: ''
+                        }
+                    })
+                    dashboard.draw(data5);
                 }, false);
                 //#endregion
             }
+            google.setOnLoadCallback(drawVisualization);
+
         </script>
     }
 </div>
