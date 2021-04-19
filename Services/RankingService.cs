@@ -16,7 +16,7 @@ namespace HackerRank.Services
 {
     public interface IRankingService
     {
-        Task UpdateUserStats();
+
         Task CalculateAllUsersRating(bool monthly);
         Task<List<TopFiveViewModel>> GetTopFive();
         public Task<List<TopFiveViewModel>> CalculateTopFiveGroupRating();
@@ -122,34 +122,7 @@ namespace HackerRank.Services
             return topFiveModel.OrderByDescending(x => x.GroupRating).Take(5).ToList();
         }
 
-        public async Task UpdateUserStats()
-        {
-            var users = await _context.Users.Include("UserStats").ToListAsync();
 
-            foreach (var u in users)
-            { 
-                var usertransaction = await _context.UserTransaction.Where(t => t.UserId == u.Id).ToArrayAsync();
-
-                foreach (var t in usertransaction)
-                {
-                    if (t.TransactionId == 1)
-                        u.UserStats.TotalCommits += 1;
-
-                    if (t.TransactionId == 2)
-                        u.UserStats.TotalIssuesCreated += 1;
-
-                    if (t.TransactionId == 3)
-                        u.UserStats.TotalIssuesSolved += 1;
-
-                    if (t.TransactionId == 4)
-                        u.UserStats.TotalMergeRequests += 1;
-
-                    if (t.TransactionId == 5)
-                        u.UserStats.TotalComments += 1;
-                }
-                await _context.SaveChangesAsync();
-            }
-        }
 
         public async Task<List<TopFiveViewModel>> GetTopFive()
         {
