@@ -84,7 +84,7 @@ namespace HackerRank.Services
                 };
 
                 List<EventResponse> eventResponses = new();
-                var users = await _context.Users.ToArrayAsync();
+                var users = await _context.Users.Include("UserStats").ToArrayAsync();
 
                 foreach (var user in users)
                 {
@@ -138,11 +138,34 @@ namespace HackerRank.Services
                             userTransactions.Add(tran);
                     }
                     _context.UserTransaction.AddRange(userTransactions);
+                    await UpdateUserStats(user, userTransactions);
                 }
 
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task UpdateUserStats(User user, List<UserTransaction> userTransactions)
+        {
+            foreach (var t in userTransactions)
+            {
+                if (t.TransactionId == 1)
+                    user.UserStats.TotalCommits += 1;
+
+                if (t.TransactionId == 2)
+                    user.UserStats.TotalIssuesCreated += 1;
+
+                if (t.TransactionId == 3)
+                    user.UserStats.TotalIssuesSolved += 1;
+
+                if (t.TransactionId == 4)
+                    user.UserStats.TotalMergeRequests += 1;
+
+                if (t.TransactionId == 5)
+                    user.UserStats.TotalComments += 1;
+            }
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task UpdateAchievementsOnUsers()
         {
@@ -182,7 +205,7 @@ namespace HackerRank.Services
                     {
                         await _context.UserAchievement.AddAsync(userAchievement);
                     }
-                    
+
                     await _context.SaveChangesAsync();
                 }
             }

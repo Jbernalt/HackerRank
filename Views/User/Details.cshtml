@@ -36,6 +36,36 @@
             @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserStats.TotalCommits)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserStats.TotalCommits)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserStats.TotalIssuesCreated)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserStats.TotalIssuesCreated)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserStats.TotalIssuesSolved)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserStats.TotalIssuesSolved)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserStats.TotalMergeRequests)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserStats.TotalMergeRequests)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserStats.TotalComments)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserStats.TotalComments)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
         <dd class="col-sm-10">
@@ -44,6 +74,7 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Groups)
         </dt>
+
         @foreach (var item in Model.Groups)
         {
             <dd class="col-sm-10">
