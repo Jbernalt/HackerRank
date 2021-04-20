@@ -8,9 +8,10 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using HackerRank.Models.Users;
+using HackerRank.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
@@ -124,7 +125,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && Input.Email.Contains("@plejd.se"))
             {
                 var username = info.Principal.Identity.Name;
                 var gitlabId = int.Parse(info.ProviderKey);
@@ -157,8 +158,11 @@ namespace HackerRank.Areas.Identity.Pages.Account
                             values: new { area = "Identity", userId = userId, code = code },
                             protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        await _emailSender.SendEmailAsync(
+                            Input.Email,
+                            "Confirm your email",
+                            HtmlEncoder.Default.Encode(callbackUrl),
+                            user.UserName);
 
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)

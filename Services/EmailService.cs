@@ -15,7 +15,7 @@ namespace HackerRank.Services
 {
     public interface IEmailSender
     {
-        Task SendEmailAsync(string email, string subject, string body, string username);
+        Task SendEmailAsync(string email, string subject, string callbackurl, string username);
     }
 
     public class EmailService : IEmailSender
