@@ -72,15 +72,12 @@ namespace HackerRank.Controllers
                     $"{model.WebHookResponse.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookResponse.WebHookIssueResponse.object_attributes.title}"
                     + $", " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
                 username = model.WebHookResponse.WebHookIssueResponse.user.username;
+
                 if(model.WebHookResponse.WebHookIssueResponse.object_attributes.state == "opened")
-                {
                     point = 0.15;
-                }
                 else
-                {
                     point = 0.3;
-                }
-                
+
 
             }
 
@@ -116,18 +113,20 @@ namespace HackerRank.Controllers
 
             return BadRequest();
         }
+
         public async Task<string> UpdateUserLevel(string userName, double points)
         {
             string message = string.Empty;
             UserLevel userLevel = await _hackerRankContext.UserLevels.Include(u => u.User).Include("Level").Where(u => u.User.UserName == userName).FirstOrDefaultAsync();
             var nextLevel = _hackerRankContext.Levels.Where(i => i.LevelId == userLevel.Level.LevelId + 1).FirstOrDefault();
             userLevel.CurrentExperience += points;
+
             if(userLevel.CurrentExperience >= nextLevel.XpNeeded)
             {
                 userLevel.Level = nextLevel;
                 message = $"{userLevel.User.UserName} just leveled up. They are now level {nextLevel.LevelId} {nextLevel.LevelName}, {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm")}";
-
             }
+
             await _hackerRankContext.SaveChangesAsync();
             return message;
         }

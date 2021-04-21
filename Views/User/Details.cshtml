@@ -1,8 +1,9 @@
 ﻿@model HackerRank.ViewModels.UserViewModel
 @using Microsoft.AspNetCore.Identity
 @using HackerRank.Models.Users;
+@using System.Globalization;
 @inject SignInManager<User> SignInManager
-<h1>Profile page</h1>
+<h1>@Model.Username</h1>
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -12,31 +13,29 @@
 }
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
+@{
+    double value = (Model.UserLevel.CurrentExperience - Model.UserLevel.Level.XpNeeded) * 10;
+    string progress = value.ToString() + "%";
+    progress = progress.Replace(",", ".");
+    int nextlevel = Model.UserLevel.Level.LevelId + 1;
+}
+
+<div>
+    <h2 class="text-capitalize text-center">Rank: @Model.UserLevel.Level.LevelName</h2>
+    <div class="row flex-row justify-content-center align-items-center">
+        <div class="col-1 text-center">@Model.UserLevel.Level.LevelId</div>
+        <div class="progress col-10 px-0">
+            <div class="progress-bar" style="width:@progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
+        </div>
+        <div class="col-1 text-center">@nextlevel</div>
+    </div>
+</div>
 
 <div>
     <hr />
-    <img src="~/profileImg/@Model.ProfileImage"
-         asp-append-version="true" style="max-width:25%" />
+    <img src="~/profileImg/@Model.ProfileImage" asp-append-version="true" style="max-width:25%" />
     <br />
-    <div id='account-bar-wrapper'>
-        <div id='account-bar'>
-            <div id='account-bar-name'>@Model.UserLevel.Level.LevelName</div>
-            <div id='account-bar-level'>@Model.UserLevel.Level.LevelId</div>
-            <div id='xp-bar'>
-                <div id='xp-bar-fill'>
-                    <div id='xp-increase-fx'><div id='xp-increase-fx-flicker'><div class='xp-increase-glow1'></div><div class='xp-increase-glow2'></div><div class='xp-increase-glow3'></div></div><div class='xp-increase-glow2'></div></div>
-                </div>
-            </div>
-            <div id='account-bar-next-level'>@{ int a = Model.UserLevel.Level.LevelId + 1; } @a</div>
-        </div>
-    </div>
     <dl class="col">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Username)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Username)
-        </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Email)
         </dt>
