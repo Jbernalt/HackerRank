@@ -22,8 +22,8 @@ namespace HackerRank.Controllers
             _userService = userService;
         }
 
-        // GET: user/username
-        [Route("/user/{username}")]
+        // GET: user/details/username
+        [Route("/user/details/{username}")]
         public async Task<ActionResult> Details(string username)
         {
             return View(await _userService.GetUserByUsername(username));

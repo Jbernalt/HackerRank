@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using HackerRank.Models.Users;
 using HackerRank.Services;
+using Microsoft.EntityFrameworkCore;
+using HackerRank.Data;
 
 namespace HackerRank.Areas.Identity.Pages.Account
 {
@@ -24,17 +26,20 @@ namespace HackerRank.Areas.Identity.Pages.Account
         private readonly UserManager<User> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly HackerRankContext _context;
 
         public RegisterModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            HackerRankContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         [BindProperty]
@@ -50,6 +55,11 @@ namespace HackerRank.Areas.Identity.Pages.Account
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
+
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Display(Name = "Username")]
+            public string Username { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -78,7 +88,8 @@ namespace HackerRank.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid && User.IsInRole("Administrator"))
             {
-                var user = new User { UserName = Input.Email, Email = Input.Email, GitLabId = Input.GitLabId };
+                var user = new User { UserName = Input.Username, Email = Input.Email, GitLabId = Input.GitLabId, DateCreated = DateTime.Now };
+                var level = _context.Levels.Where(l => l.LevelId == 1).FirstOrDefault();
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -97,6 +108,10 @@ namespace HackerRank.Areas.Identity.Pages.Account
                         "Confirm your email",
                         HtmlEncoder.Default.Encode(callbackUrl),
                         user.UserName);
+
+                    UserLevel userLevel = new UserLevel() { Level = level, User = _context.Users.Where(i => i.NormalizedUserName == user.NormalizedUserName).FirstOrDefault() };
+                    _context.UserLevels.Add(userLevel);
+                    _context.SaveChanges();
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

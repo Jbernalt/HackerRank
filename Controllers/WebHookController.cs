@@ -118,13 +118,23 @@ namespace HackerRank.Controllers
         {
             string message = string.Empty;
             UserLevel userLevel = await _hackerRankContext.UserLevels.Include(u => u.User).Include("Level").Where(u => u.User.UserName == userName).FirstOrDefaultAsync();
-            var nextLevel = _hackerRankContext.Levels.Where(i => i.LevelId == userLevel.Level.LevelId + 1).FirstOrDefault();
+            var nextLevel = await _hackerRankContext.Levels.Where(i => i.LevelId == userLevel.Level.LevelId + 1).FirstOrDefaultAsync();
             userLevel.CurrentExperience += points;
 
-            if(userLevel.CurrentExperience >= nextLevel.XpNeeded)
+            if(nextLevel != null && userLevel.CurrentExperience >= nextLevel.XpNeeded)
             {
                 userLevel.Level = nextLevel;
-                message = $"{userLevel.User.UserName} just leveled up. They are now level {nextLevel.LevelId} {nextLevel.LevelName}, {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm")}";
+                message = $"{userLevel.User.UserName} just leveled up. They are now level {nextLevel.LevelId} {nextLevel.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
+            }
+            else
+            {
+                if (userLevel.CurrentExperience > userLevel.Level.XpNeeded + 10)
+                {
+                    userLevel.Level = _hackerRankContext.Levels.Find(1);
+                    userLevel.CurrentExperience = 0;
+                    userLevel.PrestigeLevel += 1;
+                    message = $"{userLevel.User.UserName} just prestiged. They are now prestige {userLevel.PrestigeLevel}, level {userLevel.Level.LevelId} {userLevel.Level.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
+                }
             }
 
             await _hackerRankContext.SaveChangesAsync();
