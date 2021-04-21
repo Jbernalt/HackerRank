@@ -10,12 +10,26 @@
         <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
     </li>
 }
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
 
 <div>
     <hr />
     <img src="~/profileImg/@Model.ProfileImage"
          asp-append-version="true" style="max-width:25%" />
     <br />
+    <div id='account-bar-wrapper'>
+        <div id='account-bar'>
+            <div id='account-bar-name'>@Model.UserLevel.Level.LevelName</div>
+            <div id='account-bar-level'>@Model.UserLevel.Level.LevelId</div>
+            <div id='xp-bar'>
+                <div id='xp-bar-fill'>
+                    <div id='xp-increase-fx'><div id='xp-increase-fx-flicker'><div class='xp-increase-glow1'></div><div class='xp-increase-glow2'></div><div class='xp-increase-glow3'></div></div><div class='xp-increase-glow2'></div></div>
+                </div>
+            </div>
+            <div id='account-bar-next-level'>@{ int a = Model.UserLevel.Level.LevelId + 1; } @a</div>
+        </div>
+    </div>
     <dl class="col">
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Username)
