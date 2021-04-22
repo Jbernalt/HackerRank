@@ -98,6 +98,8 @@ namespace HackerRank.Areas.Identity.Pages.Account
                         HtmlEncoder.Default.Encode(callbackUrl),
                         user.UserName);
 
+                    await _userManager.AddToRoleAsync(user, "User");
+
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
