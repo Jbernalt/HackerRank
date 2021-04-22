@@ -122,7 +122,21 @@ namespace HackerRank.Services
             return topFiveModel.OrderByDescending(x => x.GroupRating).Take(5).ToList();
         }
 
-
+        public async Task<List<TopFiveViewModel>> TopFiveHighestLevels()
+        {
+            List<TopFiveViewModel> viewModels = new();
+            var list = await _context.UserLevels.Include(i => i.User)
+                .Include(o => o.Level)
+                .OrderByDescending(o => o.PrestigeLevel)
+                .ThenByDescending(p => p.Level.LevelId)
+                .Take(5)
+                .ToListAsync();
+            foreach(var x in list)
+            {
+                viewModels.Add(new TopFiveViewModel() { UserLevel = x });
+            }
+            return viewModels;
+        }
 
         public async Task<List<TopFiveViewModel>> GetTopFive()
         {
@@ -134,7 +148,7 @@ namespace HackerRank.Services
             foreach (var user in users)
             {
                 var usertransactions = _context.UserTransaction.Where(x => x.FetchDate.Date == today.Date && x.UserId == user.Id).AsEnumerable().GroupBy(i => i.TransactionId).ToArray();
-                if (usertransactions.Count() != 0)
+                if (usertransactions.Length != 0)
                 {
                     topFiveModel.Add(new()
                     {
@@ -150,6 +164,8 @@ namespace HackerRank.Services
                     });
                 }
             }
+            var highestlevel = await TopFiveHighestLevels();
+            topFiveModel.AddRange(highestlevel);
             return topFiveModel;
         }
     }

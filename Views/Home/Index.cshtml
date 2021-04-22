@@ -44,10 +44,10 @@
                         {
                             <tr>
                                 <td>
-                                    <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="width:40%" />
+                                    <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px" />
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.UserName)
+                                    <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserName">@item.UserName</a>
                                 </td>
                                 <td>
                                     @string.Format("{0:0}", item.Commits)
@@ -127,6 +127,45 @@
                                 </td>
                                 <td>
                                     @string.Format("{0:0.00}", item.GroupRating)
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>
+                            @Html.DisplayName("Name")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Prestige")
+                        </th>
+                        <th>
+                            @Html.DisplayName("Level")
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        if (item.UserLevel != null)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="~/profileImg/@item.UserLevel.User.ProfileImage" asp-append-version="true" style="height:50px" />
+                                </td>
+                                <td>
+                                    <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserLevel.User.UserName">@item.UserLevel.User.UserName</a>
+                                </td>
+                                <td>
+                                    @string.Format("{0:0}", item.UserLevel.PrestigeLevel)
+                                </td>
+                                <td>
+                                    @string.Format("{0:0}", item.UserLevel.Level.LevelName)
                                 </td>
                             </tr>
                         }

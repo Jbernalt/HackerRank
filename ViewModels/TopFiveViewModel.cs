@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using HackerRank.Models.Users;
 using HackerRank.Responses;
 
 namespace HackerRank.ViewModels
@@ -39,5 +40,8 @@ namespace HackerRank.ViewModels
 
         //LiveWebHookFeed
         public WebHookResponse WebHookResponse { get; set; }
+
+        //levels
+        public UserLevel UserLevel { get; set; }
     }
 }
