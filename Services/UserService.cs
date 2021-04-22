@@ -53,6 +53,7 @@ namespace HackerRank.Services
             username = username.ToUpper();
             var user = await _context.Users.Where(x => x.NormalizedUserName == username).Include(u => u.UserStats).Include(g => g.Groups).ThenInclude(p => p.Projects).FirstOrDefaultAsync();
             var achievements = await _context.UserAchievement.Where(a => a.User == user && a.IsUnlocked == true).Include(a => a.Achievement).Include(a => a.User).ToListAsync();
+            var userLevel = await _context.UserLevels.Include("User").Include("Level").Where(u => u.User.NormalizedUserName == username).FirstOrDefaultAsync();
             List<Project> projects = new();
             UserViewModel model = new();
 
@@ -67,6 +68,7 @@ namespace HackerRank.Services
             model.Projects = projects;
             model.UserAchievements = achievements;
             model.ChartDatas = data;
+            model.UserLevel = userLevel;
             return model;
         }
 
@@ -236,5 +238,7 @@ namespace HackerRank.Services
             }
             return chart;
         }
+
+
     }
 }

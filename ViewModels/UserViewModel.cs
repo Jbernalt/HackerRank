@@ -24,5 +24,6 @@ namespace HackerRank.ViewModels
         public UserStats UserStats { get; set; }
         public List<UserAchievement> UserAchievements { get; set; }
         public List<ChartData> ChartDatas { get; set; }
+        public UserLevel UserLevel { get; set; }   
     }
 }
