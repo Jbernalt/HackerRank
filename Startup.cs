@@ -200,7 +200,7 @@ namespace HackerRank
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
-                IsReadOnlyFunc = (DashboardContext context) => true
+                Authorization = new[] { new HangfireAuthorizationFilter() }
             });
 
             //Add methods to run recurringly here:
