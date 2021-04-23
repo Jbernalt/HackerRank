@@ -28,6 +28,7 @@ namespace HackerRank.Controllers
 
         public async Task<IActionResult> Index()
         {
+            ViewData["UserList"] = new List<string>();
             var topFive = await _rankingService.GetTopFive();
 
             return View(topFive);
@@ -43,6 +44,14 @@ namespace HackerRank.Controllers
             await _rankingService.CalculateAllUsersRating(false);
 
             return View();
+        }
+
+        [IgnoreAntiforgeryToken]
+        [HttpPost]
+        [Route("search/{username}")]
+        public IActionResult Search(string username)
+        {
+            return Json(_userService.UserSearch(username));
         }
 
         public IActionResult Privacy()

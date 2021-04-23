@@ -31,6 +31,7 @@ namespace HackerRank.Services
         Task GetAllUserData(int days);
         Task UpdateAchievementsOnUsers();
         Task<UserViewModel> GetUserByUsername(string username);
+        List<string> UserSearch(string username);
     }
 
     public class UserService : IUserService
@@ -46,6 +47,17 @@ namespace HackerRank.Services
             _userManager = userManager;
             _config = configuration;
             _mapper = mapper;
+        }
+
+        public List<string> UserSearch(string username)
+        {
+            List<string> usernames = new();
+            var users = _context.Users.Where(u => u.UserName.StartsWith(username)).ToList();
+            foreach (var user in users)
+            {
+                usernames.Add(user.UserName);
+            }
+            return usernames;
         }
 
         public async Task<UserViewModel> GetUserByUsername(string username)
