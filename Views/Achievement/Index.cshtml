@@ -17,79 +17,81 @@
     }
 }
 <form id="showcase" asp-action="SetShowcase" asp-controller="Achievement" method="post">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayName("")
-                </th>
-                <th>
-                    @Html.DisplayName("Achievement")
-                </th>
-                <th>
-                    @Html.DisplayName("Description")
-                </th>
-                <th>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        @Html.DisplayName("Set showcase")
-                    }
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach (var item in Model)
-            {
-                string style = string.Empty;
-                if (User.Identity.IsAuthenticated)
-                {
-                    style = item.IsUnlocked == false ? "opacity: 50%" : null;
-                }
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td style="@style">
-                        <img src="~/achievementImg/@item.Image"
-                             height="60" width="60"
-                             asp-append-version="true" />
-                    </td>
-                    <td style="@style">
-                        @Html.DisplayFor(modelItem => item.AchievementName)
-                    </td>
-                    <td style="@style">
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-
-                    <td>
+                    <th>
+                        @Html.DisplayName("")
+                    </th>
+                    <th>
+                        @Html.DisplayName("Achievement")
+                    </th>
+                    <th>
+                        @Html.DisplayName("Description")
+                    </th>
+                    <th>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            if (item.IsUnlocked)
+                            @Html.DisplayName("Set showcase")
+                        }
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    string style = string.Empty;
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        style = item.IsUnlocked == false ? "opacity: 50%" : null;
+                    }
+                    <tr>
+                        <td style="@style">
+                            <img src="~/achievementImg/@item.Image"
+                                 height="60" width="60"
+                                 asp-append-version="true" />
+                        </td>
+                        <td style="@style">
+                            @Html.DisplayFor(modelItem => item.AchievementName)
+                        </td>
+                        <td style="@style">
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+
+                        <td>
+                            @if (User.Identity.IsAuthenticated)
                             {
-                                if (item.IsShowCase)
+                                if (item.IsUnlocked)
                                 {
-                                    <input class="IsChecked" type="checkbox" value="@item.AchievementId" asp-for="@item.IsShowCase" name="IsChecked" checked="checked" />
-                                }
-                                else
-                                {
-                                    <input class="IsChecked" type="checkbox" value="@item.AchievementId" asp-for="@item.IsShowCase" name="IsChecked" />
+                                    if (item.IsShowCase)
+                                    {
+                                        <input class="IsChecked" type="checkbox" value="@item.AchievementId" asp-for="@item.IsShowCase" name="IsChecked" checked="checked" />
+                                    }
+                                    else
+                                    {
+                                        <input class="IsChecked" type="checkbox" value="@item.AchievementId" asp-for="@item.IsShowCase" name="IsChecked" />
+                                    }
                                 }
                             }
-                        }
-                    </td>
+                        </td>
 
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.AchievementId">Details</a>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.AchievementId">Details</a>
 
-                        @if (User.IsInRole("Administrator"))
-                        {
-                            <a asp-action="Edit" asp-route-id="@item.AchievementId"> | Edit | </a>
-                            <a asp-action="Delete" asp-route-id="@item.AchievementId">Delete</a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.AchievementId"> | Edit | </a>
+                                <a asp-action="Delete" asp-route-id="@item.AchievementId">Delete</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </form>
 @if (User.Identity.IsAuthenticated)
 {
