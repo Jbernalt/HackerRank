@@ -31,6 +31,7 @@ namespace HackerRank.Services
         Task GetAllUserData(int days);
         Task UpdateAchievementsOnUsers();
         Task<UserViewModel> GetUserByUsername(string username);
+        List<string> UserSearch(string username);
     }
 
     public class UserService : IUserService
@@ -48,11 +49,23 @@ namespace HackerRank.Services
             _mapper = mapper;
         }
 
+        public List<string> UserSearch(string username)
+        {
+            List<string> usernames = new();
+            var users = _context.Users.Where(u => u.UserName.StartsWith(username)).ToList();
+            foreach (var user in users)
+            {
+                usernames.Add(user.UserName);
+            }
+            return usernames;
+        }
+
         public async Task<UserViewModel> GetUserByUsername(string username)
         {
             username = username.ToUpper();
             var user = await _context.Users.Where(x => x.NormalizedUserName == username).Include(u => u.UserStats).Include(g => g.Groups).ThenInclude(p => p.Projects).FirstOrDefaultAsync();
             var achievements = await _context.UserAchievement.Where(a => a.User == user && a.IsUnlocked == true).Include(a => a.Achievement).Include(a => a.User).ToListAsync();
+            var userLevel = await _context.UserLevels.Include("User").Include("Level").Where(u => u.User.NormalizedUserName == username).FirstOrDefaultAsync();
             List<Project> projects = new();
             UserViewModel model = new();
 
@@ -67,6 +80,7 @@ namespace HackerRank.Services
             model.Projects = projects;
             model.UserAchievements = achievements;
             model.ChartDatas = data;
+            model.UserLevel = userLevel;
             return model;
         }
 
@@ -84,65 +98,92 @@ namespace HackerRank.Services
                 };
 
                 List<EventResponse> eventResponses = new();
-                var users = await _context.Users.ToArrayAsync();
+                var users = await _context.Users.Include("UserStats").ToArrayAsync();
 
                 foreach (var user in users)
                 {
-                    string path = user.GitLabId.ToString() + $"/events";
-                    uriBuilder.Path = path;
-                    uriBuilder.Query = $"?per_page=100&after={after}";
-                    var response = await client.GetAsync(uriBuilder.ToString());
-                    var jsonResult = await response.Content.ReadAsStringAsync();
-
-                    eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
-
-                    List<UserTransaction> userTransactions = new();
-                    Project[] projects = await _context.Project.ToArrayAsync();
-
-                    foreach (var e in eventResponses)
+                    if(user.GitLabId != 0)
                     {
-                        UserTransaction tran = new()
-                        {
-                            User = user,
-                            FetchDate = DateTime.UtcNow,
-                            Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                            UserId = user.Id
-                        };
+                        string path = user.GitLabId.ToString() + $"/events";
+                        uriBuilder.Path = path;
+                        uriBuilder.Query = $"?per_page=100&after={after}";
+                        var response = await client.GetAsync(uriBuilder.ToString());
+                        var jsonResult = await response.Content.ReadAsStringAsync();
 
-                        if (e.action_name == "pushed to" || e.action_name == "pushed new")
+                        eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
+
+                        List<UserTransaction> userTransactions = new();
+                        Project[] projects = await _context.Project.ToArrayAsync();
+
+                        foreach (var e in eventResponses)
                         {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault();
-                            tran.TransactionId = 1;
+                            UserTransaction tran = new()
+                            {
+                                User = user,
+                                FetchDate = DateTime.UtcNow,
+                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
+                                UserId = user.Id
+                            };
+
+                            if (e.action_name == "pushed to" || e.action_name == "pushed new")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault();
+                                tran.TransactionId = 1;
+                            }
+                            else if (e.target_type == "Issue" && e.action_name == "opened")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault();
+                                tran.TransactionId = 2;
+                            }
+                            else if (e.target_type == "Issue" && e.action_name == "closed")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault();
+                                tran.TransactionId = 3;
+                            }
+                            else if (e.target_type == "MergeRequest" && e.action_name == "opened")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault();
+                                tran.TransactionId = 4;
+                            }
+                            else if (e.action_name == "commented on")
+                            {
+                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault();
+                                tran.TransactionId = 5;
+                            }
+                            if (tran.User != null && tran.Transaction != null)
+                                userTransactions.Add(tran);
                         }
-                        else if (e.target_type == "Issue" && e.action_name == "opened")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault();
-                            tran.TransactionId = 2;
-                        }
-                        else if (e.target_type == "Issue" && e.action_name == "closed")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault();
-                            tran.TransactionId = 3;
-                        }
-                        else if (e.target_type == "MergeRequest" && e.action_name == "opened")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault();
-                            tran.TransactionId = 4;
-                        }
-                        else if (e.action_name == "commented on")
-                        {
-                            tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault();
-                            tran.TransactionId = 5;
-                        }
-                        if (tran.User != null && tran.Transaction != null)
-                            userTransactions.Add(tran);
+                        _context.UserTransaction.AddRange(userTransactions);
+                        await UpdateUserStats(user, userTransactions);
                     }
-                    _context.UserTransaction.AddRange(userTransactions);
+
                 }
 
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task UpdateUserStats(User user, List<UserTransaction> userTransactions)
+        {
+            foreach (var t in userTransactions)
+            {
+                if (t.TransactionId == 1)
+                    user.UserStats.TotalCommits += 1;
+
+                if (t.TransactionId == 2)
+                    user.UserStats.TotalIssuesCreated += 1;
+
+                if (t.TransactionId == 3)
+                    user.UserStats.TotalIssuesSolved += 1;
+
+                if (t.TransactionId == 4)
+                    user.UserStats.TotalMergeRequests += 1;
+
+                if (t.TransactionId == 5)
+                    user.UserStats.TotalComments += 1;
+            }
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task UpdateAchievementsOnUsers()
         {
@@ -182,7 +223,7 @@ namespace HackerRank.Services
                     {
                         await _context.UserAchievement.AddAsync(userAchievement);
                     }
-                    
+
                     await _context.SaveChangesAsync();
                 }
             }
@@ -209,5 +250,7 @@ namespace HackerRank.Services
             }
             return chart;
         }
+
+
     }
 }

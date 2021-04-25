@@ -16,7 +16,7 @@ namespace HackerRank.Services
 {
     public interface IRankingService
     {
-        Task UpdateUserStats();
+
         Task CalculateAllUsersRating(bool monthly);
         Task<List<TopFiveViewModel>> GetTopFive();
         public Task<List<TopFiveViewModel>> CalculateTopFiveGroupRating();
@@ -122,33 +122,20 @@ namespace HackerRank.Services
             return topFiveModel.OrderByDescending(x => x.GroupRating).Take(5).ToList();
         }
 
-        public async Task UpdateUserStats()
+        public async Task<List<TopFiveViewModel>> TopFiveHighestLevels()
         {
-            var users = await _context.Users.Include("UserStats").ToListAsync();
-
-            foreach (var u in users)
-            { 
-                var usertransaction = await _context.UserTransaction.Where(t => t.UserId == u.Id).ToArrayAsync();
-
-                foreach (var t in usertransaction)
-                {
-                    if (t.TransactionId == 1)
-                        u.UserStats.TotalCommits += 1;
-
-                    if (t.TransactionId == 2)
-                        u.UserStats.TotalIssuesCreated += 1;
-
-                    if (t.TransactionId == 3)
-                        u.UserStats.TotalIssuesSolved += 1;
-
-                    if (t.TransactionId == 4)
-                        u.UserStats.TotalMergeRequests += 1;
-
-                    if (t.TransactionId == 5)
-                        u.UserStats.TotalComments += 1;
-                }
-                await _context.SaveChangesAsync();
+            List<TopFiveViewModel> viewModels = new();
+            var list = await _context.UserLevels.Include(i => i.User)
+                .Include(o => o.Level)
+                .OrderByDescending(o => o.PrestigeLevel)
+                .ThenByDescending(p => p.Level.LevelId)
+                .Take(5)
+                .ToListAsync();
+            foreach(var x in list)
+            {
+                viewModels.Add(new TopFiveViewModel() { UserLevel = x });
             }
+            return viewModels;
         }
 
         public async Task<List<TopFiveViewModel>> GetTopFive()
@@ -161,7 +148,7 @@ namespace HackerRank.Services
             foreach (var user in users)
             {
                 var usertransactions = _context.UserTransaction.Where(x => x.FetchDate.Date == today.Date && x.UserId == user.Id).AsEnumerable().GroupBy(i => i.TransactionId).ToArray();
-                if (usertransactions.Count() != 0)
+                if (usertransactions.Length != 0)
                 {
                     topFiveModel.Add(new()
                     {
@@ -177,6 +164,8 @@ namespace HackerRank.Services
                     });
                 }
             }
+            var highestlevel = await TopFiveHighestLevels();
+            topFiveModel.AddRange(highestlevel);
             return topFiveModel;
         }
     }

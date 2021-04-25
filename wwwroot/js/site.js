@@ -21,3 +21,26 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
 liveFeedHubconnection.start().catch(function (err) {
     return console.error(err.toString());
 });
+
+$(function () {
+    $('#dropdownMenuButton').keyup(function () {
+        document.getElementById("dropdownMenu").innerText = '';
+        var n = $("#dropdownMenuButton").val();
+        $.ajax({
+            type: "POST",
+            url: "/search/" + n,
+            data: n,
+            datatype: "json",
+            success: function (data) {
+                $.each(data, function () {
+                    var a = document.createElement("a");
+                    a.innerHTML = this;
+                    var baseUrl = window.location.protocol + "//" + window.location.host + "/";
+                    a.href = baseUrl + "user/details/" + this;
+                    a.classList.add("dropdown-item");
+                    document.getElementById("dropdownMenu").appendChild(a);
+                });
+            }
+        });
+    })
+});
