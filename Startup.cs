@@ -27,6 +27,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Westwind.AspNetCore.LiveReload;
 
 namespace HackerRank
 {
@@ -143,12 +144,12 @@ namespace HackerRank
 
             services.AddAntiforgery(options =>
             {
-                // Set Cookie properties using CookieBuilder properties†.
+                // Set Cookie properties using CookieBuilder propertiesï¿½.
                 options.FormFieldName = "AntiforgeryField";
                 options.HeaderName = "X-CSRF-TOKEN";
                 options.SuppressXFrameOptionsHeader = false;
             });
-
+            services.AddLiveReload();
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
             services.AddAuthorizationCore(options =>
@@ -156,6 +157,8 @@ namespace HackerRank
                 options.AddPolicy("RequireAdministrator",
                      policy => policy.RequireRole("Administrator"));
             });
+             services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -172,7 +175,7 @@ namespace HackerRank
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseLiveReload();
             app.Use(next => context =>
             {
                 string path = context.Request.Path.Value;
