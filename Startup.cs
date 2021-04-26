@@ -49,7 +49,7 @@ namespace HackerRank
             });
 
             services.AddSignalR();
-
+            services.AddResponseCaching();
 
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
@@ -190,6 +190,7 @@ namespace HackerRank
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseResponseCaching();
 
             app.UseRouting();
 

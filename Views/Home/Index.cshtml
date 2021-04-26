@@ -46,10 +46,10 @@
                             {
                                 <tr>
                                     <td>
-                                        <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px" />
+                                        <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px" alt="profile-image" />
                                     </td>
                                     <td>
-                                        <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserName">@item.UserName</a>
+                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserName">@item.UserName</a>
                                     </td>
                                     <td>
                                         @string.Format("{0:0}", item.Commits)
@@ -164,10 +164,10 @@
                             {
                                 <tr>
                                     <td>
-                                        <img src="~/profileImg/@item.UserLevel.User.ProfileImage" asp-append-version="true" style="height:50px" />
+                                        <img src="~/profileImg/@item.UserLevel.User.ProfileImage" asp-append-version="true" style="height:50px" alt="profile-image" />
                                     </td>
                                     <td>
-                                        <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserLevel.User.UserName">@item.UserLevel.User.UserName</a>
+                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserLevel.User.UserName">@item.UserLevel.User.UserName</a>
                                     </td>
                                     <td>
                                         @string.Format("{0:0}", item.UserLevel.PrestigeLevel)
