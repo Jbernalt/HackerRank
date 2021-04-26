@@ -30,6 +30,11 @@
                 <input asp-for="Input.Image" class="form-control-file" type="file" name="editProfileImage" />
                 <span asp-validation-for="Input.Image" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Input.IsPublic" class="control-label"></label>
+                @Html.CheckBoxFor(m => m.Input.IsPublic)
+                <span asp-validation-for="Input.IsPublic" class="text-danger"></span>
+            </div>
 
             <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
         </form>

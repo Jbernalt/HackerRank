@@ -48,6 +48,9 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
 
             [Display(Name = "Description")]
             public string Description { get; set; }
+
+            [Display(Name = "Public profile")]
+            public bool IsPublic { get; set; }
         }
 
         private async Task LoadAsync(User user)
@@ -60,7 +63,8 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
-                Description = user.Description
+                Description = user.Description,
+                IsPublic = user.IsPublic
             };
         }
 
@@ -101,10 +105,11 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-            if(user.Description != Input.Description)
-            {
+            if (user.Description != Input.Description)
                 user.Description = Input.Description;
-            }
+
+            if (user.IsPublic != Input.IsPublic)
+                user.IsPublic = Input.IsPublic;
 
             if (HttpContext.Request.Form.Files.Count > 0)
             {

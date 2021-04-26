@@ -32,14 +32,22 @@ $(function () {
             data: n,
             datatype: "json",
             success: function (data) {
-                $.each(data, function () {
+                if (data == 0) {
                     var a = document.createElement("a");
-                    a.innerHTML = this;
-                    var baseUrl = window.location.protocol + "//" + window.location.host + "/";
-                    a.href = baseUrl + "user/details/" + this;
+                    a.innerHTML = "No users found";
                     a.classList.add("dropdown-item");
                     document.getElementById("dropdownMenu").appendChild(a);
-                });
+                }
+                else {
+                    $.each(data, function () {
+                        var a = document.createElement("a");
+                        a.innerHTML = this;
+                        var baseUrl = window.location.protocol + "//" + window.location.host + "/";
+                        a.href = baseUrl + "user/details/" + this;
+                        a.classList.add("dropdown-item");
+                        document.getElementById("dropdownMenu").appendChild(a);
+                    });
+                }
             }
         });
     })
