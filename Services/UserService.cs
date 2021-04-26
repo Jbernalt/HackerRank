@@ -30,7 +30,7 @@ namespace HackerRank.Services
         List<ChartData> GetUserCommitChartData(User user);
         Task GetAllUserData(int days);
         Task UpdateAchievementsOnUsers();
-        Task<UserViewModel> GetUserByUsername(string username);
+        Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity);
         List<string> UserSearch(string username);
     }
 
@@ -51,19 +51,18 @@ namespace HackerRank.Services
 
         public List<string> UserSearch(string username)
         {
-            List<string> usernames = new();
-            var users = _context.Users.Where(u => u.UserName.StartsWith(username)).ToList();
-            foreach (var user in users)
-            {
-                usernames.Add(user.UserName);
-            }
-            return usernames;
+            List<string> users = _context.Users.Where(u => u.UserName.StartsWith(username) && u.IsPublic == true).Select(x => x.UserName).ToList();
+            return users;
         }
 
-        public async Task<UserViewModel> GetUserByUsername(string username)
+        public async Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity)
         {
             username = username.ToUpper();
             var user = await _context.Users.Where(x => x.NormalizedUserName == username).Include(u => u.UserStats).Include(g => g.Groups).ThenInclude(p => p.Projects).FirstOrDefaultAsync();
+
+            if (!user.IsPublic && identity.Identity.Name != user.UserName && !identity.IsInRole("Administrator"))
+                return new UserViewModel() { IsPublic = false };
+
             var achievements = await _context.UserAchievement.Where(a => a.User == user && a.IsUnlocked == true).Include(a => a.Achievement).Include(a => a.User).ToListAsync();
             var userLevel = await _context.UserLevels.Include("User").Include("Level").Where(u => u.User.NormalizedUserName == username).FirstOrDefaultAsync();
             List<Project> projects = new();

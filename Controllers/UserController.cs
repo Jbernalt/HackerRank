@@ -4,6 +4,7 @@ using HackerRank.Responses;
 using HackerRank.Services;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace HackerRank.Controllers
 {
     public class UserController : Controller
     {
-        IUserService _userService;
+        private readonly IUserService _userService;
 
         public UserController(IUserService userService)
         {
@@ -26,7 +27,7 @@ namespace HackerRank.Controllers
         [Route("/user/details/{username}")]
         public async Task<ActionResult> Details(string username)
         {
-            return View(await _userService.GetUserByUsername(username));
+            return View(await _userService.GetUserByUsername(username, User));
         }
     }
 }
