@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HackerRank.ViewModels.TopFiveViewModel>
+﻿@model HackerRank.ViewModels.TopFiveViewModel
 
 @{
     ViewData["Title"] = "Ranking";
@@ -39,7 +39,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.TopFiveUsers)
                         {
                             @if (item.DailyRating != 0)
                             {
@@ -48,7 +48,7 @@
                                         <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px" />
                                     </td>
                                     <td>
-                                        <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserName">@item.UserName</a>
+                                        <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.Username">@item.Username</a>
                                     </td>
                                     <td>
                                         @string.Format("{0:0}", item.Commits)
@@ -104,9 +104,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.TopFiveGroups)
                         {
-                            if (item.GroupRating != 0)
+                            if (item.GroupDailyRating != 0)
                             {
                                 <tr>
 
@@ -129,7 +129,7 @@
                                         @string.Format("{0:0}", item.CommentsDaily)
                                     </td>
                                     <td>
-                                        @string.Format("{0:0.00}", item.GroupRating)
+                                        @string.Format("{0:0.00}", item.GroupDailyRating)
                                     </td>
                                 </tr>
                             }
@@ -155,22 +155,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.UserLevel)
                         {
-                            if (item.UserLevel != null)
+                            if (item != null)
                             {
                                 <tr>
                                     <td>
-                                        <img src="~/profileImg/@item.UserLevel.User.ProfileImage" asp-append-version="true" style="height:50px" />
+                                        <img src="~/profileImg/@item.User.ProfileImage" asp-append-version="true" style="height:50px" />
                                     </td>
                                     <td>
-                                        <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserLevel.User.UserName">@item.UserLevel.User.UserName</a>
+                                        <a class="nav-link text-info px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.User.UserName">@item.User.UserName</a>
                                     </td>
                                     <td>
-                                        @string.Format("{0:0}", item.UserLevel.PrestigeLevel)
+                                        @string.Format("{0:0}", item.PrestigeLevel)
                                     </td>
                                     <td>
-                                        @string.Format("{0:0}", item.UserLevel.Level.LevelName)
+                                        @string.Format("{0:0}", item.Level.LevelName)
                                     </td>
                                 </tr>
                             }

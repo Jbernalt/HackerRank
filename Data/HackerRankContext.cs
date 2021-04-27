@@ -26,6 +26,7 @@ namespace HackerRank.Data
         public DbSet<Project> Project { get; set; }
         public DbSet<Level> Levels { get; set; }
         public DbSet<UserLevel> UserLevels { get; set; }
+        public DbSet<GroupStats> GroupStats { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,7 @@ namespace HackerRank.Data
                 new Transaction() { TransactionId = 4, Description = "Merge requests", Points = 0.35 },
                 new Transaction() { TransactionId = 5, Description = "Comments", Points = 0.05 });
             modelBuilder.Entity<User>().HasOne(t => t.UserStats).WithOne(x => x.User).HasForeignKey<UserStats>(k => k.UserStatsId);
+            modelBuilder.Entity<Group>().HasOne(t => t.GroupStats).WithOne(x => x.Group).HasForeignKey<GroupStats>(k => k.GroupStatsId);
 
             modelBuilder.Entity<Level>().HasData(
                 new Level() { LevelId = 1, LevelName = "Newbie", XpNeeded = 0 },

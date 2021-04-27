@@ -43,7 +43,7 @@ $(function () {
                         var a = document.createElement("a");
                         a.innerHTML = this;
                         var baseUrl = window.location.protocol + "//" + window.location.host + "/";
-                        a.href = baseUrl + "user/details/" + this;
+                        a.href = baseUrl + "user/profile/" + this;
                         a.classList.add("dropdown-item");
                         document.getElementById("dropdownMenu").appendChild(a);
                     });
