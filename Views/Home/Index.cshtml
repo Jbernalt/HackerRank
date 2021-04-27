@@ -106,7 +106,7 @@
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            if (item.GroupRating != 0)
+                            if (item.GroupDailyRating != 0)
                             {
                                 <tr>
 
@@ -129,7 +129,7 @@
                                         @string.Format("{0:0}", item.CommentsDaily)
                                     </td>
                                     <td>
-                                        @string.Format("{0:0.00}", item.GroupRating)
+                                        @string.Format("{0:0.00}", item.GroupDailyRating)
                                     </td>
                                 </tr>
                             }

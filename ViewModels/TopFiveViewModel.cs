@@ -21,7 +21,7 @@ namespace HackerRank.ViewModels
         public int IssuesSolvedDaily { get; set; }
         public int MergeRequestsDaily { get; set; }
         public int CommentsDaily { get; set; }
-        public double GroupRating { get; set; }
+        public double GroupDailyRating { get; set; }
 
         //User
         public string UserName { get; set; }
