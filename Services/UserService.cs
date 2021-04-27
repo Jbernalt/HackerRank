@@ -60,6 +60,9 @@ namespace HackerRank.Services
             username = username.ToUpper();
             var user = await _context.Users.Where(x => x.NormalizedUserName == username).Include(u => u.UserStats).Include(g => g.Groups).ThenInclude(p => p.Projects).FirstOrDefaultAsync();
 
+            if (user == null)
+                return new UserViewModel() { IsPublic = false };
+
             if (!user.IsPublic && identity.Identity.Name != user.UserName && !identity.IsInRole("Administrator"))
                 return new UserViewModel() { IsPublic = false };
 
