@@ -15,7 +15,7 @@ namespace HackerRank.Data
             CreateMap<AchievementResponse, Achievement>().ReverseMap().ForMember(x => x.Image, opt => opt.Ignore());
             CreateMap<AchievementViewModel, Achievement>().ReverseMap();
             CreateMap<UserViewModel, User>().ReverseMap();
-            CreateMap<TopFiveViewModel, GroupStats>().ReverseMap();
+            CreateMap<TopFiveGroupsViewModel, GroupStats>().ReverseMap();
         }
     }
 }

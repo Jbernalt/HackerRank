@@ -19,20 +19,21 @@ namespace HackerRank.Services
     {
 
         public Task CalculateAllUsersRating(bool monthly);
-        public Task<List<TopFiveViewModel>> GetTopFive();
+        public Task<TopFiveViewModel> GetTopFive();
         public Task CalculateAllGroupRating();
+        public Task<List<TopFiveUsersViewModel>> GetTopFiveUsers();
+        public Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups();
+        public Task<List<UserLevel>> GetTopFiveHighestLevels();
     }
 
     public class RankingService : IRankingService
     {
         private readonly HackerRankContext _context;
-        private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
 
-        public RankingService(HackerRankContext context, UserManager<User> userManager, IMapper mapper)
+        public RankingService(HackerRankContext context, IMapper mapper)
         {
             _context = context;
-            _userManager = userManager;
             _mapper = mapper;
         }
 
@@ -130,46 +131,43 @@ namespace HackerRank.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<TopFiveViewModel>> TopFiveHighestLevels()
+        public async Task<List<UserLevel>> GetTopFiveHighestLevels()
         {
-            List<TopFiveViewModel> viewModels = new();
-            var list = await _context.UserLevels.Include(i => i.User)
+            return await _context.UserLevels.Include(i => i.User)
                 .Include(o => o.Level)
                 .OrderByDescending(o => o.PrestigeLevel)
                 .ThenByDescending(p => p.Level.LevelId)
                 .Take(5)
                 .ToListAsync();
-            foreach(var x in list)
-            {
-                viewModels.Add(new TopFiveViewModel() { UserLevel = x });
-            }
-            return viewModels;
         }
 
-        public async Task<List<TopFiveViewModel>> GetTopFive()
+        public async Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups()
         {
-            var today = DateTime.UtcNow;
-            List<TopFiveViewModel> topFiveModel = new();
-
+            List<TopFiveGroupsViewModel> model = new();
             List<Group> groups = await _context.Group.Include(g => g.GroupStats).OrderByDescending(x => x.GroupStats.GroupDailyRating).Take(5).ToListAsync();
 
             foreach (var group in groups)
             {
-                var model = _mapper.Map(group.GroupStats, new TopFiveViewModel());
-                model.GroupName = group.GroupName;
-                topFiveModel.Add(model);
+                var m = _mapper.Map(group.GroupStats, new TopFiveGroupsViewModel());
+                m.GroupName = group.GroupName;
+                model.Add(m);
             }
+            return model;
+        }
 
+        public async Task<List<TopFiveUsersViewModel>> GetTopFiveUsers()
+        {
+            List<TopFiveUsersViewModel> model = new();
             List<User> users = await _context.Users.Include(u => u.UserStats).OrderByDescending(x => x.UserStats.DailyRating).Take(5).ToListAsync();
 
             foreach (var user in users)
             {
-                var usertransactions = _context.UserTransaction.Where(x => x.FetchDate.Date == today.Date && x.UserId == user.Id).AsEnumerable().GroupBy(i => i.TransactionId).ToArray();
+                var usertransactions = _context.UserTransaction.Where(x => x.FetchDate.Date == DateTime.UtcNow.Date && x.UserId == user.Id).AsEnumerable().GroupBy(i => i.TransactionId).ToArray();
                 if (usertransactions.Length != 0)
                 {
-                    topFiveModel.Add(new()
+                    model.Add(new()
                     {
-                        UserName = user.UserName,
+                        Username = user.UserName,
                         ProfileImage = user.ProfileImage,
                         Commits = usertransactions.Where(t => t.Key == 1).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 1).FirstOrDefault().Count(),
                         IssuesCreated = usertransactions.Where(t => t.Key == 2).FirstOrDefault() == null ? 0 : usertransactions.Where(t => t.Key == 2).FirstOrDefault().Count(),
@@ -181,8 +179,15 @@ namespace HackerRank.Services
                     });
                 }
             }
-            var highestlevel = await TopFiveHighestLevels();
-            topFiveModel.AddRange(highestlevel);
+            return model;
+        }
+
+        public async Task<TopFiveViewModel> GetTopFive()
+        {
+            TopFiveViewModel topFiveModel = new();
+            topFiveModel.TopFiveGroups.AddRange(await GetTopFiveGroups());
+            topFiveModel.TopFiveUsers.AddRange(await GetTopFiveUsers());
+            topFiveModel.UserLevel.AddRange(await GetTopFiveHighestLevels());
             return topFiveModel;
         }
     }
