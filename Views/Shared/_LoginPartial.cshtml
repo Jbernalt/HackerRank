@@ -6,20 +6,37 @@
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@User.Identity.Name">@User.Identity.Name</a>
+        var user = await UserManager.GetUserAsync(User);
+        <li class="nav-item input-group">
+            <div class="input-group-prepend">
+                <button class="btn" type="button" data-toggle="dropdown" aria-expanded="false" style="outline: none !important; box-shadow: none !important">
+                    @if (user.ProfileImage == "default-profile-picture.png")
+                    {
+                        <img src="~/img/@user.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                    }
+                    else
+                    {
+                        <img src="~/profileImg/@user.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                    }
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@User.Identity.Name">@User.Identity.Name</a>
+                    </div>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <div class="dropdown-item">
+                            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register new account</a>
+                        </div>
+                    }
+                    <div class="dropdown-item">
+                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                            <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </li>
-        <li class="nav-item">
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-            </form>
-        </li>
-        if (User.IsInRole("Administrator"))
-        {
-            <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register new account</a>
-            </li>
-        }
     }
     else
     {

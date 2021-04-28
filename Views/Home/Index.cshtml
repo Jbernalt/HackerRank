@@ -7,14 +7,12 @@
 <div class="container">
     <div class="row text-center">
         <div class="col-9">
-            <h2 class="text-center">TOP FIVE USERS</h2>
+            <h2 class="text-center mt-4">TOP FIVE USERS</h2>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>
-
-                            </th>
+                            <th></th>
                             <th>
                                 @Html.DisplayName("Username")
                             </th>
@@ -46,10 +44,17 @@
                             {
                                 <tr>
                                     <td>
-                                        <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px" alt="profile-image" />
+                                        @if (item.ProfileImage == "default-profile-picture.png")
+                                        {
+                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
                                     </td>
                                     <td>
-                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserName">@item.UserName</a>
+                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@item.Username">@item.Username</a>
                                     </td>
                                     <td>
                                         @string.Format("{0:0}", item.Commits)
@@ -76,7 +81,7 @@
                 </table>
             </div>
 
-            <h2 class="text-center">TOP FIVE GROUPS</h2>
+            <h2 class="text-center mt-4">TOP FIVE GROUPS</h2>
             <div class="table-responsive">
                 <table class="table table-responsive">
                     <thead>
@@ -111,7 +116,6 @@
                             if (item.GroupDailyRating != 0)
                             {
                                 <tr>
-
                                     <td>
                                         @Html.DisplayFor(modelItem => item.GroupName)
                                     </td>
@@ -140,7 +144,7 @@
                 </table>
             </div>
 
-            <h2 class="text-center">TOP FIVE HIGHEST RANKED USERS</h2>
+            <h2 class="text-center mt-4">TOP FIVE HIGHEST RANKED USERS</h2>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -164,10 +168,17 @@
                             {
                                 <tr>
                                     <td>
-                                        <img src="~/profileImg/@item.UserLevel.User.ProfileImage" asp-append-version="true" style="height:50px" alt="profile-image" />
+                                        @if (item.User.ProfileImage == "default-profile-picture.png")
+                                        {
+                                            <img src="~/img/@item.User.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/profileImg/@item.User.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
                                     </td>
                                     <td>
-                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@item.UserLevel.User.UserName">@item.UserLevel.User.UserName</a>
+                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@item.User.UserName">@item.User.UserName</a>
                                     </td>
                                     <td>
                                         @string.Format("{0:0}", item.PrestigeLevel)
