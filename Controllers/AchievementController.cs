@@ -48,7 +48,7 @@ namespace HackerRank.Controllers
             var a = Request.Form["IsChecked"].ToList();
             await _achievementService.SetShowCase(a, User);
 
-            return RedirectToAction("details", "user", new { id = User.Identity.Name });
+            return RedirectToAction("profile", "user", new { id = User.Identity.Name });
         }
 
         // GET: Achievement/Create

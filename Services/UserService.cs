@@ -186,7 +186,6 @@ namespace HackerRank.Services
             await _context.SaveChangesAsync();
         }
 
-
         public async Task UpdateAchievementsOnUsers()
         {
             var users = await _context.Users.Include("UserStats").ToArrayAsync();
