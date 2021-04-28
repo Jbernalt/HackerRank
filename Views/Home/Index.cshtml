@@ -3,11 +3,145 @@
 @{
     ViewData["Title"] = "Ranking";
 }
-<div class="background">
+<div class="min-body">
+<div class="grid">
+    <div class="box-left">
+        <div class="head-row">
+            <p></p>
+            <p >Username</p>
+            <p>Commits</p>
+            <p>Issues created</p>
+            <p>Issues solved</p>
+            <p>Merge request</p>
+            <p>Comments</p>
+            <p class="text-design">Daily rating</p>
+        </div>
+        <div class="card">
+            @foreach (var item in Model)
+            {
+                @if (item.DailyRating != 0)
+                {
+                    <img src="../img/logo.png" asp-append-version="true" class="profile-pic" />
+                    <p >@Html.DisplayFor(modelItem => item.UserName)</p>
+                    <p>@string.Format("{0:0}", item.Commits)</p>
+                    <p> @string.Format("{0:0}", item.IssuesCreated)</p>
+                    <p>@string.Format("{0:0}", item.IssuesSolved)</p>
+                    <p>@string.Format("{0:0}", item.MergeRequest)</p>
+                    <p>@string.Format("{0:0}", item.Comments)</p>
+                    <p class="text-design">@string.Format("{0:0.00}", item.DailyRating)</p>
+                }
+            }         
+        </div>
+    </div>
+    @*Team*@
+    <div class="box-left2">
+        <div class="head-row">
+            <p></p>
+            <p >Name</p>
+            <p >Commits</p>
+            <p >Issues created</p>
+            <p >Issues solved</p>
+            <p>Merge request</p>
+            <p>Comments</p>
+            <p class="text-design">Daily rating</p>
+        </div>
+        <div class="card">
+             @foreach (var item in Model)
+            {
+                @if (item.GroupRating != 0)
+                {
+                        <p></p>
+                        <p >@Html.DisplayFor(modelItem => item.GroupName)</p>
+                        <p>@string.Format("{0:0}", item.CommitsDaily)</p>
+                        <p> @string.Format("{0:0}", item.IssuesCreatedDaily)</p>
+                        <p>@string.Format("{0:0}", item.IssuesSolvedDaily)</p>
+                        <p>@string.Format("{0:0}", item.MergeRequestsDaily)</p>
+                        <p>@string.Format("{0:0}", item.CommentsDaily)</p>
+                        <p class="text-design">@string.Format("{0:0.00}", item.GroupRating)</p>         
+                }             
+            }         
+        </div> 
+
+    </div>
+
+    <div class="center">
+        <div class="head-row2">
+            <p></p>
+            <p >Name</p>
+            <p>Prestige</p>
+            <p>Level</p>
+        </div>
+        <div class="card2">
+            @* @foreach (var item in Model)
+            { 
+                if (item.UserLevel != null)
+                {
+                            
+                    <img src="~/profileImg/@item.UserLevel.User.ProfileImage" asp-append-version="true" style="height:50px" />
+                    
+                    <p>
+                        @Html.DisplayFor(modelItem => item.UserLevel.User.UserName)  
+                    </p>
+                    <p>
+                        @string.Format("{0:0}", item.UserLevel.PrestigeLevel)
+                    </p>
+                    <p>
+                        @string.Format("{0:0}", item.UserLevel.Level.LevelName)
+                    </p>
+                    <p>ffff</p>
+                    
+                }              
+            }          *@
+                    <img src="../img/logo.png" asp-append-version="true" class="profile-pic" />
+                    
+                    <p>
+                       fff  
+                    </p>
+                    <p>
+                        ffff
+                    </p>
+                    <p>
+                        ggg
+                    </p>
+                    
+        </div> 
+        
+    </div>
+
+    <div class="box-right">
+        <article class="live_feed">
+            <div class="overlay">
+            <p class="pulsate-text">Live feed </p>
+            <ul id="live_feed" >
+                <li>Hej</li>
+                <li>jfdfd dfdf dfdf df</li>
+            </ul>                
+            <div class="box">
+                <div class="pic">
+                    <img src="~/img/hackerman (3).jpg" alt="" style="width: 100%;">
+                        
+                              
+                </div>
+                <div id="delay" class="pic" style="--order: 1">
+                    <img src="~/img/hackerman (3).jpg" alt="" style="width: 100%;">
+                             
+                </div>
+                <div id="delay" class="pic" style="--order: 2">
+                    <img src="~/img/hackerman (3).jpg" alt="" style="width: 100%;">
+                            
+                </div>      
+            </div> 
+            </div> 
+            </div>
+        </article>       
+    </div>
+</div>
+</div>
+
 <div class="container">
     <div class="row text-center">
         <div class="col-9">
-            <div class="table-responsive">
+            @* <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
@@ -137,9 +271,9 @@
                         }
                     </tbody>
                 </table>
-            </div>
+            </div> *@
 
-            <div class="table-responsive">
+            @* <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
@@ -178,18 +312,18 @@
                         }
                     </tbody>
                 </table>
-            </div>
+            </div> *@
         </div>
-        <div class="col-3 wrapper">
+        @* <div class="col-3 wrapper">
             <article class="live_feed">
                 <p class="pulsate">Live feed </p>
                 <ul id="live_feed" >
-                    <li>Hejjjj</li>
+                    <li>Hej</li>
                 </ul>
                 <ul><li>hrrrr</li></ul>
                 
                 <div class="box">
-                    @* <div></div> *@
+                    
                     <div class="bild">
                         @foreach (var item in Model){
                             @if (item.ProfileImage != null){
@@ -207,14 +341,12 @@
                             @if (item.ProfileImage != null){
                             <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="width:100%" />
                         }}          
-                    </div>
-                    
-                    
+                    </div>      
                 </div>
                 
             </article>
             
-        </div>
+        </div> *@
         @* <div class="bild2">
             <img src="..\img\logo.png" alt="">
         </div>
