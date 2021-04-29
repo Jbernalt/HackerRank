@@ -1,15 +1,14 @@
 ﻿@page
 @model RegisterModel
-@{
-    ViewData["Title"] = "Register";
-}
 
-<h1>@ViewData["Title"]</h1>
-
-<div class="row">
+<br />
+<div class="row text-center mt-5 justify-content-center">
+    <div class="row col-md-12 mb-5 mr-0 ml-0 justify-content-center">
+        <img style="max-height:55px" alt="Logo" src="~/img/logo.png" />
+    </div>
     @if (User.IsInRole("Administrator"))
     {
-        <div class="col-md-4">
+        <div class="col-md-6">
             <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
                 <h4>Create a new account.</h4>
                 <hr />
@@ -45,34 +44,22 @@
     }
     @if (!User.IsInRole("Administrator"))
     {
-        <div class="col-md-6 col-md-offset-2">
-            <section>
+        <div class="col-md-12">
+            <section class="text-center">
                 <h4>Use GitLab to register.</h4>
                 <hr />
-                @{
-                    if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                    {
-                        <div>
-                            <p>
-                                There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-                                for details on setting up this ASP.NET application to support logging in via external services.
-                            </p>
-                        </div>
-                    }
-                    else
-                    {
-                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                            <div>
-                                <p>
-                                    @foreach (var provider in Model.ExternalLogins)
-                                    {
-                                        <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                    }
-                                </p>
-                            </div>
-                        </form>
-                    }
-                }
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                    <div>
+                        <p>
+                            @foreach (var provider in Model.ExternalLogins)
+                            {                                
+                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">                                    
+                                    <img style="max-height:60px;" alt="Logo" src="~/img/gitlab-logo.png" />
+                                </button>
+                            }
+                        </p>
+                    </div>
+                </form>
             </section>
         </div>
     }
