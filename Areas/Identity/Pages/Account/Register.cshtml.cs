@@ -88,7 +88,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid && User.IsInRole("Administrator"))
             {
-                var user = new User { UserName = Input.Username, Email = Input.Email, GitLabId = Input.GitLabId, DateCreated = DateTime.Now, ProfileImage = "default-profile-picture.png" };
+                var user = new User { UserName = Input.Username, Email = Input.Email, GitLabId = Input.GitLabId, DateCreated = DateTime.Now, ProfileImage = "default-profile-picture.png", IsPublic = true };
                 var level = _context.Levels.Where(l => l.LevelId == 1).FirstOrDefault();
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
