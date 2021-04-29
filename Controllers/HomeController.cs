@@ -38,7 +38,7 @@ namespace HackerRank.Controllers
         {
             await _groupService.GetGroupData();
             await _groupService.GetProjectIdsForGroups();
-            await _userService.GetAllUserData(7);
+            await _userService.GetAllUserData(20);
 
             await _rankingService.CalculateAllUsersRating(true);
             await _rankingService.CalculateAllUsersRating(false);

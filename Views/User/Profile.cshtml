@@ -30,7 +30,14 @@
         <div class="row text-center">
             <hr />
             <div class="col-3">
-                <img class="m-3" src="~/profileImg/@Model.ProfileImage" asp-append-version="true" style="max-width:25%; border-radius:50%" />
+                @if (Model.ProfileImage == "default-profile-picture.png")
+                {
+                    <img src="~/img/@Model.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                }
+                else
+                {
+                    <img src="~/profileImg/@Model.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                }
                 <br />
                 <dl class="col text-center">
                     <dd>
