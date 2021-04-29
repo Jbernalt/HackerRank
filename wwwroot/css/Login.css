@@ -1,0 +1,9 @@
+.form-login{
+    background-color:aquamarine;
+    padding:4px
+}
+.loginNameAvator{
+    width:25px;
+    height:25px;
+    display:inline;
+}

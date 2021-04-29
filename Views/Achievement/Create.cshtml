@@ -1,4 +1,4 @@
-﻿@model HackerRank.Responses.AchievementResponse
+@model HackerRank.Responses.AchievementResponse
 @using static HackerRank.Models.ActionTypes;
 @{
     ViewData["Title"] = "Create";
@@ -13,56 +13,84 @@
 {
     if (User.IsInRole("Administrator"))
     {
-        <div class="row">
-            <div class="col-md-4">
-                <form asp-action="Create" enctype="multipart/form-data">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="form-group">
-                        <label asp-for="AchievementName" class="control-label"></label>
-                        <input asp-for="AchievementName" class="form-control" />
+
+    <div class="row">
+        <div class="col-md-10">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group row">
+                    <label asp-for="AchievementName" for="AchievementName" class="col-sm-2 control-label"></label>
+                    <div class="col-sm-3">
+                        <input asp-for="AchievementName" class="form-control" id="AchievementName" required />
+                    </div>
+                    <div class="col-sm-2">
                         <span asp-validation-for="AchievementName" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Description" class="control-label"></label>
-                        <input asp-for="Description" class="form-control" />
+                </div>
+                <div class="form-group row">
+                    <label asp-for="Description" class="col-sm-2 col-form-label control-label"></label>
+                    <div class="col-sm-3">
+                        <input asp-for="Description" class="form-control" id="Description" required />
+                    </div>
+                    <div class="col-sm-2">
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="NumberOfActions" class="control-label"></label>
-                        <input asp-for="NumberOfActions" class="form-control" />
+
+                </div>
+                <div class="form-group row">
+                    <label asp-for="NumberOfActions" class="control-label col-sm-2 col-form-label"></label>
+                    <div class="col-sm-3">
+                        <input asp-for="NumberOfActions" class="form-control" id="NumberOfActions" required />
+                    </div>
+                    <div class="col-sm-4">
                         <span asp-validation-for="NumberOfActions" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="TypeOfAction" class="control-label"></label>
-                        <select asp-for="TypeOfAction" asp-items="Html.GetEnumSelectList<ActionType>()" class="form-control"></select>
+
+                </div>
+                <div class="form-group row">
+                    <label asp-for="TypeOfAction" class="control-label col-sm-2 col-form-label"></label>
+                    <div class="col-sm-3">
+                        <select asp-for="TypeOfAction" asp-items="Html.GetEnumSelectList<ActionType>()" class="form-control" required></select>
+                    </div>
+                    <div class="col-sm-4">
                         <span asp-validation-for="TypeOfAction" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Image" class="control-label"></label>
-                        <input asp-for="Image" class="form-control-file" type="file" name="file" />
+                </div>
+
+                <div class="form-group row">
+                    <label asp-for="Image" class="control-label col-sm-2 col-form-label"></label>
+                    <div class="col-sm-3">
+                        <input asp-for="Image" class="form-control-file" type="file" name="file" id="Image" required />
+                    </div>
+                    <div class="col-sm-4">
                         <span asp-validation-for="Image" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <input type="submit" value="Create" class="btn btn-primary" />
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="form-group row">
+                    <input type="submit" value="Create" class="btn btn-primary btn-lg btn-block col-2" />
+                </div>
+            </form>
         </div>
+    </div>
+
+
+
     }
     else
     {
-        <p>Only admins are allowed to create achievements</p>
+    <p>Only admins are allowed to create achievements</p>
     }
-}
-else
-{
+    }
+    else
+    {
     <p>Only admins are allowed to delete achievements</p>
-}
+    }
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }

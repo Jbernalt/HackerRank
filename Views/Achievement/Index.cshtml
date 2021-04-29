@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HackerRank.ViewModels.AchievementViewModel>
+@model IEnumerable<HackerRank.ViewModels.AchievementViewModel>
 
 @{
     ViewData["Title"] = "Achievement";
@@ -17,8 +17,8 @@
     }
 }
 <form id="showcase" asp-action="SetShowcase" asp-controller="Achievement" method="post">
-    <table class="table">
-        <thead>
+    <table class="table table-striped">
+        <thead class="thead-dark">
             <tr>
                 <th>
                     @Html.DisplayName("")
@@ -100,8 +100,8 @@
 
     </table>
 </form>
-<div class="form-group">
-    <input type="submit" form="showcase" name="action" value="Save" class="btn btn-primary" />
+<div class="row form-group d-flex flex-column align-items-center text-center">
+    <input type="submit" form="showcase" name="action" value="Save" class="btn btn-primary btn-lg btn-block col-md-2 " />
 </div>
 
 

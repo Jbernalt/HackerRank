@@ -27,6 +27,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Westwind.AspNetCore.LiveReload;
 
 namespace HackerRank
 {
@@ -51,7 +52,7 @@ namespace HackerRank
             });
 
             services.AddSignalR();
-
+            services.AddLiveReload();
 
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
@@ -87,7 +88,6 @@ namespace HackerRank
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.Configure<AuthTokenOptions>(Configuration);
-
             services.AddAuthentication()
                 .AddGitLab(options =>
                 {
@@ -143,13 +143,17 @@ namespace HackerRank
 
             services.AddAntiforgery(options =>
             {
-                // Set Cookie properties using CookieBuilder properties†.
+                // Set Cookie properties using CookieBuilder propertiesâ€ .
                 options.FormFieldName = "AntiforgeryField";
                 options.HeaderName = "X-CSRF-TOKEN";
                 options.SuppressXFrameOptionsHeader = false;
             });
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            //services.AddRazorPages().AddRazorRuntimeCompilation();
+
+
 
             services.AddAuthorizationCore(options =>
             {
@@ -188,6 +192,7 @@ namespace HackerRank
 
                 return next(context);
             });
+            app.UseLiveReload();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

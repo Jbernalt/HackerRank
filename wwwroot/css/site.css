@@ -1,71 +1,199 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
+.page-header {
+    padding-top: 10px;
+    text-align: center;
+    background-color: #ddd;
+    padding-right: 0;
+    border: 1px solid #1f1f1f;
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 120px;
+    z-index: 2;
+}
+.container2 {
+    position: relative;
+    left: 0;
+    right: 0;
+    top: 100px;
+    padding: 10px;
+    z-index: 1;
+}
+.image {
+    border: 3px dashed silver;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 5px 5px 20px #ccc;
+    width:60%;
+}
+.imageprofile {
+    border: 3px solid silver;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 5px 5px 20px #ccc;
+    max-width: 25%;
+}
+.image-attach {
+    border: 1px solid silver;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 5px 5px 20px #ccc;
+    width: 200px;
+    height: 200px;
+}
+.bottom {
+    width: 10%;
+    height: 38px;
+    font-size: 1em;
+}
+    .bottom:hover {
+        background-color: white;
+        color: #00A5D2;
+    }
 a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
 }
 
 /* Provide sufficient contrast against white background */
 a {
-  color: #0366d6;
+    color: #0366d6;
 }
 
 .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
+
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .border-top {
-  border-top: 1px solid #e5e5e5;
+    border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+    font-size: 1rem;
+    line-height: inherit;
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+    font: "Trebuchet MS", Verdana, sans-serif;
+    background-color: #5c87b2;
+    /*    color: #696969;
+*/
 }
+
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px; /* Vertically center the text there */
 }
+
+h1 {
+    font: Georgia, serif;
+    color: #034af3;
+}
+
+#main {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 0 4px 4px 4px;
+}
+
+a {
+    color: #034af3;
+}
+/* Menu Styles ------------------------------*/
+ul#menu {
+    padding: 0px;
+    position: relative;
+    margin: 0;
+}
+
+    ul#menu li {
+        display: inline;
+    }
+
+        ul#menu li a {
+            background-color: #e8eef4;
+            padding: 10px 20px;
+            text-decoration: none;
+            line-height: 2.8em;
+            /*CSS3 properties*/
+            border-radius: 4px 4px 0 0;
+        }
+
+            ul#menu li a:hover {
+                background-color: #ffffff;
+            }
+/* Forms Styles ------------------------------*/
+fieldset {
+    padding-left: 12px;
+}
+
+    fieldset label {
+        display: block;
+        padding: 4px;
+    }
+
+input[type="text"], input[type="password"] {
+    width: 300px;
+}
+
+input[type="submit"] {
+    padding: 4px;
+}
+/* Data Styles ------------------------------*/
+table.data {
+    background-color: #ffffff;
+    border: 1px solid #c3c3c3;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+    table.data th {
+        background-color: #e8eef4;
+        border: 1px solid #c3c3c3;
+        padding: 3px;
+    }
+
+    table.data td {
+        border: 1px solid #c3c3c3;
+        padding: 3px;
+    }

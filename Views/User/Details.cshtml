@@ -1,94 +1,298 @@
-﻿@model HackerRank.ViewModels.UserViewModel
+@model HackerRank.ViewModels.UserViewModel
 @using Microsoft.AspNetCore.Identity
 @using HackerRank.Models.Users;
 @inject SignInManager<User> SignInManager
-<h1>Profile page</h1>
 
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="page-link">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
-    </li>
-}
+    <h1>Profile page</h1>
 
-<div>
-    <hr />
-    <img src="~/profileImg/@Model.ProfileImage"
-         asp-append-version="true" style="max-width:25%" />
-    <br />
-    <dl class="col">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Username)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Username)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayName("Date created")
-        </dt>
-        <dd class="col-sm-10">
-            @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Groups)
-        </dt>
-        @foreach (var item in Model.Groups)
-        {
-            <dd class="col-sm-10">
-                @item.GroupName
-            </dd>
-        }
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Projects)
-        </dt>
-        @foreach (var item in Model.Projects)
-        {
-            <dd class="col-sm-10">
-                @item.ProjectName
-            </dd>
-        }
-        <dt class="col-sm-2">
-            @Html.DisplayName("Achievements")
-        </dt>
-        @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
-        {
-            <dd class="col-sm-10">
-                @item.Achievement.AchievementName
-            </dd>
-            <dd class="col-sm-10">
-                @item.Achievement.Description
-            </dd>
-
-            <dd><img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" style="max-width:25%" /></dd>
-        }
-    </dl>
-
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <div class="Chart-Buttons">
-        <input type="button" id="commit" value="Commit" class="btn btn-primary" />
-        <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
-        <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
-        <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary" />
-        <input type="button" id="comments" value="Comments" class="btn btn-primary" />
-    </div>
-
-    <div id="chart_div"></div>
-
-    @section Scripts
+    @if (SignInManager.IsSignedIn(User))
     {
-        <script type="text/javascript">
+        <li class="page-link">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
+        </li>
+    }
+
+<div class="container-fluid">
+    <div class="main-body">
+        <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex flex-column align-items-center text-center">
+                            <img src="~/profileImg/@Model.ProfileImage" asp-append-version="true" alt="Admin" class="rounded-circle" width="150" />
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <dl class="row">
+                        <dt class="col-sm-4 col-md-12 col-lg-4">
+                            @Html.DisplayNameFor(model => model.Username)
+                        </dt>
+                        <dd class="col-sm-8 col-md-12 col-lg-8">
+                            <h6>
+                                @Html.DisplayFor(model => model.Username)
+                            </h6>
+                        </dd>
+                        <dt class="col-sm-4 col-md-12 col-lg-4">
+                            @Html.DisplayNameFor(model => model.Email)
+                        </dt>
+                        <dd class="col-sm-8 col-md-12 col-lg-8">
+                            @Html.DisplayFor(model => model.Email)
+                        </dd>
+                        <dt class="col-sm-4">
+                            @Html.DisplayName("Date created")
+                        </dt>
+                        <dd class="col-sm-8">
+                            @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
+                        </dd>
+                        <dt class="col-sm-4">
+                            @Html.DisplayNameFor(model => model.Description)
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Html.DisplayFor(model => model.Description)
+                        </dd>
+                        <dt class="col-sm-4">
+                            @Html.DisplayNameFor(model => model.Groups)
+                        </dt>
+                        @foreach (var item in Model.Groups)
+                        {
+                            <dd class="col-sm-8">
+                                @item.GroupName
+                            </dd>
+                        }
+                        <dt class="col-sm-4">
+                            @Html.DisplayNameFor(model => model.Projects)
+                        </dt>
+                        @foreach (var item in Model.Projects)
+                        {
+                            <dd class="col-sm-8">
+                                @item.ProjectName
+                            </dd>
+                        }
+                        @*<dt class="col-sm-12">
+                            @Html.DisplayName("Achievements")
+                        </dt>
+                        @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
+                        {
+                            <dd class="col-sm-5">
+                                @item.Achievement.AchievementName
+                            </dd>
+                            <dd class="col-sm-7">
+                                @item.Achievement.Description
+                            </dd>
+
+                            <dd class="col-sm-12"><img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" class="image-attach" /></dd>
+                        }*@
+                    </dl>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        @*<div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">
+                                    @Html.DisplayNameFor(model => model.Username)
+                                </h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Html.DisplayFor(model => model.Username)
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">
+                                    @Html.DisplayNameFor(model => model.Email)
+                                </h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Html.DisplayFor(model => model.Email)
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">
+                                    @Html.DisplayName("Date created")
+                                </h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">
+                                    @Html.DisplayNameFor(model => model.Description)
+                                </h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Html.DisplayFor(model => model.Description)
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">
+                                    @Html.DisplayNameFor(model => model.Groups)
+                                </h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @foreach (var item in Model.Groups)
+                                {
+                                    @item.GroupName
+                                }
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">
+                                    @Html.DisplayNameFor(model => model.Projects)
+                                </h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @foreach (var item in Model.Projects)
+                                {
+                                    @item.ProjectName
+                                }
+                            </div>
+                        </div>*@
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h6 class="mb-0">
+                                    @Html.DisplayName("Achievements")
+                                </h6>
+                            </div>
+                            <div class="col-sm-12 text-secondary">
+                                <div class="row">
+
+                                    @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
+                                    {
+                                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                                        <dl><dt>@item.Achievement.AchievementName</dt>
+                                            <dd>
+                                                <img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" class="img-fluid rounded shadow-sm image-attach" />
+                                            </dd>
+                                            <dd>
+                                                @item.Achievement.Description
+                                            </dd>
+                                            </dl>
+                                    </div>
+                                    }
+                                </div>
+
+                            </div>
+                                </div>
+                    </div>
+                </div>
+                @*<div class="row gutters-sm">
+                    <div class="col-sm-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="d-flex align-items-center mb-3"><i class="material-icons text-info mr-2">aa</i>bb</h6>
+                                
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        <div>
+            <hr />
+            @*<img src="~/profileImg/@Model.ProfileImage"
+                 asp-append-version="true" class="imageprofile rounded-circle" />
+            <br />
+            <dl class="col">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Username)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Username)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Email)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Email)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayName("Date created")
+                </dt>
+                <dd class="col-sm-10">
+                    @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Description)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Description)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Groups)
+                </dt>
+                @foreach (var item in Model.Groups)
+                {
+                    <dd class="col-sm-10">
+                        @item.GroupName
+                    </dd>
+                }
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Projects)
+                </dt>
+                @foreach (var item in Model.Projects)
+                {
+                    <dd class="col-sm-10">
+                        @item.ProjectName
+                    </dd>
+                }
+                <dt class="col-sm-2">
+                    @Html.DisplayName("Achievements")
+                </dt>
+                @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
+                {
+                    <dd class="col-sm-10">
+                        @item.Achievement.AchievementName
+                    </dd>
+                    <dd class="col-sm-10">
+                        @item.Achievement.Description
+                    </dd>
+
+                    <dd><img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" class="image-attach" /></dd>
+                }
+            </dl>*@
+
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            
+            <div class="row">
+                <div id="chart_div" class=" d-flex flex-column align-items-center text-center col-sm-12"></div>
+            </div>
+            <div class="Chart-Buttons">
+    <input type="button" id="commit" value="Commit" class="btn btn-primary bottom" />
+    <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary bottom" />
+    <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary bottom" />
+    <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary bottom" />
+    <input type="button" id="comments" value="Comments" class="btn btn-primary bottom" />
+</div>
+
+            @section Scripts
+    {
+                <script type="text/javascript">
             google.charts.load('current',
             {
                 'callback': function ()
@@ -146,7 +350,7 @@
                         lineWidth: 3,
                         hAxis: { title: 'Time' },
                         vAxis: { title: 'Commits' },
-                        width: 500,
+                        width: 1200,
                         height: 500
                     };
 
@@ -185,6 +389,6 @@
                 },
                 'packages':['corechart']
             });
-        </script>
-    }
-</div>
+                </script>
+            }
+        </div>
