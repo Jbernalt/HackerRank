@@ -1,9 +1,64 @@
-.form-login{
-    background-color:aquamarine;
-    padding:4px
+
+.form-section {
+    border: 1px solid #9C9C9C;
+    background-color: #EAEAEA;
+    border-radius: 20px;
+}
+.form-section-forget-password {
+    border: 1px solid #9C9C9C;
+    background-color: #EAEAEA;
+    border-radius: 20px;
+    height: 500px;
+}
+.style-For-Password{
+    padding-top:30px;
+}
+.style-For-Password-btn{
+    padding-top:50px;
+}
+.form-login {
+    padding: 0 4px 0 4px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 .loginNameAvator{
     width:25px;
-    height:25px;
-    display:inline;
+    height:25px;   
+    align-self:center;        
 }
+.center {
+    align-self: center;
+}
+.password {
+    width: 25px;
+    height: 25px;
+    align-self: center;
+}
+.h1-style {
+    color: black;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+    padding-top: 20px;
+}
+.h2-style {
+    color: black;
+    font-weight: bold;
+    font-family: "Times New Roman", Times, serif;
+}
+.left-forgetpassword{
+    padding-left:40px;
+}
+.imagBacground {
+    background-color: aqua;
+}
+
+/*.imagBacground {
+    
+    border-radius: 30px;
+    width: 50%;
+}
+    .imagBacground img {
+        width: 100%;
+        border-radius: 20px;
+    }
+*/

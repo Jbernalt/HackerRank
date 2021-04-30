@@ -3,25 +3,42 @@
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 
-<ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Hello @User.Identity.Name!<img src="~/img/log/name_user_3716.png" class="imageprofile"/></a>
+<ul class="navbar-nav ">
+    @if (SignInManager.IsSignedIn(User))
+    {        
+
+    <li class="nav-item dropdown">
+        <a class="nav-link text-dark " asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Hello @User.Identity.Name!<img src="~/img/log/name_user_3716.png" class="imageprofile " /></a>
+        <div class="dropdown-content">
+            @*<a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Edit profile </a>*@
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
+
+        </div>
     </li>
-    <li class="nav-item">
-        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark"><img src="~/img/log/sign-out-option_icon-icons.com_73413.png" /></button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login"><img src="~/img/log/log_in_icon_128822.png" /></a>
-    </li>
-}
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link text-dark">
+                <img src="~/img/log/sign-out-option_icon-icons.com_73413.png" title="log out"/></button>
+               
+            </form>
+        </li>
+
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login"><img src="~/img/log/log_in_icon_128822.png" title="log in"/></a>
+        </li>
+    }
 </ul>
+@*<div class="dropdown">
+    <button class="dropbtn">Dropdown</button>
+    <div class="dropdown-content">
+        <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Hello @User.Identity.Name!<img src="~/img/log/name_user_3716.png" class="imageprofile" /></a>
+        <a href="#">Link 2</a>
+        <a href="#">Link 3</a>
+    </div>
+</div>*@

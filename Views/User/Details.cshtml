@@ -3,14 +3,7 @@
 @using HackerRank.Models.Users;
 @inject SignInManager<User> SignInManager
 
-    <h1>Profile page</h1>
-
-    @if (SignInManager.IsSignedIn(User))
-    {
-        <li class="page-link">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
-        </li>
-    }
+    <h1 class="h1-style" >Profile page</h1>
 
 <div class="container-fluid">
     <div class="main-body">
@@ -18,13 +11,13 @@
             <div class="col-md-4 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex flex-column align-items-center text-center">
+                        <div class="d-flex flex-column align-items-center text-center ">
                             <img src="~/profileImg/@Model.ProfileImage" asp-append-version="true" alt="Admin" class="rounded-circle" width="150" />
 
                         </div>
                     </div>
                 </div>
-                <div class="card mt-3">
+                <div class="card mt-3" >
                     <dl class="row">
                         <dt class="col-sm-4 col-md-12 col-lg-4">
                             @Html.DisplayNameFor(model => model.Username)
@@ -70,21 +63,28 @@
                                 @item.ProjectName
                             </dd>
                         }
-                        @*<dt class="col-sm-12">
-                            @Html.DisplayName("Achievements")
-                        </dt>
-                        @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
+                    <div class="col-sm-12 align-content-center border">
+                        @if (SignInManager.IsSignedIn(User))
                         {
-                            <dd class="col-sm-5">
-                                @item.Achievement.AchievementName
-                            </dd>
-                            <dd class="col-sm-7">
-                                @item.Achievement.Description
-                            </dd>
+                                <a class="nav-link text-dark btn-info text-center" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
 
-                            <dd class="col-sm-12"><img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" class="image-attach" /></dd>
-                        }*@
-                    </dl>
+                        }
+                    </div>
+                            @*<dt class="col-sm-12">
+                @Html.DisplayName("Achievements")
+            </dt>
+            @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
+            {
+                <dd class="col-sm-5">
+                    @item.Achievement.AchievementName
+                </dd>
+                <dd class="col-sm-7">
+                    @item.Achievement.Description
+                </dd>
+
+                <dd class="col-sm-12"><img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" class="image-attach" /></dd>
+            }*@
+                        </dl>
                 </div>
             </div>
             <div class="col-md-8">
