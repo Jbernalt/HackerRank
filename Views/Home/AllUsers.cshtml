@@ -1,0 +1,85 @@
+﻿@model List<HackerRank.ViewModels.UserViewModel>
+<div class="container">
+    <div class="row text-center">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>
+                                @Html.DisplayName("Username")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Commits")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Issues created")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Issues solved")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Merge requests")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Comments")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Daily rating")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Monthly rating")
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            @if (item.UserStats.DailyRating != 0)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (item.ProfileImage == "default-profile-picture.png")
+                                        {
+                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                    </td>
+                                    <td>
+                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@item.Username">@item.Username</a>
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.UserStats.TotalCommits)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.UserStats.TotalIssuesCreated)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.UserStats.TotalIssuesSolved)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.UserStats.TotalMergeRequests)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.UserStats.TotalComments)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0.00}", item.UserStats.DailyRating)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0.00}", item.UserStats.MonthlyRating)
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

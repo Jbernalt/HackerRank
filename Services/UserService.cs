@@ -32,6 +32,7 @@ namespace HackerRank.Services
         Task UpdateAchievementsOnUsers();
         Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity);
         List<string> UserSearch(string username);
+        Task<List<UserViewModel>> GetAllUsers();
     }
 
     public class UserService : IUserService
@@ -47,6 +48,14 @@ namespace HackerRank.Services
             _userManager = userManager;
             _config = configuration;
             _mapper = mapper;
+        }
+
+        public async Task<List<UserViewModel>> GetAllUsers()
+        {
+            List<User> users = await _context.Users.Include(x => x.Groups).Include(y => y.UserStats).ToListAsync();
+            List<UserViewModel> userViewModels = new();
+            _mapper.Map(users, userViewModels);
+            return userViewModels;
         }
 
         public List<string> UserSearch(string username)
