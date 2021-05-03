@@ -55,6 +55,13 @@ namespace HackerRank.Services
             List<User> users = await _context.Users.Include(x => x.Groups).Include(y => y.UserStats).ToListAsync();
             List<UserViewModel> userViewModels = new();
             _mapper.Map(users, userViewModels);
+            int i = 0;
+            foreach (var u in users)
+            {
+                var list = await _userManager.GetRolesAsync(u);
+                userViewModels[i].Roles = list.ToList();
+                i++;
+            }
             return userViewModels;
         }
 
