@@ -29,7 +29,7 @@
         <br />
         <div class="row text-center">
             <hr />
-            <div class="col-3">
+            <div class="col-3 pt-3 mt-3" style="background-color: #f0f6f6; border-radius: 30px">
                 @if (Model.ProfileImage == "default-profile-picture.png")
                 {
                     <img src="~/img/@Model.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
@@ -79,18 +79,37 @@
             </div>
             <div class="col-9 text-center">
                 <h3>Achievements</h3>
-                <div class="row mb-4 mt-4">
-                    @foreach (var item in Model.UserAchievements.Where(i => i.IsShowCase == true))
-                    {
-                        <div class="col-sm flex-column">
-                            <img src="~/achievementImg/@item.Achievement.Image" asp-append-version="true" style="max-width:25%" />
-                            <p>@item.Achievement.AchievementName</p>
-                        </div>
-                    }
+                <div class="container">
+                    <div class="row pb-4 pt-4 align-items-center" style="background-color: #f0f6f6; border-radius: 30px">
+                        @{
+                            var list = Model.UserAchievements.Where(i => i.IsShowCase == true).ToArray();
+                            for (int i = 0; i < 4; i++)
+                            {
+                                if (i < list.Count())
+                                {
+                                    <div class="col-sm flex-column">
+                                        <a asp-controller="achievement" asp-action="index">
+                                            <img src="~/achievementImg/@list[i].Achievement.Image" asp-append-version="true" style="max-width:40%" />
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm flex-column">
+                                        <a asp-controller="achievement" asp-action="index">
+                                            <img src="~/img/default-achievement.png" asp-append-version="true" style="max-width:40%" />
+                                        </a>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
                 </div>
-                <div class="table-responsive mt-4 mb-4">
-                    <table class="table">
-                        <thead>
+                
+
+                <div class="table-responsive mt-4 mb-4 p-4" style="background-color: #f0f6f6; border-radius: 30px">
+                    <table class="table table-borderless">
+                        <thead style="border-bottom: solid 1px rgba(0,0,0,.1)">
                             <tr>
                                 <th>
                                     @Html.DisplayName("Total commits")
@@ -131,13 +150,13 @@
                     </table>
                 </div>
 
-                <div class="row justify-content-center w-100">
+                <div class="row m-0 p-4 justify-content-center" style="background-color: #f0f6f6; border-radius: 30px">
                     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
                     @if (Model.ChartDatas.Count > 0)
                     {
                         @*Buttons to Change Charts*@
-                        <div>
+                        <div class="pb-3">
                             <input type="button" id="commit" value="Commit" class="btn btn-primary" />
                             <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
                             <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
@@ -169,6 +188,7 @@
                                     ui: {
                                         chartType: 'LineChart',
                                         chartOptions: {
+                                            backgroundColor: '#f0f6f6',
                                             chartArea: { 'width': '90%' },
                                             hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd" }
                                         },
@@ -186,6 +206,7 @@
                                     chartArea: { 'height': '70%', 'width': '90%' },
                                     legend: { 'position': 'none' },
                                     title: 'User Commits',
+                                    backgroundColor: '#f0f6f6',
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -254,6 +275,7 @@
                                     chartArea: { 'height': '70%', 'width': '90%' },
                                     legend: { 'position': 'none' },
                                     title: 'User Commits',
+                                    backgroundColor: '#f0f6f6',
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -272,6 +294,7 @@
                                     chartArea: { 'height': '70%', 'width': '90%' },
                                     legend: { 'position': 'none' },
                                     title: 'User IssuesCreated',
+                                    backgroundColor: '#f0f6f6',
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -290,6 +313,7 @@
                                     chartArea: { 'height': '70%', 'width': '90%' },
                                     legend: { 'position': 'none' },
                                     title: 'User IssuesSolved',
+                                    backgroundColor: '#f0f6f6',
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -308,6 +332,7 @@
                                     chartArea: { 'height': '70%', 'width': '90%' },
                                     legend: { 'position': 'none' },
                                     title: 'User MergeRequests',
+                                    backgroundColor: '#f0f6f6',
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -326,6 +351,7 @@
                                     chartArea: { 'height': '70%', 'width': '90%' },
                                     legend: { 'position': 'none' },
                                     title: 'User Comments',
+                                    backgroundColor: '#f0f6f6',
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,

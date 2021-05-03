@@ -135,7 +135,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
                 var username = info.Principal.Identity.Name;
                 var gitlabId = int.Parse(info.ProviderKey);
                 var level = _context.Levels.Where(l => l.LevelId == 1).FirstOrDefault();
-                var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId, ProfileImage = "default-profile-picture.png" };
+                var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId, ProfileImage = "default-profile-picture.png", IsPublic = true };
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
