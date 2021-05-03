@@ -141,6 +141,7 @@ namespace HackerRank.Services
                 .Include(o => o.Level)
                 .OrderByDescending(o => o.PrestigeLevel)
                 .ThenByDescending(p => p.Level.LevelId)
+                .ThenByDescending(e => e.CurrentExperience)
                 .Take(5)
                 .ToListAsync();
         }
