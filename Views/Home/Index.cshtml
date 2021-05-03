@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Ranking";
+
 }
 
 <div class="container">
@@ -159,11 +160,21 @@
                             <th>
                                 @Html.DisplayName("Level")
                             </th>
+                            <th>
+                                @Html.DisplayName("Current Experience")
+                            </th>
+                            <th>
+
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.UserLevel)
                         {
+                            double value = (item.CurrentExperience - item.Level.XpNeeded) * 10;
+                            string progress = value.ToString() + "%";
+                            progress = progress.Replace(",", ".");
+                            int nextlevel = item.Level.XpNeeded + 10;
                             if (item != null)
                             {
                                 <tr>
@@ -180,12 +191,22 @@
                                     <td>
                                         <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@item.User.UserName">@item.User.UserName</a>
                                     </td>
+
                                     <td>
                                         @string.Format("{0:0}", item.PrestigeLevel)
                                     </td>
+
                                     <td>
-                                        @string.Format("{0:0}", item.Level.LevelName)
+                                        @string.Format("{0:0}", "Level " + " " + item.Level.LevelId + " " + item.Level.LevelName)
                                     </td>
+                                    <td>
+                                        <div class="progress position-relative">
+                                                <div class="progress-bar" style="width:@progress; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
+                                                <small class="justify-content-center d-flex position-absolute w-100" style="color:black">@item.CurrentExperience/@nextlevel</small>
+                                        </div>
+
+                                    </td>
+
                                 </tr>
                             }
                         }

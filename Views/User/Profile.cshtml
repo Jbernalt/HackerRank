@@ -14,13 +14,15 @@
         string progress = value.ToString() + "%";
         progress = progress.Replace(",", ".");
         int nextlevel = Model.UserLevel.Level.LevelId + 1;
+        int nextLevelXp = Model.UserLevel.Level.XpNeeded + 10;
 
         <div>
             <h2 class="text-capitalize text-center">Prestige: @Model.UserLevel.PrestigeLevel Rank: @Model.UserLevel.Level.LevelName</h2>
             <div class="row flex-row justify-content-center align-items-center">
                 <div class="col-1 text-center">@Model.UserLevel.Level.LevelId</div>
-                <div class="progress col-10 px-0">
-                    <div class="progress-bar" style="width:@progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
+                <div class="progress col-10 px-0 position-relative" >
+                    <div class="progress-bar" style="width:@progress; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
+                    <small class="justify-content-center d-flex position-absolute w-100" style="color:black">@Model.UserLevel.CurrentExperience/@nextLevelXp</small>
                 </div>
                 <div class="col-1 text-center">@nextlevel</div>
             </div>
