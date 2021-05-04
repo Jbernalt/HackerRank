@@ -2,6 +2,7 @@
     padding-top: 10px;
     text-align: center;
     background-color: #ddd;
+
     padding-right: 0;
     border: 1px solid #1f1f1f;
     position: fixed;
@@ -17,6 +18,8 @@
     top: 100px;
     padding: 10px;
     z-index: 1;
+   
+    font-weight: bold;
 }
 .image {
     border: 3px dashed silver;
@@ -39,6 +42,14 @@
     box-shadow: 5px 5px 20px #ccc;
     width: 200px;
     height: 200px;
+}
+.achievementImg {
+    border: 1px solid silver;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 5px 5px 20px #ccc;
+    width: 400px;
+    height: 100%;
 }
 .bottom {
     width: 10%;

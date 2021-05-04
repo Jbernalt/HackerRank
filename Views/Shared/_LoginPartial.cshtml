@@ -11,7 +11,13 @@
         <a class="nav-link text-dark " asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Hello @User.Identity.Name!<img src="~/img/log/name_user_3716.png" class="imageprofile " /></a>
         <div class="dropdown-content">
             @*<a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name">Edit profile </a>*@
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit your profile</a>
+            <a class="nav-link text-dark text-left" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@User.Identity.Name" title="My profile">My profile</a>
+            <a class="nav-link text-dark text-left" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Edit my profile</a>
+<div class="border-drop">
+    </div>
+            <a class="nav-link text-left text-danger" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">Log Out</a>
+
+
 
         </div>
     </li>

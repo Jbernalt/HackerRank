@@ -55,10 +55,12 @@
                          height="60" width="60"
                          asp-append-version="true" />
                 </td>
+
+               
                 <td style="@style">
                     @Html.DisplayFor(modelItem => item.AchievementName)
                 </td>
-                <td style="@style">
+                <td style="@style width:1000px">
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
 
@@ -83,6 +85,7 @@
                 <td>
                     <a asp-action="Details" asp-route-id="@item.AchievementId">Details</a>
 
+                   
                     @if (User.Identity.IsAuthenticated)
                     {
                         if (User.IsInRole("Administrator"))

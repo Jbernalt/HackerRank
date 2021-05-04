@@ -57,6 +57,15 @@ body {
 .shadow-none {
     box-shadow: none !important;
 }
+.btn-style{
+    width:200px;
+
+}
+.border-drop{
+    border: 1px solid black;
+    width: 80%;
+    
+}
 /*#Create .container .Create-row{
     margin-top: 120px;
     max-width: 600px;
