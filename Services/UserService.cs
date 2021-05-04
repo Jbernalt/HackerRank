@@ -9,6 +9,7 @@ using HackerRank.Responses;
 using HackerRank.ViewModels;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -33,6 +34,8 @@ namespace HackerRank.Services
         Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity);
         List<string> UserSearch(string username);
         Task<List<UserViewModel>> GetAllUsers();
+        Task SetRoles(List<string> roleNames, string userName);
+        Task<List<RoleViewModel>> GetUserRoles(string userName);
     }
 
     public class UserService : IUserService
@@ -41,13 +44,15 @@ namespace HackerRank.Services
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration, IMapper mapper)
+        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _config = configuration;
             _mapper = mapper;
+            _roleManager = roleManager;
         }
 
         public async Task<List<UserViewModel>> GetAllUsers()
@@ -267,7 +272,44 @@ namespace HackerRank.Services
             }
             return chart;
         }
+        
+        public async Task SetRoles(List<string> roleNames, string userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if(user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                var result = await _userManager.RemoveFromRolesAsync(user, roles);
+                if (result.Succeeded)
+                {
+                    result = await _userManager.AddToRolesAsync(user, roleNames);
+                    if (result.Succeeded)
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                } 
+            }
+        }
 
+        public async Task<List<RoleViewModel>> GetUserRoles(string userName)
+        {
+            List<RoleViewModel> roleViewModels = new();
+            var user = await _context.Users.Where(u => u.UserName == userName).FirstOrDefaultAsync();
+            var roles = await _roleManager.Roles.ToListAsync();
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach(var role in roles)
+            {
+                RoleViewModel viewModel = new()
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name,
+                    UserName = user.UserName,
+                    IsInRole = await _userManager.IsInRoleAsync(user, role.Name)
+                };
+                roleViewModels.Add(viewModel);
+            }
 
+            return roleViewModels;
+        }
     }
 }

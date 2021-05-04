@@ -1,0 +1,53 @@
+﻿@model List<HackerRank.ViewModels.RoleViewModel>
+<form id="Roles" method="post" asp-action="SetRoles" asp-controller="User">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-9">
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>
+                                    @Html.DisplayName("Roles")
+                                </th>
+
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @string.Format("{0:0.00}", item.RoleName)
+                                    </td>
+
+                                    <td>
+                                        @if (item.IsInRole)
+                                        {
+                                            <input id="roleCheck" name="roleCheck" value="@item.RoleName" type="checkbox" checked="checked" />
+                                        }
+                                        else
+                                        {
+                                            <input id="roleCheck" name="roleCheck" value="@item.RoleName" type="checkbox" />
+                                        }
+                                        <input hidden name="userRole" id="userRole" asp-for="@item.UserName" />
+                                        <div asp-validation-summary="All" class="text-danger"></div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</form>
+<div class="card-footer">
+    <input type="submit" form="Roles" value="save" class="btn btn-primary"
+           style="width:auto" />
+</div>

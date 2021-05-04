@@ -78,6 +78,10 @@
                 {
                     <a class="btn btn-primary" type="button" asp-area="Identity" asp-page="/Account/Manage/Index">Edit profile</a>
                 }
+                @if (User.IsInRole("Administrator"))
+                {
+                    <a id="manage-roles" type="button" asp-controller="User" asp-action="AdminOptions" asp-route-id="@Model.Username" class="btn btn-primary">Manage roles</a>
+                }
             </div>
             <div class="col-9 text-center">
                 <h3>Achievements</h3>
