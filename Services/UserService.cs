@@ -297,6 +297,7 @@ namespace HackerRank.Services
             var user = await _context.Users.Where(u => u.UserName == userName).FirstOrDefaultAsync();
             var roles = await _roleManager.Roles.ToListAsync();
             var userRoles = await _userManager.GetRolesAsync(user);
+
             foreach(var role in roles)
             {
                 RoleViewModel viewModel = new()
