@@ -47,6 +47,7 @@ namespace HackerRank.Services
             body = body.Replace("{CALLBRACK_URL_HERE}", callbackurl);
             body = body.Replace("{LOGO_HERE}", "cid:" + logo.ContentId);
             body = body.Replace("{ICON_HERE}", "cid:" + icon.ContentId);
+            body = body.Replace("{COPYRIGHT_HERE}", "HackerRank");
             builder.HtmlBody = body;
 
             message.Body = builder.ToMessageBody();

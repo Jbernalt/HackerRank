@@ -2,6 +2,7 @@
 
 using HackerRank.Models.Achievements;
 using HackerRank.Models.Groups;
+using HackerRank.Models.Projects;
 using HackerRank.Models.Users;
 using HackerRank.Responses;
 using HackerRank.ViewModels;
@@ -16,6 +17,7 @@ namespace HackerRank.Data
             CreateMap<AchievementViewModel, Achievement>().ReverseMap();
             CreateMap<UserViewModel, User>().ReverseMap();
             CreateMap<TopFiveGroupsViewModel, GroupStats>().ReverseMap();
+            CreateMap<Project, ProjectResponse>().ReverseMap();
         }
     }
 }

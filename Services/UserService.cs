@@ -11,6 +11,7 @@ using HackerRank.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 
 using System;
 using System.Collections.Generic;
@@ -28,10 +29,11 @@ namespace HackerRank.Services
     public interface IUserService
     {
         List<ChartData> GetUserCommitChartData(User user);
-        Task GetAllUserData(int days);
+        Task UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent);
         Task UpdateAchievementsOnUsers();
         Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity);
         List<string> UserSearch(string username);
+        Task<string> UpdateUserLevel(string userName, double points);
     }
 
     public class UserService : IUserService
@@ -86,104 +88,83 @@ namespace HackerRank.Services
             return model;
         }
 
-        public async Task GetAllUserData(int days)
+        public async Task UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent)
         {
-            string after = DateTime.Today.AddDays(-days).ToString("yyyy-MM-dd");
-            using (var client = new HttpClient())
+            int id = 1;
+            int projectId = 0;
+            var user = await _context.Users.Where(u => u.NormalizedUserName == username.ToUpper()).Include(s => s.UserStats).FirstOrDefaultAsync();
+            UserTransaction tran = new()
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+                User = user,
+                FetchDate = DateTime.UtcNow,
+                UserId = user.Id
+            };
 
-                UriBuilder uriBuilder = new()
-                {
-                    Scheme = "https",
-                    Host = "gitlab.com/api/v4/users"
-                };
-
-                List<EventResponse> eventResponses = new();
-                var users = await _context.Users.Include("UserStats").ToArrayAsync();
-
-                foreach (var user in users)
-                {
-                    if(user.GitLabId != 0)
-                    {
-                        string path = user.GitLabId.ToString() + $"/events";
-                        uriBuilder.Path = path;
-                        uriBuilder.Query = $"?per_page=100&after={after}";
-                        var response = await client.GetAsync(uriBuilder.ToString());
-                        var jsonResult = await response.Content.ReadAsStringAsync();
-
-                        eventResponses = JsonSerializer.Deserialize<List<EventResponse>>(jsonResult);
-
-                        List<UserTransaction> userTransactions = new();
-                        Project[] projects = await _context.Project.ToArrayAsync();
-
-                        foreach (var e in eventResponses)
-                        {
-                            UserTransaction tran = new()
-                            {
-                                User = user,
-                                FetchDate = DateTime.UtcNow,
-                                Project = projects.Where(x => x.GitLabId == e.project_id).FirstOrDefault(),
-                                UserId = user.Id
-                            };
-
-                            if (e.action_name == "pushed to" || e.action_name == "pushed new")
-                            {
-                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 1).FirstOrDefault();
-                                tran.TransactionId = 1;
-                            }
-                            else if (e.target_type == "Issue" && e.action_name == "opened")
-                            {
-                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 2).FirstOrDefault();
-                                tran.TransactionId = 2;
-                            }
-                            else if (e.target_type == "Issue" && e.action_name == "closed")
-                            {
-                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 3).FirstOrDefault();
-                                tran.TransactionId = 3;
-                            }
-                            else if (e.target_type == "MergeRequest" && e.action_name == "opened")
-                            {
-                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 4).FirstOrDefault();
-                                tran.TransactionId = 4;
-                            }
-                            else if (e.action_name == "commented on")
-                            {
-                                tran.Transaction = _context.Transaction.Where(t => t.TransactionId == 5).FirstOrDefault();
-                                tran.TransactionId = 5;
-                            }
-                            if (tran.User != null && tran.Transaction != null)
-                                userTransactions.Add(tran);
-                        }
-                        _context.UserTransaction.AddRange(userTransactions);
-                        await UpdateUserStats(user, userTransactions);
-                    }
-
-                }
-
-                await _context.SaveChangesAsync();
-            }
-        }
-        public async Task UpdateUserStats(User user, List<UserTransaction> userTransactions)
-        {
-            foreach (var t in userTransactions)
+            if (gitLabEvent == "Push Hook")
             {
-                if (t.TransactionId == 1)
-                    user.UserStats.TotalCommits += 1;
-
-                if (t.TransactionId == 2)
-                    user.UserStats.TotalIssuesCreated += 1;
-
-                if (t.TransactionId == 3)
-                    user.UserStats.TotalIssuesSolved += 1;
-
-                if (t.TransactionId == 4)
-                    user.UserStats.TotalMergeRequests += 1;
-
-                if (t.TransactionId == 5)
-                    user.UserStats.TotalComments += 1;
+                projectId = model.WebHookResponse.WebHookCommitResponse.project.id;
+                user.UserStats.TotalCommits += 1;
             }
+            else if (gitLabEvent == "Issue Hook" && model.WebHookResponse.WebHookIssueResponse.object_attributes.state == "opened")
+            {
+                id = 2;
+                projectId = model.WebHookResponse.WebHookIssueResponse.project.id;
+                user.UserStats.TotalIssuesCreated += 1;
+            }
+            else if (gitLabEvent == "Issue Hook")
+            {
+                id = 3;
+                projectId = model.WebHookResponse.WebHookIssueResponse.project.id;
+                user.UserStats.TotalIssuesSolved += 1;
+            }
+            else if (gitLabEvent == "Merge Request Hook")
+            {
+                id = 4;
+                projectId = model.WebHookResponse.WebHookMergeResponse.project.id;
+                user.UserStats.TotalMergeRequests += 1;
+            }
+            else if (gitLabEvent == "Note Hook")
+            {
+                id = 5;
+                projectId = model.WebHookResponse.WebHookCommentResponse.project.id;
+                user.UserStats.TotalComments += 1;
+            }
+
+            tran.Project = await _context.Project.Where(p => p.GitLabId == projectId).FirstOrDefaultAsync();
+            tran.Transaction = await _context.Transaction.Where(t => t.TransactionId == id).FirstOrDefaultAsync();
+            tran.TransactionId = id;
+
+            if (tran.User != null && tran.Transaction != null)
+                _context.UserTransaction.Add(tran);
+
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<string> UpdateUserLevel(string userName, double points)
+        {
+            string message = string.Empty;
+            UserLevel userLevel = await _context.UserLevels.Include(u => u.User).Include("Level").Where(u => u.User.UserName == userName).FirstOrDefaultAsync();
+            var nextLevel = await _context.Levels.Where(i => i.LevelId == userLevel.Level.LevelId + 1).FirstOrDefaultAsync();
+            userLevel.CurrentExperience += points;
+
+            if (nextLevel != null && userLevel.CurrentExperience >= nextLevel.XpNeeded)
+            {
+                userLevel.Level = nextLevel;
+                message = $"{userLevel.User.UserName} just leveled up. They are now level {nextLevel.LevelId} {nextLevel.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
+            }
+            else
+            {
+                if (userLevel.CurrentExperience > userLevel.Level.XpNeeded + 10)
+                {
+                    userLevel.Level = _context.Levels.Find(1);
+                    userLevel.CurrentExperience = 0;
+                    userLevel.PrestigeLevel += 1;
+                    message = $"{userLevel.User.UserName} just prestiged. They are now prestige {userLevel.PrestigeLevel}, level {userLevel.Level.LevelId} {userLevel.Level.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return message;
         }
 
         public async Task UpdateAchievementsOnUsers()
@@ -246,12 +227,9 @@ namespace HackerRank.Services
                     NumOfMergeRequests = transaction.Where(u => u.TransactionId == 4).Count(),
                     NumOfComments = transaction.Where(u => u.TransactionId == 5).Count()
                 };
-
                 chart.Add(data);
             }
             return chart;
         }
-
-
     }
 }
