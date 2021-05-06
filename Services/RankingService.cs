@@ -18,12 +18,13 @@ namespace HackerRank.Services
     public interface IRankingService
     {
 
-        public Task CalculateAllUsersRating(bool monthly);
+        //public Task CalculateAllUsersRating(bool monthly);
         public Task<TopFiveViewModel> GetTopFive();
         public Task CalculateAllGroupRating();
         public Task<List<TopFiveUsersViewModel>> GetTopFiveUsers();
         public Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups();
         public Task<List<UserLevel>> GetTopFiveHighestLevels();
+        public Task CalculateRating(Tuple<User, UserTransaction> data, int id);
     }
 
     public class RankingService : IRankingService
@@ -37,46 +38,84 @@ namespace HackerRank.Services
             _mapper = mapper;
         }
 
-        public async Task CalculateAllUsersRating(bool monthly)
+        public async Task CalculateRating(Tuple<User, UserTransaction> data, int id)
         {
-            var today = DateTime.UtcNow;
+            var group = await _context.Group.Include(p => p.Projects).Include(g => g.GroupStats).Include(u => u.Users).Where(p => p.Projects.Any(s => s.GitLabId == id)).FirstOrDefaultAsync();
+            var user = data.Item1;
+            var userTransaction = data.Item2;
 
-            var transaction = await _context.Transaction.ToArrayAsync();
-            UserTransaction[] usertransaction;
+            user.UserStats.DailyRating += userTransaction.Transaction.Points;
+            group.GroupStats.GroupDailyRating += userTransaction.Transaction.Points / group.Users.Count;
 
-            foreach (var user in await _context.Users.ToListAsync())
+            if(userTransaction.Transaction.TransactionId == 1)
             {
-                if (monthly)
-                    usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.UserId == user.Id).ToArray();
-                else
-                    usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Date == today.Date && t.UserId == user.Id).ToArrayAsync();
-
-                double rating = 0;
-                foreach (var tran in usertransaction)
-                {
-                    if (tran.Transaction.TransactionId == transaction[0].TransactionId)
-                        rating += transaction[0].Points;
-                    if (tran.Transaction.TransactionId == transaction[1].TransactionId)
-                        rating += transaction[1].Points;
-                    if (tran.Transaction.TransactionId == transaction[2].TransactionId)
-                        rating += transaction[2].Points;
-                    if (tran.Transaction.TransactionId == transaction[3].TransactionId)
-                        rating += transaction[3].Points;
-                    if (tran.Transaction.TransactionId == transaction[4].TransactionId)
-                        rating += transaction[4].Points;
-                }
-
-                if (monthly)
-                {
-                    rating /= DateTime.DaysInMonth(today.Year, today.Month);
-                    user.UserStats.MonthlyRating = rating;
-                }
-                else
-                    user.UserStats.DailyRating = rating;
+                group.GroupStats.CommitsDaily += 1;
+                group.GroupStats.TotalCommits += 1;
+            }
+            else if (userTransaction.Transaction.TransactionId == 2)
+            {
+                group.GroupStats.IssuesCreatedDaily += 1;
+                group.GroupStats.TotalIssuesCreated += 1;
+            }
+            else if (userTransaction.Transaction.TransactionId == 3)
+            {
+                group.GroupStats.IssuesSolvedDaily += 1;
+                group.GroupStats.TotalIssuesSolved += 1;
+            }
+            else if (userTransaction.Transaction.TransactionId == 4)
+            {
+                group.GroupStats.MergeRequestsDaily += 1;
+                group.GroupStats.TotalMergeRequests += 1;
+            }
+            else if (userTransaction.Transaction.TransactionId == 2)
+            {
+                group.GroupStats.CommentsDaily += 1;
+                group.GroupStats.TotalComments += 1;
             }
 
             await _context.SaveChangesAsync();
         }
+
+        //public async Task CalculateAllUsersRating(bool monthly)
+        //{
+        //    var today = DateTime.UtcNow;
+
+        //    var transaction = await _context.Transaction.ToArrayAsync();
+        //    UserTransaction[] usertransaction;
+
+        //    foreach (var user in await _context.Users.ToListAsync())
+        //    {
+        //        if (monthly)
+        //            usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Year == today.Year && t.FetchDate.Month == today.Month && t.UserId == user.Id).ToArray();
+        //        else
+        //            usertransaction = await _context.UserTransaction.Where(t => t.FetchDate.Date == today.Date && t.UserId == user.Id).ToArrayAsync();
+
+        //        double rating = 0;
+        //        foreach (var tran in usertransaction)
+        //        {
+        //            if (tran.Transaction.TransactionId == transaction[0].TransactionId)
+        //                rating += transaction[0].Points;
+        //            if (tran.Transaction.TransactionId == transaction[1].TransactionId)
+        //                rating += transaction[1].Points;
+        //            if (tran.Transaction.TransactionId == transaction[2].TransactionId)
+        //                rating += transaction[2].Points;
+        //            if (tran.Transaction.TransactionId == transaction[3].TransactionId)
+        //                rating += transaction[3].Points;
+        //            if (tran.Transaction.TransactionId == transaction[4].TransactionId)
+        //                rating += transaction[4].Points;
+        //        }
+
+        //        if (monthly)
+        //        {
+        //            rating /= DateTime.DaysInMonth(today.Year, today.Month);
+        //            user.UserStats.MonthlyRating = rating;
+        //        }
+        //        else
+        //            user.UserStats.DailyRating = rating;
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //}
 
         public async Task CalculateAllGroupRating()
         {

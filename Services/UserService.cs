@@ -29,7 +29,7 @@ namespace HackerRank.Services
     public interface IUserService
     {
         List<ChartData> GetUserCommitChartData(User user);
-        Task UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent);
+        Task<Tuple<User, UserTransaction>> UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent);
         Task UpdateAchievementsOnUsers();
         Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity);
         List<string> UserSearch(string username);
@@ -88,7 +88,7 @@ namespace HackerRank.Services
             return model;
         }
 
-        public async Task UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent)
+        public async Task<Tuple<User, UserTransaction>> UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent)
         {
             int id = 1;
             int projectId = 0;
@@ -138,6 +138,8 @@ namespace HackerRank.Services
                 _context.UserTransaction.Add(tran);
 
             await _context.SaveChangesAsync();
+
+            return new Tuple<User, UserTransaction>(user, tran);
         }
 
         public async Task<string> UpdateUserLevel(string userName, double points)
