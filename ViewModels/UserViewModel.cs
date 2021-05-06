@@ -10,6 +10,8 @@ using HackerRank.Models.Groups;
 using HackerRank.Models.Projects;
 using HackerRank.Models.Users;
 
+using Microsoft.AspNetCore.Identity;
+
 namespace HackerRank.ViewModels
 {
     public class UserViewModel
@@ -26,5 +28,6 @@ namespace HackerRank.ViewModels
         public List<UserAchievement> UserAchievements { get; set; }
         public List<ChartData> ChartDatas { get; set; }
         public UserLevel UserLevel { get; set; }   
+        public List<string> Roles { get; set; }
     }
 }

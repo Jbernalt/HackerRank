@@ -8,6 +8,7 @@ using HackerRank.Models;
 using HackerRank.Models.Users;
 using HackerRank.Services;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -53,6 +54,13 @@ namespace HackerRank.Controllers
         public IActionResult Search(string username)
         {
             return Json(_userService.UserSearch(username));
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> AllUsers()
+        {
+            var lsit = await _userService.GetAllUsers();
+            return View(lsit);
         }
 
         public IActionResult Privacy()
