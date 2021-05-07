@@ -127,9 +127,22 @@ namespace HackerRank.Controllers
 
             if (message != string.Empty)
             {
-            //    var getTopFive = await _rankingService.GetTopFive();
-            //    var getTopFiveJson = JsonSerializer.Serialize(getTopFive);
-                await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", message);
+                TopFiveLiveUpdateModel liveUpdateModel = new();
+                liveUpdateModel.TopFiveGroups = await _rankingService.GetTopFiveGroups();
+                liveUpdateModel.TopFiveUsers = await _rankingService.GetTopFiveUsers();
+                liveUpdateModel.LiveFeedMessage = message;
+                string getTopFiveJson = string.Empty;
+
+                try
+                {
+                    getTopFiveJson = JsonSerializer.Serialize(liveUpdateModel);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                }
+
+                await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", getTopFiveJson);
 
                 string updateduserlevel = await _userService.UpdateUserLevel(username, point);
 

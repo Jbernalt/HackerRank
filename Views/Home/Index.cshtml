@@ -38,7 +38,7 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="userTableBody">
                         @foreach (var item in Model.TopFiveUsers)
                         {
                             @if (item.DailyRating != 0)
@@ -111,7 +111,7 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="groupTableBody">
                         @foreach (var item in Model.TopFiveGroups)
                         {
                             if (item.GroupDailyRating != 0)
