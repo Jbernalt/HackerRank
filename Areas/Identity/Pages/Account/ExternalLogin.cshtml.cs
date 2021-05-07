@@ -30,6 +30,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly HackerRankContext _context;
+        private readonly IUserService _userService;
 
         public ExternalLoginModel(
             SignInManager<User> signInManager,
@@ -37,7 +38,8 @@ namespace HackerRank.Areas.Identity.Pages.Account
             RoleManager<IdentityRole> roleManager,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender,
-            HackerRankContext context)
+            HackerRankContext context,
+            IUserService userService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -45,6 +47,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _context = context;
+            _userService = userService;
         }
 
         [BindProperty]
@@ -172,6 +175,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
                             HtmlEncoder.Default.Encode(callbackUrl),
                             user.UserName);
 
+                        await _userService.AddUserToGroupsOnRegister(user);
                         UserLevel userLevel = new UserLevel() { Level = level, User = _context.Users.Where(i => i.Id == userId).FirstOrDefault() };
                         _context.UserLevels.Add(userLevel);
                         _context.SaveChanges();

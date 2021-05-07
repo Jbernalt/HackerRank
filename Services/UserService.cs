@@ -36,6 +36,7 @@ namespace HackerRank.Services
         Task<List<UserViewModel>> GetAllUsers();
         Task SetRoles(List<string> roleNames, string userName);
         Task<List<RoleViewModel>> GetUserRoles(string userName);
+        public Task AddUserToGroupsOnRegister(User user);
     }
 
     public class UserService : IUserService
@@ -68,6 +69,33 @@ namespace HackerRank.Services
                 i++;
             }
             return userViewModels;
+        }
+
+        public async Task AddUserToGroupsOnRegister(User user)
+        {
+            var groups = await _context.Group.ToListAsync();
+            UriBuilder uriBuilder = new()
+            {
+                Scheme = "https",
+                Host = "gitlab.com/api/v4/groups"
+            };
+
+            foreach (var group in groups)
+            {
+                UserResponse result = new();
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+                    string path = group.GitlabTeamId.ToString() + $"/members/" + user.GitLabId.ToString();
+                    uriBuilder.Path = path;
+
+                    var response = await client.GetAsync(uriBuilder.ToString());
+                    if (response.IsSuccessStatusCode)
+                    {
+                        group.Users.Add(user);
+                    }                    
+                }
+            }
         }
 
         public List<string> UserSearch(string username)

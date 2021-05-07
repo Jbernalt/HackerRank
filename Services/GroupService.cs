@@ -24,6 +24,7 @@ namespace HackerRank.Services
         public Task GetGroupData();
         public Task<bool> CreateGroup(Group group);
         public Task GetProjectIdsForGroups();
+        public Task<List<GroupResponse>> GetAllGroups();
     }
 
     public class GroupService : IGroupService
