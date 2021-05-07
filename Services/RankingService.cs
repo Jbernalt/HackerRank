@@ -67,7 +67,7 @@ namespace HackerRank.Services
                 group.GroupStats.MergeRequestsDaily += 1;
                 group.GroupStats.TotalMergeRequests += 1;
             }
-            else if (userTransaction.Transaction.TransactionId == 2)
+            else if (userTransaction.Transaction.TransactionId == 5)
             {
                 group.GroupStats.CommentsDaily += 1;
                 group.GroupStats.TotalComments += 1;

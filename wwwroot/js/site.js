@@ -10,6 +10,12 @@ $('input.IsChecked').on('click', function(evt) {
 });
 var liveFeedHubconnection = new signalR.HubConnectionBuilder().withUrl("/LiveFeedHub").build();
 
+function appendTableRow(obj) {
+    let td = document.createElement("td");
+    td.append(obj);
+    return td;
+}
+
 liveFeedHubconnection.on("ReceiveMessage", function (message) {
     let arr = JSON.parse(message);
     let liveFeedMessage = arr.LiveFeedMessage;
@@ -22,9 +28,9 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
     for (let user of topFiveUsers) {
         let img = document.createElement("img");
         if (user.ProfileImage == "default-profile-picture.png") {
-            img.src = "~/img/" + user.ProfileImage;
+            img.src = "../img/" + user.ProfileImage;
         } else {
-            img.src = "~/profileImg/" + user.ProfileImage;
+            img.src = "../profileImg/" + user.ProfileImage;
         }
         img.style = "height: 50px; border-radius: 50%";
         img.alt = "profile-image";
@@ -35,15 +41,17 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
         a.href = baseUrl + "user/profile/" + user.Username;
         a.className = "nav-link px-0 py-0 my-0 mx-0";
 
-        $("#userTableBody").append("<tr><td>"
-            + img + "</td><td>"
-            + a + "</td><td>"
-            + user.Commits + "</td><td>"
-            + user.IssuesCreated + "</td><td>"
-            + user.IssuesSolved + "</td><td>"
-            + user.MergeRequest + "</td><td>"
-            + user.Comments + "</td><td>"
-            + Number(user.DailyRating).toFixed(2) + "</td></tr>");
+        let tr = document.createElement("tr");
+        tr.append(appendTableRow(img));
+        tr.append(appendTableRow(a));
+        tr.append(appendTableRow(user.Commits));
+        tr.append(appendTableRow(user.IssuesCreated));
+        tr.append(appendTableRow(user.IssuesSolved));
+        tr.append(appendTableRow(user.MergeRequest));
+        tr.append(appendTableRow(user.Comments));
+        tr.append(appendTableRow(Number(user.DailyRating).toFixed(2)));
+
+        $("#userTableBody").append(tr);
     }
 
     for (let group of topFiveGroups) {
