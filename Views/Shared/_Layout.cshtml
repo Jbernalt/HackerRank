@@ -9,7 +9,7 @@
 </head>
 <body>
     <header>
-        <div id="container">
+        <nav>
             <div id="image">
                 <div id="top">
                     <div id="sky"></div>
@@ -17,44 +17,26 @@
                 <div id="bottom">
                     <div id="ground"></div>
                 </div>
-                <div id="text">
+            </div>
+            <div id="nav">
+                <div id="logo">
                     <h1>HACKERRANK</h1>
-                    <div id="nav">
-                        <div>
-                            <input class="dropdown-toggle form-control" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="text" placeholder="Search for users" />
-                            <div id="dropdownMenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            </div>
+                </div>
+                <div id="links">
+                    <div>
+                        <input class="dropdown-toggle form-control" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="text" placeholder="Search for users" />
+                        <div id="dropdownMenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         </div>
-                        @if (User.IsInRole("Administrator"))
-                        {
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="AllUsers">All users list</a>
-                            <a class="nav-link text-light" href="/Hangfire" add target="_blank">Hangfire</a>
-                        }
-                        <partial name="_LoginPartial" />
                     </div>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="AllUsers">All users list</a>
+                        <a class="nav-link text-light" href="/Hangfire" add target="_blank">Hangfire</a>
+                    }
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
-        </div>
-            @*<ul>
-            <li>
-                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-            </li>
-            @if (User.IsInRole("Administrator"))
-            {
-                <li>
-                    <a asp-area="" asp-controller="Home" asp-action="AllUsers">All users list</a>
-                </li>
-                <li>
-                    <a href="/Hangfire" add target="_blank">Hangfire</a>
-                </li>
-            }
-            <li>
-                <input class="dropdown-toggle form-control" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" type="text" placeholder="Search for users" />
-                <div id="dropdownMenu" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                </div>
-            </li>
-        </ul>
-        <partial name="_LoginPartial" />*@
+        </nav>
     </header>
     <div class="container">
         <main role="main" class="pb-3">
