@@ -160,7 +160,16 @@ namespace HackerRank
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager, IRankingService rankingService)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IAntiforgery antiforgery,
+            IBackgroundJobClient backgroundJobs,
+            RoleManager<IdentityRole> roleManager,
+            IUserService userService,
+            IRecurringJobManager recurringJobManager,
+            IRankingService rankingService,
+            IGroupService groupService)
         {
             if (env.IsDevelopment())
             {
@@ -200,6 +209,7 @@ namespace HackerRank
             app.UseAuthorization();
 
             RolesData.SeedRoles(roleManager).Wait();
+            groupService.GetAllGroups();
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
@@ -208,7 +218,8 @@ namespace HackerRank
 
             //Add methods to run recurringly here:
             //recurringJobManager.AddOrUpdate("GetUserData", Job.FromExpression(() => userService.GetAllUserData()), Cron.Daily());
-            //recurringJobManager.AddOrUpdate("ResetDailyStats", Job.FromExpression(() => rankingService.ResetDailyStats()), Cron.Daily());
+            recurringJobManager.AddOrUpdate("ResetDailyStats", Job.FromExpression(() => rankingService.ResetDailyStats()), Cron.Daily());
+            backgroundJobs.Enqueue(() => groupService.GetAllGroups());
 
             app.UseEndpoints(endpoints =>
             {
