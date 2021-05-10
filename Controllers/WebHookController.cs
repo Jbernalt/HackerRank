@@ -4,20 +4,26 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+
+using AutoMapper;
+
 using HackerRank.Data;
 using HackerRank.Hubs;
 using HackerRank.Models;
+using HackerRank.Models.Achievements;
+using HackerRank.Models.Projects;
 using HackerRank.Models.Users;
 using HackerRank.Responses;
+using HackerRank.Services;
 using HackerRank.ViewModels;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-
 
 namespace HackerRank.Controllers
 {
@@ -28,14 +34,20 @@ namespace HackerRank.Controllers
         private readonly IHubContext<LiveFeedHub> _liveFeedHubContext;
         private readonly ILogger<WebHookController> _logger;
         private readonly IConfiguration _config;
-        private readonly HackerRankContext _hackerRankContext;
+        private readonly IUserService _userService;
+        private readonly IGroupService _groupService;
+        private readonly IRankingService _rankingService;
 
-        public WebHookController(ILogger<WebHookController> logger, IConfiguration config, IHubContext<LiveFeedHub> liveFeedHubContext, HackerRankContext hackerRankContext)
+
+        public WebHookController(ILogger<WebHookController> logger, IConfiguration config, IHubContext<LiveFeedHub> liveFeedHubContext, IUserService userService, IGroupService groupService, IRankingService rankingService)
         {
             _logger = logger;
             _config = config;
             _liveFeedHubContext = liveFeedHubContext;
-            _hackerRankContext = hackerRankContext;
+            _userService = userService;
+            _groupService = groupService;
+            _rankingService = rankingService;
+
         }
 
         [IgnoreAntiforgeryToken]
@@ -49,11 +61,13 @@ namespace HackerRank.Controllers
             if (gitLabSignature.FirstOrDefault() != _config["Authentication:GitLab:WebHookAuthentication"])
                 return Unauthorized();
 
-            TopFiveViewModel model = new();
             using var reader = new StreamReader(Request.Body);
             var json = await reader.ReadToEndAsync();
+
+            TopFiveViewModel model = new();
             string message = string.Empty;
             string username = string.Empty;
+            int projectId = 0;
             double point = 0;
 
             if (gitLabEvent == "Push Hook")
@@ -62,6 +76,7 @@ namespace HackerRank.Controllers
                 message = $"{model.WebHookResponse.WebHookCommitResponse.user_name} made a push to {model.WebHookResponse.WebHookCommitResponse.project.name}"
                     + $", " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
                 username = model.WebHookResponse.WebHookCommitResponse.user_username;
+                projectId = model.WebHookResponse.WebHookCommitResponse.project_id;
                 point = 0.15;
             }
 
@@ -72,13 +87,10 @@ namespace HackerRank.Controllers
                     $"{model.WebHookResponse.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookResponse.WebHookIssueResponse.object_attributes.title}"
                     + $", " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
                 username = model.WebHookResponse.WebHookIssueResponse.user.username;
-
-                if(model.WebHookResponse.WebHookIssueResponse.object_attributes.state == "opened")
+                point = 0.3;
+                projectId = model.WebHookResponse.WebHookIssueResponse.project.id;
+                if (model.WebHookResponse.WebHookIssueResponse.object_attributes.state == "opened")
                     point = 0.15;
-                else
-                    point = 0.3;
-
-
             }
 
             else if (gitLabEvent == "Merge Request Hook")
@@ -89,6 +101,7 @@ namespace HackerRank.Controllers
                     $" on project {model.WebHookResponse.WebHookMergeResponse.project.name}, " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
                 username = model.WebHookResponse.WebHookMergeResponse.user.username;
                 point = 0.35;
+                projectId = model.WebHookResponse.WebHookMergeResponse.project.id;
             }
 
             else if (gitLabEvent == "Note Hook")
@@ -98,47 +111,107 @@ namespace HackerRank.Controllers
                     + $", " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
                 username = model.WebHookResponse.WebHookCommentResponse.user.username;
                 point = 0.05;
+                projectId = model.WebHookResponse.WebHookCommentResponse.project_id;
+            }
+
+            try
+            {
+                var data = await _userService.UpdateUserData(username, model, gitLabEvent);
+                await _rankingService.CalculateRating(data, projectId);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return StatusCode(500);
             }
 
             if (message != string.Empty)
             {
-                await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", message);
-                string updateduserlevel = await UpdateUserLevel(username, point);
+                TopFiveLiveUpdateModel liveUpdateModel = new();
+
+                string updateduserlevel = await _userService.UpdateUserLevel(username, point);
                 if (!string.IsNullOrWhiteSpace(updateduserlevel))
                 {
                     await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", updateduserlevel);
                 }
+
+                liveUpdateModel.TopFiveGroups = await _rankingService.GetTopFiveGroups();
+                liveUpdateModel.TopFiveUsers = await _rankingService.GetTopFiveUsers();
+                liveUpdateModel.TopFiveUserLevels = await _rankingService.GetTopFiveHighestLevels();
+                liveUpdateModel.LiveFeedMessage = message;
+                string getTopFiveJson = string.Empty;
+
+                try
+                {
+                    getTopFiveJson = JsonSerializer.Serialize(liveUpdateModel);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                    return StatusCode(500);
+                }
+
+                await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", getTopFiveJson);
+
                 return Ok();
             }
 
             return BadRequest();
         }
 
-        public async Task<string> UpdateUserLevel(string userName, double points)
+        [IgnoreAntiforgeryToken]
+        [HttpPost]
+        [Route("receivegroups")]
+        public async Task<IActionResult> ReceiveGroups()
         {
-            string message = string.Empty;
-            UserLevel userLevel = await _hackerRankContext.UserLevels.Include(u => u.User).Include("Level").Where(u => u.User.UserName == userName).FirstOrDefaultAsync();
-            var nextLevel = await _hackerRankContext.Levels.Where(i => i.LevelId == userLevel.Level.LevelId + 1).FirstOrDefaultAsync();
-            userLevel.CurrentExperience += points;
+            Request.Headers.TryGetValue("X-Gitlab-Event", out StringValues gitLabEvent);
+            Request.Headers.TryGetValue("X-Gitlab-Token", out StringValues gitLabSignature);
 
-            if(nextLevel != null && userLevel.CurrentExperience >= nextLevel.XpNeeded)
+            if (gitLabSignature.FirstOrDefault() != _config["Authentication:GitLab:WebHookAuthenticationGroups"])
+                return Unauthorized();
+
+            using var reader = new StreamReader(Request.Body);
+            var json = await reader.ReadToEndAsync();
+
+            if (gitLabEvent == "Member Hook")
             {
-                userLevel.Level = nextLevel;
-                message = $"{userLevel.User.UserName} just leveled up. They are now level {nextLevel.LevelId} {nextLevel.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
-            }
-            else
-            {
-                if (userLevel.CurrentExperience > userLevel.Level.XpNeeded + 10)
+                WebHookMemberResponse response = new();
+                try
                 {
-                    userLevel.Level = _hackerRankContext.Levels.Find(1);
-                    userLevel.CurrentExperience = 0;
-                    userLevel.PrestigeLevel += 1;
-                    message = $"{userLevel.User.UserName} just prestiged. They are now prestige {userLevel.PrestigeLevel}, level {userLevel.Level.LevelId} {userLevel.Level.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
+                     response = JsonSerializer.Deserialize<WebHookMemberResponse>(json);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                if (response.event_name == "user_add_to_group")
+                {
+                    if (await _groupService.AddUserToGroup(response))
+                        return Ok();
+                }
+                else if (response.event_name == "user_remove_from_group")
+                {
+                    if (await _groupService.RemoveUserFromGroup(response))
+                        return Ok();
+                }
+            }
+            else if (gitLabEvent == "Subgroup Hook")
+            {
+                WebHookSubGroupResponse response = JsonSerializer.Deserialize<WebHookSubGroupResponse>(json);
+
+                if (response.event_name == "subgroup_create")
+                {
+                    if (await _groupService.CreateGroup(response))
+                        return Ok();
+                }
+                else if (response.event_name == "subgroup_destroy")
+                {
+                    if (await _groupService.RemoveGroup(response.group_id))
+                        return Ok();
                 }
             }
 
-            await _hackerRankContext.SaveChangesAsync();
-            return message;
+            return BadRequest();
         }
     }
 }

@@ -53,7 +53,8 @@ namespace HackerRank
 
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("DefaultConnection"),
+            o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
             services.AddDbContext<HangFireContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("HangFire")));

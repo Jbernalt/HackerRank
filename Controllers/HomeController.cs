@@ -35,19 +35,6 @@ namespace HackerRank.Controllers
             return View(topFive);
         }
 
-        public async Task<IActionResult> Data()
-        {
-            await _groupService.GetGroupData();
-            await _groupService.GetProjectIdsForGroups();
-            await _userService.GetAllUserData(20);
-
-            await _rankingService.CalculateAllUsersRating(true);
-            await _rankingService.CalculateAllUsersRating(false);
-            await _rankingService.CalculateAllGroupRating();
-
-            return View();
-        }
-
         [IgnoreAntiforgeryToken]
         [HttpPost]
         [Route("search/{username}")]
