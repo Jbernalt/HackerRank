@@ -74,7 +74,9 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
             }
 
             var list = await _context.UserAchievement.Include(x => x.User).Where(u => u.User.Id == user.Id).ToListAsync();
+            var levels = await _context.UserLevels.Include(u => u.User).Where(i => i.User.Id == user.Id).ToListAsync();
             _context.UserAchievement.RemoveRange(list);
+            _context.UserLevels.RemoveRange(levels);
             var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
             if (!result.Succeeded)
