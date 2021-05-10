@@ -27,6 +27,7 @@ namespace HackerRank.Services
         public Task<List<User>> GetUsersForGroup(int groupId);
         public Task<bool> RemoveUserFromGroup(WebHookMemberResponse response);
         public Task<bool> AddUserToGroup(WebHookMemberResponse response);
+        public Task GetAllGroups();
     }
 
     public class GroupService : IGroupService
@@ -84,7 +85,7 @@ namespace HackerRank.Services
             return false;
         }
 
-        public async Task<List<GroupResponse>> GetAllGroups()
+        public async Task GetAllGroups()
         {
             List<GroupResponse> groupResponses = new();
             UriBuilder uriBuilder = new()
@@ -103,7 +104,27 @@ namespace HackerRank.Services
                 List<GroupResponse> result = JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult);
                 groupResponses.AddRange(result);
             }
-            return groupResponses;
+
+            List<Group> groups = new();
+            foreach (var group in groupResponses)
+            {
+                var exists = await _context.Group.Where(i => i.GitlabTeamId == group.id).FirstOrDefaultAsync();
+                if (exists == null)
+                {
+                    var projects = await GetProjectsForGroup(group.id);
+                    Group newGroup = new()
+                    {
+                        GitlabTeamId = group.id,
+                        GroupName = group.name,
+                        GroupStats = new(),
+                        Projects = projects,
+                        Users = new()
+                    };
+                    groups.Add(newGroup);
+                }
+            }
+            _context.Group.AddRange(groups);
+            await _context.SaveChangesAsync();
         }
 
         //public async Task<List<User>> GetUsersInGroup(Group group)
