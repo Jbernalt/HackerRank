@@ -37,6 +37,7 @@ namespace HackerRank
 
         public IConfiguration Configuration { get; }
         public IUserService _userService;
+        public IRankingService _rankingService;
         public IRecurringJobManager _recurringJobManager;
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -159,7 +160,7 @@ namespace HackerRank
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager, IRankingService rankingService)
         {
             if (env.IsDevelopment())
             {
@@ -207,6 +208,7 @@ namespace HackerRank
 
             //Add methods to run recurringly here:
             //recurringJobManager.AddOrUpdate("GetUserData", Job.FromExpression(() => userService.GetAllUserData()), Cron.Daily());
+            //recurringJobManager.AddOrUpdate("ResetDailyStats", Job.FromExpression(() => rankingService.ResetDailyStats()), Cron.Daily());
 
             app.UseEndpoints(endpoints =>
             {

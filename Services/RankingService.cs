@@ -25,6 +25,7 @@ namespace HackerRank.Services
         public Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups();
         public Task<List<TopFiveUserLevelsModel>> GetTopFiveHighestLevels();
         public Task CalculateRating(Tuple<User, UserTransaction> data, int id);
+        public Task ResetDailyStats();
     }
 
     public class RankingService : IRankingService
@@ -251,6 +252,29 @@ namespace HackerRank.Services
             topFiveModel.TopFiveUsers.AddRange(await GetTopFiveUsers());
             topFiveModel.TopFiveUserLevels.AddRange(await GetTopFiveHighestLevels());
             return topFiveModel;
+        }
+
+        //Resets daily stats on groups and dailyrating on users (should be run once a day)
+        public async Task ResetDailyStats()
+        {
+            List<User> users = await _context.Users.Include(u => u.UserStats).ToListAsync();
+            List<Group> groups = await _context.Group.Include(u => u.GroupStats).ToListAsync();
+
+            foreach (var user in users)
+            {
+                user.UserStats.DailyRating = 0;
+            }
+
+            foreach (var group in groups)
+            {
+                group.GroupStats.CommentsDaily = 0;
+                group.GroupStats.CommitsDaily = 0;
+                group.GroupStats.IssuesCreatedDaily = 0;
+                group.GroupStats.IssuesSolvedDaily = 0;
+                group.GroupStats.MergeRequestsDaily = 0;
+                group.GroupStats.GroupDailyRating = 0;
+            }
+            await _context.SaveChangesAsync();
         }
     }
 }
