@@ -7,6 +7,8 @@ using HackerRank.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace HackerRank.Controllers
 {
@@ -21,15 +23,14 @@ namespace HackerRank.Controllers
             _userService = userService;
         }
 
-        // GET: Achievement
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            var user = User;
             await _userService.UpdateAchievementsOnUsers();
-            return View(await _achievementService.ListAllAchievements(user));
+            return View(await _achievementService.ListAllAchievements(User));
         }
 
-        // GET: Achievement/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,25 +44,24 @@ namespace HackerRank.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> SetShowcase()
         {
             var a = Request.Form["IsChecked"].ToList();
             await _achievementService.SetShowCase(a, User);
 
-            return RedirectToAction("details", "user", new { id = User.Identity.Name });
+            return RedirectToAction("profile", "user", new { id = User.Identity.Name });
         }
 
-        // GET: Achievement/Create
+        [Authorize(Roles = "Administrator")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Achievement/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Create([Bind("AchievementId,AchievementName,Description,NumberOfActions,TypeOfAction")] AchievementResponse achievementModel, [FromForm(Name = "file")] IFormFile file)
         {
             if (ModelState.IsValid)
@@ -72,7 +72,7 @@ namespace HackerRank.Controllers
             return View(achievementModel);
         }
 
-        // GET: Achievement/Edit/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -89,11 +89,9 @@ namespace HackerRank.Controllers
             return View(achievement);
         }
 
-        // POST: Achievement/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Edit(int id, [Bind("AchievementId,AchievementName,Description,NumberOfActions,TypeOfAction")] AchievementResponse achievementModel, [FromForm(Name = "editFile")] IFormFile file)
         {
             if (id != achievementModel.AchievementId)
@@ -110,7 +108,7 @@ namespace HackerRank.Controllers
             return View(achievementModel);
         }
 
-        // GET: Achievement/Delete/5
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -127,9 +125,9 @@ namespace HackerRank.Controllers
             return View(achievement);
         }
 
-        // POST: Achievement/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _achievementService.Delete(id);

@@ -13,12 +13,13 @@ namespace HackerRank.Models.Groups
         public Group()
         {
             Users = new List<User>();
+            GroupStats = new GroupStats();
         }
         [Key]
         public int GroupID { get; set; }
         public int GitlabTeamId { get; set; }
         public string GroupName { get; set; }
-        public double GroupRating { get; set; }
+        public GroupStats GroupStats { get; set; }
         public List<Project> Projects { get; set; }
         public List<User> Users { get; set; }
     }

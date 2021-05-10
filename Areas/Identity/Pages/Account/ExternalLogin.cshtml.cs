@@ -7,10 +7,13 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+
+using HackerRank.Data;
 using HackerRank.Models.Users;
+using HackerRank.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
@@ -26,19 +29,25 @@ namespace HackerRank.Areas.Identity.Pages.Account
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly HackerRankContext _context;
+        private readonly IUserService _userService;
 
         public ExternalLoginModel(
             SignInManager<User> signInManager,
             UserManager<User> userManager,
             RoleManager<IdentityRole> roleManager,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            HackerRankContext context,
+            IUserService userService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
+            _userService = userService;
         }
 
         [BindProperty]
@@ -77,7 +86,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
             if (remoteError != null)
             {
                 ErrorMessage = $"Error from external provider: {remoteError}";
-                return RedirectToPage("./Login", new {ReturnUrl = returnUrl });
+                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -87,7 +96,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
             }
 
             // Sign in the user with this external login provider if the user already has a login.
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor : true);
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
@@ -124,15 +133,17 @@ namespace HackerRank.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && Input.Email.Contains(""))
             {
                 var username = info.Principal.Identity.Name;
                 var gitlabId = int.Parse(info.ProviderKey);
-                var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId };
+                var level = _context.Levels.Where(l => l.LevelId == 1).FirstOrDefault();
+                var user = new User { UserName = username, Email = Input.Email, DateCreated = DateTime.Now, GitLabId = gitlabId, ProfileImage = "default-profile-picture.png", IsPublic = true };
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
@@ -148,6 +159,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
 
                         await _userManager.AddToRoleAsync(user, "User");
 
+
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -157,9 +169,16 @@ namespace HackerRank.Areas.Identity.Pages.Account
                             values: new { area = "Identity", userId = userId, code = code },
                             protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        await _emailSender.SendEmailAsync(
+                            Input.Email,
+                            "Confirm your email",
+                            HtmlEncoder.Default.Encode(callbackUrl),
+                            user.UserName);
 
+                        await _userService.AddUserToGroupsOnRegister(user);
+                        UserLevel userLevel = new UserLevel() { Level = level, User = _context.Users.Where(i => i.Id == userId).FirstOrDefault() };
+                        _context.UserLevels.Add(userLevel);
+                        _context.SaveChanges();
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {
@@ -167,6 +186,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
                         }
 
                         await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+
 
                         return LocalRedirect(returnUrl);
                     }

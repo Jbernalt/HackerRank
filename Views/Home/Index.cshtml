@@ -1,141 +1,221 @@
-﻿@model IEnumerable<HackerRank.ViewModels.TopFiveViewModel>
+﻿@model HackerRank.ViewModels.TopFiveViewModel
 
 @{
     ViewData["Title"] = "Ranking";
+
 }
 
 <div class="container">
     <div class="row text-center">
         <div class="col-9">
-            <table class="table table-responsive">
-                <thead>
-                    <tr>
-                        <th>
-
-                        </th>
-                        <th>
-                            @Html.DisplayName("Username")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Commits")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Issues created")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Issues solved")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Merge requests")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Comments")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Daily rating")
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        @if (item.DailyRating != 0)
+            <h2 class="text-center mt-4">TOP FIVE USERS</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>
+                                @Html.DisplayName("Username")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Commits")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Issues created")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Issues solved")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Merge requests")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Comments")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Daily rating")
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        @foreach (var item in Model.TopFiveUsers)
                         {
-                            <tr>
-                                <td>
-                                    <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="width:40%" />
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.UserName)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.Commits)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.IssuesCreated)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.IssuesSolved)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.MergeRequest)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.Comments)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0.00}", item.DailyRating)
-                                </td>
-                            </tr>
+                            @if (item.DailyRating != 0)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (item.ProfileImage == "default-profile-picture.png")
+                                        {
+                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                    </td>
+                                    <td>
+                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@item.Username">@item.Username</a>
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.Commits)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.IssuesCreated)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.IssuesSolved)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.MergeRequest)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.Comments)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0.00}", item.DailyRating)
+                                    </td>
+                                </tr>
+                            }
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
 
-            <table class="table table-responsive">
-                <thead>
-                    <tr>
-                        <th>
-                            @Html.DisplayName("Name")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Commits")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Issues created")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Issues solved")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Merge requests")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Comments")
-                        </th>
-                        <th>
-                            @Html.DisplayName("Daily rating")
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        if (item.GroupRating != 0)
+            <h2 class="text-center mt-4">TOP FIVE GROUPS</h2>
+            <div class="table-responsive">
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayName("Name")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Commits")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Issues created")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Issues solved")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Merge requests")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Comments")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Daily rating")
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupTableBody">
+                        @foreach (var item in Model.TopFiveGroups)
                         {
-                            <tr>
-
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.GroupName)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.CommitsDaily)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.IssuesCreatedDaily)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.IssuesSolvedDaily)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.MergeRequestsDaily)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0}", item.CommentsDaily)
-                                </td>
-                                <td>
-                                    @string.Format("{0:0.00}", item.GroupRating)
-                                </td>
-                            </tr>
+                            if (item.GroupDailyRating != 0)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GroupName)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.CommitsDaily)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.IssuesCreatedDaily)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.IssuesSolvedDaily)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.MergeRequestsDaily)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0}", item.CommentsDaily)
+                                    </td>
+                                    <td>
+                                        @string.Format("{0:0.00}", item.GroupDailyRating)
+                                    </td>
+                                </tr>
+                            }
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 class="text-center mt-4">TOP FIVE HIGHEST RANKED USERS</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>
+                                @Html.DisplayName("Name")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Prestige")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Level")
+                            </th>
+                            <th>
+                                @Html.DisplayName("Current Experience")
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="levelTableBody">
+                        @foreach (var item in Model.TopFiveUserLevels)
+                        {
+                            double value = (item.CurrentExperience - item.Level.XpNeeded) * 10;
+                            string progress = value.ToString() + "%";
+                            progress = progress.Replace(",", ".");
+                            int nextlevel = item.Level.XpNeeded + 10;
+                            if (item != null)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (item.ProfileImage == "default-profile-picture.png")
+                                        {
+                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        }
+                                    </td>
+                                    <td>
+                                        <a class="nav-link px-0 py-0 my-0 mx-0" asp-area="" asp-controller="user" asp-action="profile" asp-route-id="@item.Username">@item.Username</a>
+                                    </td>
+
+                                    <td>
+                                        @string.Format("{0:0}", item.PrestigeLevel)
+                                    </td>
+
+                                    <td>
+                                        @string.Format("{0:0}", "Level " + " " + item.Level.LevelId + " " + item.Level.LevelName)
+                                    </td>
+                                    <td>
+                                        <div class="progress position-relative">
+                                            <div class="progress-bar" style="width:@progress; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
+                                            <small class="justify-content-center d-flex position-absolute w-100 text-dark">@item.CurrentExperience/@nextlevel</small>
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="col-3">
-            <article class="live_feed">
+            <article id="live_feed_article" class="live_feed">
                 <p>Live feed </p>
                 <ul id="live_feed" class="list-group"></ul>
             </article>
