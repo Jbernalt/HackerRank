@@ -1,0 +1,389 @@
+﻿@model HackerRank.ViewModels.UserViewModel
+@using Microsoft.AspNetCore.Identity
+@using HackerRank.Models.Users;
+@using System.Globalization;
+@inject SignInManager<User> SignInManager
+
+@{
+    bool isSignedIn = SignInManager.IsSignedIn(User);
+    if (Model.IsPublic || (isSignedIn && User.Identity.Name == Model.Username) || User.IsInRole("Administrator"))
+    {
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+        double value = (Model.UserLevel.CurrentExperience - Model.UserLevel.Level.XpNeeded) * 10;
+        string progress = value.ToString() + "%";
+        progress = progress.Replace(",", ".");
+        int nextlevel = Model.UserLevel.Level.LevelId + 1;
+        int nextLevelXp = Model.UserLevel.Level.XpNeeded + 10;
+
+        <div>
+            <h2 class="text-capitalize text-center">Prestige: @Model.UserLevel.PrestigeLevel Rank: @Model.UserLevel.Level.LevelName</h2>
+            <div class="row flex-row justify-content-center align-items-center">
+                <div class="col-1 text-center">@Model.UserLevel.Level.LevelId</div>
+                <div class="progress col-10 px-0 position-relative" >
+                    <div class="progress-bar" style="width:@progress; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
+                    <small class="justify-content-center d-flex position-absolute w-100" style="color:black">@Model.UserLevel.CurrentExperience/@nextLevelXp</small>
+                </div>
+                <div class="col-1 text-center">@nextlevel</div>
+            </div>
+        </div>
+
+        <br />
+        <div class="row text-center">
+            <hr />
+            <div class="col-3 pt-3 mt-3" style="background-color: #f0f6f6; border-radius: 30px">
+                @if (Model.ProfileImage == "default-profile-picture.png")
+                {
+                    <img src="~/img/@Model.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                }
+                else
+                {
+                    <img src="~/profileImg/@Model.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                }
+                <br />
+                <dl class="col text-center">
+                    <dd>
+                        @Html.DisplayFor(model => model.Username)
+                    </dd>
+                    <dd>
+                        @string.Format("{0:dd/MM/yyyy}", Model.DateCreated)
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Description)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Description)
+                    </dd>
+                </dl>
+                <hr />
+                <h3>Projects</h3>
+                <hr />
+                <div class="col text-center">
+                    @foreach (var item in Model.Projects.AsEnumerable())
+                    {
+                        <p>@item.ProjectName</p>
+                    }
+                </div>
+                <hr />
+                <h3>Groups</h3>
+                <hr />
+                <div class="col text-center">
+                    @foreach (var item in Model.Groups)
+                    {
+                        <p>@item.GroupName</p>
+                    }
+                </div>
+
+                @if (isSignedIn && User.Identity.Name == Model.Username)
+                {
+                    <a class="btn btn-primary" type="button" asp-area="Identity" asp-page="/Account/Manage/Index">Edit profile</a>
+                }
+                @if (User.IsInRole("Administrator"))
+                {
+                    <a id="manage-roles" type="button" asp-controller="User" asp-action="AdminOptions" asp-route-id="@Model.Username" class="btn btn-primary">Manage roles</a>
+                }
+            </div>
+            <div class="col-9 text-center">
+                <h3>Achievements</h3>
+                <div class="container">
+                    <div class="row pb-4 pt-4 align-items-center" style="background-color: #f0f6f6; border-radius: 30px">
+                        @{
+                            var list = Model.UserAchievements.Where(i => i.IsShowCase == true).ToArray();
+                            for (int i = 0; i < 4; i++)
+                            {
+                                if (i < list.Count())
+                                {
+                                    <div class="col-sm flex-column">
+                                        <a asp-controller="achievement" asp-action="index">
+                                            <img src="~/achievementImg/@list[i].Achievement.Image" asp-append-version="true" style="max-width:40%" />
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm flex-column">
+                                        <a asp-controller="achievement" asp-action="index">
+                                            <img src="~/img/default-achievement.png" asp-append-version="true" style="max-width:40%" />
+                                        </a>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+                
+
+                <div class="table-responsive mt-4 mb-4 p-4" style="background-color: #f0f6f6; border-radius: 30px">
+                    <table class="table table-borderless">
+                        <thead style="border-bottom: solid 1px rgba(0,0,0,.1)">
+                            <tr>
+                                <th>
+                                    @Html.DisplayName("Total commits")
+                                </th>
+                                <th>
+                                    @Html.DisplayName("Total issues created")
+                                </th>
+                                <th>
+                                    @Html.DisplayName("Total issues solved")
+                                </th>
+                                <th>
+                                    @Html.DisplayName("Total mergerequests")
+                                </th>
+                                <th>
+                                    @Html.DisplayName("Total comments")
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(model => model.UserStats.TotalCommits)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.UserStats.TotalIssuesCreated)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.UserStats.TotalIssuesSolved)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.UserStats.TotalMergeRequests)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => model.UserStats.TotalComments)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row m-0 p-4 justify-content-center" style="background-color: #f0f6f6; border-radius: 30px">
+                    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+                    @if (Model.ChartDatas.Count > 0)
+                    {
+                        @*Buttons to Change Charts*@
+                        <div class="pb-3">
+                            <input type="button" id="commit" value="Commit" class="btn btn-primary" />
+                            <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
+                            <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
+                            <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary" />
+                            <input type="button" id="comments" value="Comments" class="btn btn-primary" />
+                        </div>
+
+                        <div class="col-12" id="dashboard">
+                            <div id="chart" style='width: 100%; height: 300px;'></div>
+                            <div id="control" style='width: 100%; height: 50px;'></div>
+                        </div>
+                     }
+
+                    @section Scripts
+                    {
+                    <script type="text/javascript">
+
+                        google.load('visualization', '1.1', { packages: ['corechart', 'controls'] });
+
+                        function drawVisualization() {
+                            var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard'));
+
+                            var control = new google.visualization.ControlWrapper({
+                                controlType: 'ChartRangeFilter',
+                                containerId: 'control',
+                                options: {
+                                    // Filter by the date axis.
+                                    filterColumnIndex: 0,
+                                    ui: {
+                                        chartType: 'LineChart',
+                                        chartOptions: {
+                                            backgroundColor: '#f0f6f6',
+                                            chartArea: { 'width': '90%' },
+                                            hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd" }
+                                        },
+                                        // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
+                                        minRangeSize: 86400000
+                                    }
+                                },
+                            });
+
+                            var chart = new google.visualization.ChartWrapper({
+                                chartType: 'LineChart',
+                                containerId: 'chart',
+                                options: {
+                                    // Use the same chart area width as the control for axis alignment.
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    legend: { 'position': 'none' },
+                                    title: 'User Commits',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        title: 'Commits',
+                                        format: ''
+                                    }
+                                },
+                            });
+
+                            var data = google.visualization.arrayToDataTable([
+                            ['Time', 'Commit'],
+
+                            @foreach (var data in Model.ChartDatas)
+                            {
+                                <text>[new Date('@data.TimeStamp'), @data.NumOfCommits],</text>
+                            }
+
+                            ]);
+
+                            var data2 = google.visualization.arrayToDataTable([
+                                ['Time', 'IssuesCreated'],
+
+                                @foreach (var data in Model.ChartDatas)
+                                {
+                                    <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesCreated],</text>
+                                }
+                            ]);
+
+                            var data3 = google.visualization.arrayToDataTable([
+                                ['Time', 'IssuesSolved'],
+
+                                @foreach (var data in Model.ChartDatas)
+                                {
+                                    <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesSolved],</text>
+                                }
+                            ]);
+
+                            var data4 = google.visualization.arrayToDataTable([
+                                ['Time', 'MergeRequests'],
+
+                                @foreach (var data in Model.ChartDatas)
+                                {
+                                    <text>[new Date('@data.TimeStamp'), @data.NumOfMergeRequests],</text>
+                                }
+                            ]);
+
+                            var data5 = google.visualization.arrayToDataTable([
+                                ['Time', 'Comments'],
+
+                                @foreach (var data in Model.ChartDatas)
+                                {
+                                    <text>[new Date('@data.TimeStamp'), @data.NumOfComments],</text>
+                                }
+                            ]);
+
+                            dashboard.bind(control, chart);
+                            dashboard.draw(data);
+
+                            //#region Listens for button click to change options and Data
+                            document.getElementById('commit').addEventListener('click', function () {
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    legend: { 'position': 'none' },
+                                    title: 'User Commits',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                    },
+                                    vAxis: {
+                                        title: 'Commits',
+                                        format: ''
+                                    }
+                                })
+                                dashboard.draw(data);
+                            }, false);
+
+                            document.getElementById('issuesCreated').addEventListener('click', function () {
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    legend: { 'position': 'none' },
+                                    title: 'User IssuesCreated',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                    },
+                                    vAxis: {
+                                        title: 'IssuesCreated',
+                                        format: ''
+                                    }
+                                })
+                                dashboard.draw(data2);
+                            }, false);
+
+                            document.getElementById('issuesSolved').addEventListener('click', function () {
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    legend: { 'position': 'none' },
+                                    title: 'User IssuesSolved',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                    },
+                                    vAxis: {
+                                        title: 'IssuesSolved',
+                                        format: ''
+                                    }
+                                })
+                                dashboard.draw(data3);
+                            }, false);
+
+                            document.getElementById('mergeRequests').addEventListener('click', function () {
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    legend: { 'position': 'none' },
+                                    title: 'User MergeRequests',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                    },
+                                    vAxis: {
+                                        title: 'MergeRequests',
+                                        format: ''
+                                    }
+                                })
+                                dashboard.draw(data4);
+                            }, false);
+
+                            document.getElementById('comments').addEventListener('click', function () {
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    legend: { 'position': 'none' },
+                                    title: 'User Comments',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                    },
+                                    vAxis: {
+                                        title: 'Comments',
+                                        format: ''
+                                    }
+                                })
+                                dashboard.draw(data5);
+                            }, false);
+                            //#endregion
+                        }
+                        google.setOnLoadCallback(drawVisualization);
+                        $(window).resize(function () {
+                            drawVisualization();
+                        });
+                    </script>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <h1>Can't find user</h1>
+    }
+}

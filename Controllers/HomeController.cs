@@ -8,6 +8,7 @@ using HackerRank.Models;
 using HackerRank.Models.Users;
 using HackerRank.Services;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -28,22 +29,25 @@ namespace HackerRank.Controllers
 
         public async Task<IActionResult> Index()
         {
+            ViewData["UserList"] = new List<string>();
             var topFive = await _rankingService.GetTopFive();
 
             return View(topFive);
         }
 
-        public async Task<IActionResult> Data()
+        [IgnoreAntiforgeryToken]
+        [HttpPost]
+        [Route("search/{username}")]
+        public IActionResult Search(string username)
         {
-            await _groupService.GetGroupData();
-            await _groupService.GetProjectIdsForGroups();
-            await _userService.GetAllUserData(2);
-            await _rankingService.UpdateUserStats();
+            return Json(_userService.UserSearch(username));
+        }
 
-            await _rankingService.CalculateAllUsersRating(true);
-            await _rankingService.CalculateAllUsersRating(false);
-
-            return View();
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> AllUsers()
+        {
+            var lsit = await _userService.GetAllUsers();
+            return View(lsit);
         }
 
         public IActionResult Privacy()

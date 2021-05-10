@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using HackerRank.Models.Users;
+using HackerRank.Data;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace HackerRank.Areas.Identity.Pages.Account.Manage
 {
@@ -14,15 +17,18 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
+        private readonly HackerRankContext _context;
 
         public DeletePersonalDataModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
+            ILogger<DeletePersonalDataModel> logger,
+            HackerRankContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _context = context;
         }
 
         [BindProperty]
@@ -67,6 +73,8 @@ namespace HackerRank.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            var list = await _context.UserAchievement.Include(x => x.User).Where(u => u.User.Id == user.Id).ToListAsync();
+            _context.UserAchievement.RemoveRange(list);
             var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
             if (!result.Succeeded)

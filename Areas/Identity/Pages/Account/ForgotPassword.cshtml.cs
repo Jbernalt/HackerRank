@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using HackerRank.Models.Users;
+using HackerRank.Services;
 
 namespace HackerRank.Areas.Identity.Pages.Account
 {
@@ -58,9 +58,10 @@ namespace HackerRank.Areas.Identity.Pages.Account
                     protocol: Request.Scheme);
 
                 await _emailSender.SendEmailAsync(
-                    Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                            Input.Email,
+                            "Confirm your email",
+                            HtmlEncoder.Default.Encode(callbackUrl),
+                            user.UserName);
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

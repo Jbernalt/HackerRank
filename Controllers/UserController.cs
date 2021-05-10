@@ -2,8 +2,11 @@
 using HackerRank.Models.Users;
 using HackerRank.Responses;
 using HackerRank.Services;
+using HackerRank.ViewModels;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -15,93 +18,37 @@ namespace HackerRank.Controllers
 {
     public class UserController : Controller
     {
-        IUserService _userService;
+        private readonly IUserService _userService;
+        private readonly IGroupService _groupService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IGroupService groupService)
         {
             _userService = userService;
+            _groupService = groupService;
         }
 
-        // GET: UserController
-        public ActionResult Index()
+        public async Task<ActionResult> Profile(string id)
         {
-            return View();
+            return View(await _userService.GetUserByUsername(id, User));
         }
 
-        // GET: user/details/username
-        [Route("/user/details/{username}")]
-        public async Task<ActionResult> Details(string username)
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> AdminOptions(string id)
         {
-            return View(await _userService.GetUserByUsername(username));
+            var roles = await _userService.GetUserRoles(id);
+            return View(roles);
         }
 
-        public PartialViewResult GraphPartial()
-        {
-            return PartialView("_GraphPartial");
-        }
-
-        // GET: UserController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: UserController/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        [Authorize(Roles = "Administrator")]
+        public async Task<ActionResult> SetRoles()
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+            var roleNames = Request.Form["roleCheck"].ToList();
+            var userName = Request.Form["userRole"].ToString();
+            var array = userName.Split(',');
 
-        // GET: UserController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: UserController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: UserController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: UserController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            await _userService.SetRoles(roleNames, array[0]);
+            return RedirectToAction("profile", "user", new { id = array[0] });
         }
     }
-
 }

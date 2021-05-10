@@ -19,9 +19,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -39,6 +37,7 @@ namespace HackerRank
 
         public IConfiguration Configuration { get; }
         public IUserService _userService;
+        public IRankingService _rankingService;
         public IRecurringJobManager _recurringJobManager;
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -51,11 +50,12 @@ namespace HackerRank
             });
 
             services.AddSignalR();
-
+            services.AddResponseCaching();
 
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("DefaultConnection"),
+            o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
             services.AddDbContext<HangFireContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("HangFire")));
@@ -79,6 +79,7 @@ namespace HackerRank
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IRankingService, RankingService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IEmailSender, EmailService>();
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();
@@ -114,7 +115,7 @@ namespace HackerRank
                 // User settings.
                 options.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@";
-                options.User.RequireUniqueEmail = false;
+                options.User.RequireUniqueEmail = true;
             });
 
             services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -159,7 +160,7 @@ namespace HackerRank
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery, IBackgroundJobClient backgroundJobs, RoleManager<IdentityRole> roleManager, IUserService userService, IRecurringJobManager recurringJobManager, IRankingService rankingService)
         {
             if (env.IsDevelopment())
             {
@@ -191,6 +192,7 @@ namespace HackerRank
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseResponseCaching();
 
             app.UseRouting();
 
@@ -201,11 +203,12 @@ namespace HackerRank
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
-                IsReadOnlyFunc = (DashboardContext context) => true
+                Authorization = new[] { new HangfireAuthorizationFilter() }
             });
 
             //Add methods to run recurringly here:
             //recurringJobManager.AddOrUpdate("GetUserData", Job.FromExpression(() => userService.GetAllUserData()), Cron.Daily());
+            //recurringJobManager.AddOrUpdate("ResetDailyStats", Job.FromExpression(() => rankingService.ResetDailyStats()), Cron.Daily());
 
             app.UseEndpoints(endpoints =>
             {
