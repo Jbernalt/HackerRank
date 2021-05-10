@@ -118,18 +118,26 @@ namespace HackerRank.Controllers
             {
                 var data = await _userService.UpdateUserData(username, model, gitLabEvent);
                 await _rankingService.CalculateRating(data, projectId);
-
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
+                return StatusCode(500);
             }
 
             if (message != string.Empty)
             {
                 TopFiveLiveUpdateModel liveUpdateModel = new();
+
+                string updateduserlevel = await _userService.UpdateUserLevel(username, point);
+                if (!string.IsNullOrWhiteSpace(updateduserlevel))
+                {
+                    await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", updateduserlevel);
+                }
+
                 liveUpdateModel.TopFiveGroups = await _rankingService.GetTopFiveGroups();
                 liveUpdateModel.TopFiveUsers = await _rankingService.GetTopFiveUsers();
+                liveUpdateModel.TopFiveUserLevels = await _rankingService.GetTopFiveHighestLevels();
                 liveUpdateModel.LiveFeedMessage = message;
                 string getTopFiveJson = string.Empty;
 
@@ -140,16 +148,11 @@ namespace HackerRank.Controllers
                 catch (Exception e)
                 {
                     _logger.LogError(e.Message);
+                    return StatusCode(500);
                 }
 
                 await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", getTopFiveJson);
 
-                string updateduserlevel = await _userService.UpdateUserLevel(username, point);
-
-                if (!string.IsNullOrWhiteSpace(updateduserlevel))
-                {
-                    await _liveFeedHubContext.Clients.All.SendAsync("ReceiveMessage", updateduserlevel);
-                }
                 return Ok();
             }
 

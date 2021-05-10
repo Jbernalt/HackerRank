@@ -21,6 +21,21 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
     let liveFeedMessage = arr.LiveFeedMessage;
     let topFiveGroups = arr.TopFiveGroups;
     let topFiveUsers = arr.TopFiveUsers;
+    let topFiveUserLevels = arr.TopFiveUserLevels;
+
+    let element = $("#live_feed_article ul").children();
+    if (element.length >= 5) {
+        element.last().remove();
+    }
+    let li = document.createElement("li");
+    li.textContent = liveFeedMessage;
+    li.classList.add("list-group-item");
+    if (element.length == 0) {
+        document.getElementById("live_feed").appendChild(li);
+    }
+    else {
+        $(li).insertBefore(element.first());
+    }
 
     $("#userTableBody").empty();
     $("#groupTableBody").empty();
@@ -65,18 +80,42 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
             + Number(group.GroupDailyRating).toFixed(2) + "</td></tr>");
     }
 
-    let element = $("#live_feed_article ul").children();
-    if (element.length >= 5) {
-        element.last().remove();
-    }
-    let li = document.createElement("li");
-    li.textContent = liveFeedMessage;
-    li.classList.add("list-group-item");
-    if (element.length == 0) {
-        document.getElementById("live_feed").appendChild(li);
-    }
-    else {
-        $(li).insertBefore(element.first());
+    if (topFiveUserLevels.length != 0) {
+
+        $("#levelTableBody").empty();
+        for (let userLevel of topFiveUserLevels) {
+            let img = document.createElement("img");
+            if (userLevel.ProfileImage == "default-profile-picture.png") {
+                img.src = "../img/" + userLevel.ProfileImage;
+            } else {
+                img.src = "../profileImg/" + userLevel.ProfileImage;
+            }
+            img.style = "height: 50px; border-radius: 50%";
+            img.alt = "profile-image";
+
+            let a = document.createElement("a");
+            a.innerHTML = userLevel.Username;
+            let baseUrl = window.location.protocol + "//" + window.location.host + "/";
+            a.href = baseUrl + "user/profile/" + userLevel.Username;
+            a.className = "nav-link px-0 py-0 my-0 mx-0";
+
+            let value = Number((userLevel.CurrentExperience - userLevel.Level.XpNeeded) * 10).toFixed(2).toString() + "%";
+            let divParent = $('<div class="progress position-relative">')[0];
+            let divChild = $('<div class="progress-bar" style="width:' + value + '; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10">')[0];
+            let smallChild = $('<small class="justify-content-center d-flex position-absolute w-100 text-dark">')[0];
+            smallChild.innerHTML = Number(userLevel.CurrentExperience).toFixed(2).toString() + "/" + (userLevel.Level.XpNeeded + 10).toString();
+            divParent.append(divChild);
+            divParent.append(smallChild);
+
+            let tr = document.createElement("tr");
+            tr.append(appendTableRow(img));
+            tr.append(appendTableRow(a));
+            tr.append(appendTableRow(userLevel.PrestigeLevel));
+            tr.append(appendTableRow("Level " + " " + userLevel.Level.LevelId + " " + userLevel.Level.LevelName))
+            tr.append(appendTableRow(divParent));
+
+            $("#levelTableBody").append(tr);
+        }
     }
 });
 

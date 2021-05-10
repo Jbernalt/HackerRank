@@ -15,7 +15,7 @@ namespace HackerRank.ViewModels
             WebHookResponse = new WebHookResponse();
             TopFiveGroups = new List<TopFiveGroupsViewModel>();
             TopFiveUsers = new List<TopFiveUsersViewModel>();
-            UserLevel = new List<UserLevel>();
+            TopFiveUserLevels = new List<TopFiveUserLevelsModel>();
         }
 
         public List<TopFiveGroupsViewModel> TopFiveGroups { get; set; }
@@ -25,6 +25,6 @@ namespace HackerRank.ViewModels
         public WebHookResponse WebHookResponse { get; set; }
 
         //levels
-        public List<UserLevel> UserLevel { get; set; }
+        public List<TopFiveUserLevelsModel> TopFiveUserLevels { get; set; }
     }
 }

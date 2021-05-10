@@ -23,7 +23,7 @@ namespace HackerRank.Services
         public Task CalculateAllGroupRating();
         public Task<List<TopFiveUsersViewModel>> GetTopFiveUsers();
         public Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups();
-        public Task<List<UserLevel>> GetTopFiveHighestLevels();
+        public Task<List<TopFiveUserLevelsModel>> GetTopFiveHighestLevels();
         public Task CalculateRating(Tuple<User, UserTransaction> data, int id);
     }
 
@@ -174,15 +174,29 @@ namespace HackerRank.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<UserLevel>> GetTopFiveHighestLevels()
+        public async Task<List<TopFiveUserLevelsModel>> GetTopFiveHighestLevels()
         {
-            return await _context.UserLevels.Include(i => i.User)
+            var list = await _context.UserLevels.Include(i => i.User)
                 .Include(o => o.Level)
                 .OrderByDescending(o => o.PrestigeLevel)
                 .ThenByDescending(p => p.Level.LevelId)
                 .ThenByDescending(e => e.CurrentExperience)
                 .Take(5)
                 .ToListAsync();
+            List<TopFiveUserLevelsModel> levelsModel = new();
+            foreach(var item in list)
+            {
+                TopFiveUserLevelsModel model = new()
+                {
+                    CurrentExperience = item.CurrentExperience,
+                    Level = item.Level,
+                    PrestigeLevel = item.PrestigeLevel,
+                    Username = item.User.UserName,
+                    ProfileImage = item.User.ProfileImage
+                };
+                levelsModel.Add(model);
+            }
+            return levelsModel;
         }
 
         public async Task<List<TopFiveGroupsViewModel>> GetTopFiveGroups()
@@ -231,7 +245,7 @@ namespace HackerRank.Services
             TopFiveViewModel topFiveModel = new();
             topFiveModel.TopFiveGroups.AddRange(await GetTopFiveGroups());
             topFiveModel.TopFiveUsers.AddRange(await GetTopFiveUsers());
-            topFiveModel.UserLevel.AddRange(await GetTopFiveHighestLevels());
+            topFiveModel.TopFiveUserLevels.AddRange(await GetTopFiveHighestLevels());
             return topFiveModel;
         }
     }
