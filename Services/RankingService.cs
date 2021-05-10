@@ -134,39 +134,43 @@ namespace HackerRank.Services
                 foreach (var user in group.Users)
                 {
                     var usertransaction = _context.UserTransaction.Where(t => t.FetchDate.Date == DateTime.UtcNow.Date && t.UserId == user.Id).AsEnumerable().GroupBy(i => new { i.Project.Id, i.TransactionId }).ToArray();
-                    foreach (var t in usertransaction)
+                    if(usertransaction != null)
                     {
-                        if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 1)
+                        foreach (var t in usertransaction)
                         {
-                            rating += t.Count() * transactions.Where(t => t.TransactionId == 1).FirstOrDefault().Points;
-                            group.GroupStats.CommitsDaily += t.Count();
-                            group.GroupStats.TotalCommits += t.Count();
-                        }
-                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 2)
-                        {
-                            rating += t.Count() * transactions.Where(t => t.TransactionId == 2).FirstOrDefault().Points;
-                            group.GroupStats.IssuesCreatedDaily += t.Count();
-                            group.GroupStats.TotalIssuesCreated += t.Count();
-                        }
-                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 3)
-                        {
-                            rating += t.Count() * transactions.Where(t => t.TransactionId == 3).FirstOrDefault().Points;
-                            group.GroupStats.IssuesSolvedDaily += t.Count();
-                            group.GroupStats.TotalIssuesSolved += t.Count();
-                        }
-                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 4)
-                        {
-                            rating += t.Count() * transactions.Where(t => t.TransactionId == 4).FirstOrDefault().Points;
-                            group.GroupStats.MergeRequestsDaily += t.Count();
-                            group.GroupStats.TotalMergeRequests += t.Count();
-                        }
-                        else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 5)
-                        {
-                            rating += t.Count() * transactions.Where(t => t.TransactionId == 5).FirstOrDefault().Points;
-                            group.GroupStats.CommentsDaily += t.Count();
-                            group.GroupStats.TotalComments += t.Count();
+                            if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 1)
+                            {
+                                rating += t.Count() * transactions.Where(t => t.TransactionId == 1).FirstOrDefault().Points;
+                                group.GroupStats.CommitsDaily += t.Count();
+                                group.GroupStats.TotalCommits += t.Count();
+                            }
+                            else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 2)
+                            {
+                                rating += t.Count() * transactions.Where(t => t.TransactionId == 2).FirstOrDefault().Points;
+                                group.GroupStats.IssuesCreatedDaily += t.Count();
+                                group.GroupStats.TotalIssuesCreated += t.Count();
+                            }
+                            else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 3)
+                            {
+                                rating += t.Count() * transactions.Where(t => t.TransactionId == 3).FirstOrDefault().Points;
+                                group.GroupStats.IssuesSolvedDaily += t.Count();
+                                group.GroupStats.TotalIssuesSolved += t.Count();
+                            }
+                            else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 4)
+                            {
+                                rating += t.Count() * transactions.Where(t => t.TransactionId == 4).FirstOrDefault().Points;
+                                group.GroupStats.MergeRequestsDaily += t.Count();
+                                group.GroupStats.TotalMergeRequests += t.Count();
+                            }
+                            else if (group.Projects.Where(s => s.Id == t.Key.Id).FirstOrDefault() != null && t.Key.TransactionId == 5)
+                            {
+                                rating += t.Count() * transactions.Where(t => t.TransactionId == 5).FirstOrDefault().Points;
+                                group.GroupStats.CommentsDaily += t.Count();
+                                group.GroupStats.TotalComments += t.Count();
+                            }
                         }
                     }
+ 
                 }
                 group.GroupStats.GroupDailyRating = rating / group.Users.Count;
                 _context.Update(group);
