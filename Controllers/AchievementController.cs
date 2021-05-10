@@ -23,13 +23,14 @@ namespace HackerRank.Controllers
             _userService = userService;
         }
 
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            var user = User;
             await _userService.UpdateAchievementsOnUsers();
-            return View(await _achievementService.ListAllAchievements(user));
+            return View(await _achievementService.ListAllAchievements(User));
         }
 
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,6 +44,7 @@ namespace HackerRank.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> SetShowcase()
         {
             var a = Request.Form["IsChecked"].ToList();

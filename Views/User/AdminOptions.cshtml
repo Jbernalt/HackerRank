@@ -1,5 +1,7 @@
 ﻿@model List<HackerRank.ViewModels.RoleViewModel>
-<form id="Roles" method="post" asp-action="SetRoles" asp-controller="User">
+@if (User.IsInRole("Administrator"))
+{
+ <form id="Roles" method="post" asp-action="SetRoles" asp-controller="User">
     <div class="container">
         <div class="row justify-content-center text-center" style="background-color: #f0f6f6; border-radius: 30px;">
             <div class="col-7 p-3">
@@ -45,4 +47,5 @@
             </div>
         </div>
     </div>
-</form>
+ </form>             
+}
