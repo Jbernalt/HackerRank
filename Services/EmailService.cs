@@ -55,7 +55,7 @@ namespace HackerRank.Services
             using var client = new SmtpClient();
             await client.ConnectAsync("smtp-relay.sendinblue.com", 587, SecureSocketOptions.StartTls);
 
-            await client.AuthenticateAsync(_configuration["Authentication:MailTrap:ClientId"], _configuration["Authentication:MailTrap:ClientSecret"]);
+            await client.AuthenticateAsync(_configuration["Authentication-MailTrap-ClientId"], _configuration["Authentication-MailTrap-ClientSecret"]);
 
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
