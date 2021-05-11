@@ -58,7 +58,7 @@ namespace HackerRank.Controllers
             Request.Headers.TryGetValue("X-Gitlab-Event", out StringValues gitLabEvent);
             Request.Headers.TryGetValue("X-Gitlab-Token", out StringValues gitLabSignature);
 
-            if (gitLabSignature.FirstOrDefault() != _config["Authentication:GitLab:WebHookAuthentication"])
+            if (gitLabSignature.FirstOrDefault() != _config["Authentication-GitLab-WebHookAuthentication"])
                 return Unauthorized();
 
             using var reader = new StreamReader(Request.Body);
@@ -167,7 +167,7 @@ namespace HackerRank.Controllers
             Request.Headers.TryGetValue("X-Gitlab-Event", out StringValues gitLabEvent);
             Request.Headers.TryGetValue("X-Gitlab-Token", out StringValues gitLabSignature);
 
-            if (gitLabSignature.FirstOrDefault() != _config["Authentication:GitLab:WebHookAuthenticationGroups"])
+            if (gitLabSignature.FirstOrDefault() != _config["Authentication-GitLab-WebHookAuthenticationGroups"])
                 return Unauthorized();
 
             using var reader = new StreamReader(Request.Body);
