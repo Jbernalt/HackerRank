@@ -46,8 +46,8 @@ namespace HackerRank.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> AllUsers()
         {
-            var lsit = await _userService.GetAllUsers();
-            return View(lsit);
+            var list = await _userService.GetAllUsers();
+            return View(list);
         }
 
         public IActionResult Privacy()
