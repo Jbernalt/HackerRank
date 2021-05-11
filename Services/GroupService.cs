@@ -96,7 +96,7 @@ namespace HackerRank.Services
 
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
 
                 var jsonResult = await response.Content.ReadAsStringAsync();
