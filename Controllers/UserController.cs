@@ -27,7 +27,7 @@ namespace HackerRank.Controllers
             _groupService = groupService;
         }
 
-        public async Task<ActionResult> Profile(string id)
+        public async Task<IActionResult> Profile(string id)
         {
             return View(await _userService.GetUserByUsername(id, User));
         }
@@ -41,7 +41,7 @@ namespace HackerRank.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Administrator")]
-        public async Task<ActionResult> SetRoles()
+        public async Task<IActionResult> SetRoles()
         {
             var roleNames = Request.Form["roleCheck"].ToList();
             var userName = Request.Form["userRole"].ToString();

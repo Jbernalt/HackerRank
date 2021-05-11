@@ -46,32 +46,35 @@ namespace HackerRank.Services
             var userTransaction = data.Item2;
 
             user.UserStats.DailyRating += userTransaction.Transaction.Points;
-            group.GroupStats.GroupDailyRating += userTransaction.Transaction.Points / group.Users.Count;
+            if (group.Users.Count != 0)
+            {
+                group.GroupStats.GroupDailyRating += userTransaction.Transaction.Points / group.Users.Count;
 
-            if(userTransaction.Transaction.TransactionId == 1)
-            {
-                group.GroupStats.CommitsDaily += 1;
-                group.GroupStats.TotalCommits += 1;
-            }
-            else if (userTransaction.Transaction.TransactionId == 2)
-            {
-                group.GroupStats.IssuesCreatedDaily += 1;
-                group.GroupStats.TotalIssuesCreated += 1;
-            }
-            else if (userTransaction.Transaction.TransactionId == 3)
-            {
-                group.GroupStats.IssuesSolvedDaily += 1;
-                group.GroupStats.TotalIssuesSolved += 1;
-            }
-            else if (userTransaction.Transaction.TransactionId == 4)
-            {
-                group.GroupStats.MergeRequestsDaily += 1;
-                group.GroupStats.TotalMergeRequests += 1;
-            }
-            else if (userTransaction.Transaction.TransactionId == 5)
-            {
-                group.GroupStats.CommentsDaily += 1;
-                group.GroupStats.TotalComments += 1;
+                if (userTransaction.Transaction.TransactionId == 1)
+                {
+                    group.GroupStats.CommitsDaily += 1;
+                    group.GroupStats.TotalCommits += 1;
+                }
+                else if (userTransaction.Transaction.TransactionId == 2)
+                {
+                    group.GroupStats.IssuesCreatedDaily += 1;
+                    group.GroupStats.TotalIssuesCreated += 1;
+                }
+                else if (userTransaction.Transaction.TransactionId == 3)
+                {
+                    group.GroupStats.IssuesSolvedDaily += 1;
+                    group.GroupStats.TotalIssuesSolved += 1;
+                }
+                else if (userTransaction.Transaction.TransactionId == 4)
+                {
+                    group.GroupStats.MergeRequestsDaily += 1;
+                    group.GroupStats.TotalMergeRequests += 1;
+                }
+                else if (userTransaction.Transaction.TransactionId == 5)
+                {
+                    group.GroupStats.CommentsDaily += 1;
+                    group.GroupStats.TotalComments += 1;
+                }
             }
 
             await _context.SaveChangesAsync();

@@ -133,7 +133,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (ModelState.IsValid && Input.Email.Contains(""))
+            if (ModelState.IsValid && Input.Email.Contains("@plejd.se"))
             {
                 var username = info.Principal.Identity.Name;
                 var gitlabId = int.Parse(info.ProviderKey);
