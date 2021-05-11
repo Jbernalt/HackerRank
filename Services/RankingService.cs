@@ -189,6 +189,7 @@ namespace HackerRank.Services
                 .OrderByDescending(o => o.PrestigeLevel)
                 .ThenByDescending(p => p.Level.LevelId)
                 .ThenByDescending(e => e.CurrentExperience)
+                .Where(u => u.User.IsPublic == true)
                 .Take(5)
                 .ToListAsync();
             List<TopFiveUserLevelsModel> levelsModel = new();
@@ -224,7 +225,12 @@ namespace HackerRank.Services
         public async Task<List<TopFiveUsersViewModel>> GetTopFiveUsers()
         {
             List<TopFiveUsersViewModel> model = new();
-            List<User> users = await _context.Users.Include(u => u.UserStats).OrderByDescending(x => x.UserStats.DailyRating).Take(5).ToListAsync();
+            List<User> users = await _context.Users
+                .Include(u => u.UserStats)
+                .OrderByDescending(x => x.UserStats.DailyRating)
+                .Where(u => u.IsPublic == true)
+                .Take(5)
+                .ToListAsync();
 
             foreach (var user in users)
             {

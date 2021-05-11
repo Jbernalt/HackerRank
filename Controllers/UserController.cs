@@ -19,17 +19,17 @@ namespace HackerRank.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IGroupService _groupService;
 
-        public UserController(IUserService userService, IGroupService groupService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _groupService = groupService;
         }
 
         public async Task<IActionResult> Profile(string id)
         {
-            return View(await _userService.GetUserByUsername(id, User));
+            var isOwnProfile = User.Identity.Name == id;
+            var isAdmin = User.IsInRole("Administrator");
+            return View(await _userService.GetUserByUsername(id, isOwnProfile, isAdmin));
         }
 
         [Authorize(Roles = "Administrator")]
