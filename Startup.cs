@@ -165,7 +165,6 @@ namespace HackerRank
             IAntiforgery antiforgery,
             IBackgroundJobClient backgroundJobs,
             RoleManager<IdentityRole> roleManager,
-            IUserService userService,
             IRecurringJobManager recurringJobManager,
             IRankingService rankingService,
             IGroupService groupService)
@@ -216,7 +215,6 @@ namespace HackerRank
             });
 
             //Add methods to run recurringly here:
-            //recurringJobManager.AddOrUpdate("GetUserData", Job.FromExpression(() => userService.GetAllUserData()), Cron.Daily());
             recurringJobManager.AddOrUpdate("ResetDailyStats", Job.FromExpression(() => rankingService.ResetDailyStats()), Cron.Daily());
             backgroundJobs.Enqueue(() => groupService.GetAllGroups());
 

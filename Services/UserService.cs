@@ -32,7 +32,7 @@ namespace HackerRank.Services
         List<ChartData> GetUserCommitChartData(User user);
         Task<Tuple<User, UserTransaction>> UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent);
         Task UpdateAchievementsOnUsers();
-        Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity);
+        Task<UserViewModel> GetUserByUsername(string username, bool isOwnProfile, bool isAdmin);
         List<string> UserSearch(string username);
         Task<string> UpdateUserLevel(string userName, double points);
         Task<List<UserViewModel>> GetAllUsers();
@@ -106,7 +106,7 @@ namespace HackerRank.Services
             return users;
         }
 
-        public async Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity)
+        public async Task<UserViewModel> GetUserByUsername(string username, bool isOwnProfile, bool isAdmin)
         {
             username = username.ToUpper();
             var user = await _context.Users.Where(x => x.NormalizedUserName == username).Include(u => u.UserStats).Include(g => g.Groups).ThenInclude(p => p.Projects).FirstOrDefaultAsync();
@@ -114,7 +114,7 @@ namespace HackerRank.Services
             if (user == null)
                 return new UserViewModel() { IsPublic = false };
 
-            if (!user.IsPublic && identity.Identity.Name != user.UserName && !identity.IsInRole("Administrator"))
+            if (!user.IsPublic && !isOwnProfile && !isAdmin)
                 return new UserViewModel() { IsPublic = false };
 
             var achievements = await _context.UserAchievement.Where(a => a.User == user && a.IsUnlocked == true).Include(a => a.Achievement).Include(a => a.User).ToListAsync();

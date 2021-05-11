@@ -11,14 +11,6 @@
     "mssql1": {
       "type": "mssql",
       "connectionId": "DefaultConnection"
-    },
-    "mssql2": {
-      "type": "mssql",
-      "connectionId": "HangFire"
-    },
-    "signalr1": {
-      "type": "signalr",
-      "connectionId": "Azure__SignalR__ConnectionString"
     }
   }
 }
