@@ -36,7 +36,7 @@ namespace HackerRank.Services
             message.Subject = subject;
 
             BodyBuilder builder = new();
-            using StreamReader reader = new(Path.Combine(_webHostEnvironment.ContentRootPath, "Services", "Mail", "emailTemplate.html"));
+            using StreamReader reader = new(Path.Combine(_webHostEnvironment.WebRootPath, "mail", "emailTemplate.html"));
             string body = reader.ReadToEnd();
 
             var logo = builder.LinkedResources.Add(Path.Combine(_webHostEnvironment.WebRootPath, "img", "logo.png"));

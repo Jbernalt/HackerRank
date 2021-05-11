@@ -32,6 +32,7 @@ namespace HackerRank.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Project>().Property(p => p.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<UserLevel>().Property(p => p.UserLevelId).ValueGeneratedOnAdd();
             modelBuilder.Entity<UserTransaction>().HasKey(t => new { t.UserId, t.TransactionId, t.FetchDate });
             modelBuilder.Entity<Transaction>().HasData(
                 new Transaction() { TransactionId = 1, Description = "Commits", Points = 0.15 },

@@ -133,7 +133,7 @@ namespace HackerRank.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            if (ModelState.IsValid && Input.Email.Contains("@plejd.se"))
+            if (ModelState.IsValid && Input.Email.Contains("") || Input.Email.Contains(""))
             {
                 var username = info.Principal.Identity.Name;
                 var gitlabId = int.Parse(info.ProviderKey);
@@ -143,7 +143,6 @@ namespace HackerRank.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
-
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
@@ -159,6 +158,10 @@ namespace HackerRank.Areas.Identity.Pages.Account
 
                         await _userManager.AddToRoleAsync(user, "User");
 
+                        await _userService.AddUserToGroupsOnRegister(user);
+                        UserLevel userLevel = new() { Level = level, User = user, PrestigeLevel = 0, CurrentExperience = 0 };
+                        _context.UserLevels.Add(userLevel);
+                        _context.SaveChanges();
 
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -175,10 +178,6 @@ namespace HackerRank.Areas.Identity.Pages.Account
                             HtmlEncoder.Default.Encode(callbackUrl),
                             user.UserName);
 
-                        await _userService.AddUserToGroupsOnRegister(user);
-                        UserLevel userLevel = new UserLevel() { Level = level, User = _context.Users.Where(i => i.Id == userId).FirstOrDefault() };
-                        _context.UserLevels.Add(userLevel);
-                        _context.SaveChanges();
                         // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {
