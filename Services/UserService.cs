@@ -87,7 +87,7 @@ namespace HackerRank.Services
                 UserResponse result = new();
                 using (var client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                     string path = group.GitlabTeamId.ToString() + $"/members/" + user.GitLabId.ToString();
                     uriBuilder.Path = path;
 

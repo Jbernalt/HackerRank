@@ -92,9 +92,8 @@ namespace HackerRank
             services.AddAuthentication()
                 .AddGitLab(options =>
                 {
-                    IConfigurationSection gitlabAuthNSection = Configuration.GetSection("Authentication:GitLab");
-                    options.ClientId = gitlabAuthNSection["ClientId"];
-                    options.ClientSecret = gitlabAuthNSection["ClientSecret"];
+                    options.ClientId = Configuration["Authentication-GitLab-ClientId"];
+                    options.ClientSecret = Configuration["Authentication-GitLab-ClientSecret"];
                 });
 
             services.Configure<IdentityOptions>(options =>
