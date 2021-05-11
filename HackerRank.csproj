@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <None Include="wwwroot\img\logo.png" />
+    <None Include="wwwroot\mail\emailTemplate.html" />
   </ItemGroup>
 
   <ItemGroup>
