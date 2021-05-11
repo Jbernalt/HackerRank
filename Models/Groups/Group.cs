@@ -14,6 +14,7 @@ namespace HackerRank.Models.Groups
         {
             Users = new List<User>();
             GroupStats = new GroupStats();
+            Projects = new List<Project>();
         }
         [Key]
         public int GroupID { get; set; }
