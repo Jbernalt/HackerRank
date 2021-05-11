@@ -140,7 +140,7 @@ namespace HackerRank.Services
 
         //    using (var client = new HttpClient())
         //    {
-        //        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+        //        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
         //        string path = group.GitlabTeamId.ToString() + $"/members";
         //        uriBuilder.Path = path;
 
@@ -229,7 +229,7 @@ namespace HackerRank.Services
                 string path = id.ToString() + $"/projects";
                 uriBuilder.Path = path;
 
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
                 var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
                 var jsonResult = await response.Content.ReadAsStringAsync();
@@ -284,7 +284,7 @@ namespace HackerRank.Services
                 string path = id.ToString() + $"/members";
                 uriBuilder.Path = path;
 
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication:GitLab:APIKey"]);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
                 var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
 
