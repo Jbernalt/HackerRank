@@ -9,8 +9,14 @@
 <div>
     <h4>Achievement</h4>
     <hr />
-    <img src="~/achievementImg/@Model.Image"
-         asp-append-version="true" style="max-width:25%"/>
+    @if (Model.Image == "default-achievement.png")
+    {
+        <img src="~/img/default-achievement.png" height="60" width="60" asp-append-version="true" />
+    }
+    else
+    {
+        <img src="~/achievementImg/@Model.Image" height="60" width="60" asp-append-version="true" />
+    }
     <br />
     <dl class="col">
         <dt class="col-sm-2">

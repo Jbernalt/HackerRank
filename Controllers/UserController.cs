@@ -27,8 +27,12 @@ namespace HackerRank.Controllers
 
         public async Task<IActionResult> Profile(string id)
         {
-            var isOwnProfile = User.Identity.Name == id;
+            var username = User.Identity.Name;
+            var isOwnProfile = false;
+            if (username != null)
+                isOwnProfile = username.ToUpper() == id.ToUpper();
             var isAdmin = User.IsInRole("Administrator");
+
             return View(await _userService.GetUserByUsername(id, isOwnProfile, isAdmin));
         }
 
