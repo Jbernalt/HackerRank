@@ -12,11 +12,11 @@
                 <button class="btn" type="button" data-toggle="dropdown" aria-expanded="false" style="outline: none !important; box-shadow: none !important">
                     @if (user.ProfileImage == "default-profile-picture.png")
                     {
-                        <img src="~/img/@user.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                        <img src="~/img/@user.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                     }
                     else
                     {
-                        <img src="~/profileImg/@user.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                        <img src="~/profileImg/@user.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                     }
                 </button>
                 <div class="dropdown-menu">
