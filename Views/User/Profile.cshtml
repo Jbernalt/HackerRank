@@ -111,7 +111,6 @@
                         }
                     </div>
                 </div>
-                
 
                 <div class="table-responsive mt-4 mb-4 p-4" style="background-color: #f0f6f6; border-radius: 30px">
                     <table class="table table-borderless">
@@ -163,18 +162,23 @@
                     {
                         @*Buttons to Change Charts*@
                         <div class="pb-3">
-                            <input type="button" id="commit" value="Commit" class="btn btn-primary" />
-                            <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
-                            <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
-                            <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary" />
-                            <input type="button" id="comments" value="Comments" class="btn btn-primary" />
+
+                            @*<label for="myCheck">Checkbox:</label> 
+                            <input type="checkbox" id="myCheck" onclick="myFunction()">*@
+
+                            <button class="btn btn-primary" id="all"> All</button>
+                            <button class="btn btn-primary" id="commit"> Commit</button>
+                            <button class="btn btn-primary" id="issuesCreated"> Issues created</button>
+                            <button class="btn btn-primary" id="issuesSolved"> Issues solved</button>
+                            <button class="btn btn-primary" id="mergeRequests"> Merge requests</button>
+                            <button class="btn btn-primary" id="comments"> Comments</button>
                         </div>
 
                         <div class="col-12" id="dashboard">
                             <div id="chart" style='width: 100%; height: 300px;'></div>
                             <div id="control" style='width: 100%; height: 50px;'></div>
                         </div>
-                     }
+                    }
 
                     @section Scripts
                     {
@@ -210,7 +214,6 @@
                                 options: {
                                     // Use the same chart area width as the control for axis alignment.
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
                                     title: 'User Commits',
                                     backgroundColor: '#f0f6f6',
                                     hAxis: {
@@ -221,158 +224,84 @@
                                     },
                                     vAxis: {
                                         title: 'Commits',
-                                        format: ''
+                                        format: '',
                                     }
                                 },
                             });
 
-                            var data = google.visualization.arrayToDataTable([
-                            ['Time', 'Commit'],
-
-                            @foreach (var data in Model.ChartDatas)
-                            {
-                                <text>[new Date('@data.TimeStamp'), @data.NumOfCommits],</text>
-                            }
-
-                            ]);
-
-                            var data2 = google.visualization.arrayToDataTable([
-                                ['Time', 'IssuesCreated'],
+                            var data6 = google.visualization.arrayToDataTable([
+                                ['Time', 'Commit', 'IssuesCreated', 'IssuesSolved', 'MergeRequest', 'Comments'],
 
                                 @foreach (var data in Model.ChartDatas)
                                 {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesCreated],</text>
-                                }
-                            ]);
-
-                            var data3 = google.visualization.arrayToDataTable([
-                                ['Time', 'IssuesSolved'],
-
-                                @foreach (var data in Model.ChartDatas)
-                                {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesSolved],</text>
-                                }
-                            ]);
-
-                            var data4 = google.visualization.arrayToDataTable([
-                                ['Time', 'MergeRequests'],
-
-                                @foreach (var data in Model.ChartDatas)
-                                {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfMergeRequests],</text>
-                                }
-                            ]);
-
-                            var data5 = google.visualization.arrayToDataTable([
-                                ['Time', 'Comments'],
-
-                                @foreach (var data in Model.ChartDatas)
-                                {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfComments],</text>
+                                    <text>[new Date('@data.TimeStamp'), @data.NumOfCommits, @data.NumOfIssuesCreated, @data.NumOfIssuesSolved, @data.NumOfMergeRequests, @data.NumOfComments],</text>
                                 }
                             ]);
 
                             dashboard.bind(control, chart);
-                            dashboard.draw(data);
+                            dashboard.draw(data6);
 
                             //#region Listens for button click to change options and Data
-                            document.getElementById('commit').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User Commits',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'Commits',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data);
-                            }, false);
 
-                            document.getElementById('issuesCreated').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User IssuesCreated',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'IssuesCreated',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data2);
-                            }, false);
+                            //var checkBox = document.getElementById("myCheck");
+                            //checkBox.onchange = function myFunction() {
 
-                            document.getElementById('issuesSolved').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User IssuesSolved',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'IssuesSolved',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data3);
-                            }, false);
+                            //    if (checkBox.checked == true) {
+                            //        view = new google.visualization.DataView(data6);
+                            //        view.setColumns([0, 1, 2, 3, 4, 5]);
+                            //        dashboard.draw(view);
+                            //    } else {
+                            //        view = new google.visualization.DataView(data6);
+                            //        view.setColumns([0, 2, 3, 4, 5]);
+                            //        dashboard.draw(view);
+                            //    }
+                            //}
 
-                            document.getElementById('mergeRequests').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User MergeRequests',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'MergeRequests',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data4);
-                            }, false);
+                            var showAll = document.getElementById("all");
+                            showAll.onclick = function () {
+                                view = new google.visualization.DataView(data6);
+                                view.setColumns([0, 1, 2, 3, 4, 5]);
+                                dashboard.draw(view);
+                            }
 
-                            document.getElementById('comments').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User Comments',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'Comments',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data5);
-                            }, false);
+                            var showCommit = document.getElementById("commit");
+                            showCommit.onclick = function () {
+                                view = new google.visualization.DataView(data6);
+                                view.setColumns([0, 1]);
+                                dashboard.draw(view);
+                            }
+
+                            var showIssuesCreated = document.getElementById("issuesCreated");
+                            showIssuesCreated.onclick = function () {
+                                view = new google.visualization.DataView(data6);
+                                view.setColumns([0, 2]);
+                                dashboard.draw(view);
+                            }
+
+                            var showIssuesSolved = document.getElementById("issuesSolved");
+                            showIssuesSolved.onclick = function () {
+                                view = new google.visualization.DataView(data6);
+                                view.setColumns([0, 3]);
+                                dashboard.draw(view);
+                            }
+
+                            var showMergeRequest = document.getElementById("mergeRequests");
+                            showMergeRequest.onclick = function () {
+                                view = new google.visualization.DataView(data6);
+                                view.setColumns([0, 4]);
+                                dashboard.draw(view);
+                            }
+
+                            var showComments = document.getElementById("comments");
+                            showComments.onclick = function () {
+                                view = new google.visualization.DataView(data6);
+                                view.setColumns([0, 5]);
+                                dashboard.draw(view);
+                            }
                             //#endregion
                         }
                         google.setOnLoadCallback(drawVisualization);
+
                         $(window).resize(function () {
                             drawVisualization();
                         });
