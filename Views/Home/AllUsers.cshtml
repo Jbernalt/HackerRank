@@ -9,28 +9,28 @@
                         <tr>
                             <th></th>
                             <th>
-                                @Html.DisplayName("Username")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["NameSortParm"]">@Html.DisplayName("Username")</a>                                
                             </th>
                             <th>
-                                @Html.DisplayName("Commits")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["CommitSortParm"]">@Html.DisplayName("Commits")</a>
                             </th>
                             <th>
-                                @Html.DisplayName("Issues created")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["IssueCreatedSortParm"]">@Html.DisplayName("Issues created")</a>
                             </th>
                             <th>
-                                @Html.DisplayName("Issues solved")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["IssueSolvedSortParm"]">@Html.DisplayName("Issues solved")</a>
                             </th>
                             <th>
-                                @Html.DisplayName("Merge requests")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["MergeSortParm"]">@Html.DisplayName("Merge requests")</a>
                             </th>
                             <th>
-                                @Html.DisplayName("Comments")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["CommentSortParm"]">@Html.DisplayName("Comments")</a>
                             </th>
                             <th>
-                                @Html.DisplayName("Daily rating")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["DailySortParm"]">@Html.DisplayName("Daily rating")</a>
                             </th>
                             <th>
-                                @Html.DisplayName("Monthly rating")
+                                <a asp-controller="Home" asp-action="AllUsers" asp-route-sortOrder="@ViewData["MonthlySortParm"]">@Html.DisplayName("Monthly rating")</a>                                
                             </th>
                             <th>
                                 @Html.DisplayName("Roles")
@@ -45,11 +45,11 @@
                                 <td>
                                     @if (item.ProfileImage == "default-profile-picture.png")
                                     {
-                                        <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                                     }
                                     else
                                     {
-                                        <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                        <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                                     }
                                 </td>
                                 <td>

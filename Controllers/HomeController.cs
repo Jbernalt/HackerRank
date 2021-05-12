@@ -44,9 +44,39 @@ namespace HackerRank.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> AllUsers()
+        public async Task<IActionResult> AllUsers(string sortOrder)
         {
             var list = await _userService.GetAllUsers();
+            
+            ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["MonthlySortParm"] = sortOrder == "monthly_rating" ? "monthly_rating_desc" : "monthly_rating";
+            ViewData["DailySortParm"] = sortOrder == "daily_rating" ? "daily_rating_desc" : "daily_rating";
+            ViewData["CommitSortParm"] = sortOrder == "commit" ? "commit_desc" : "commit";
+            ViewData["IssueCreatedSortParm"] = sortOrder == "issue_created" ? "issue_created_desc" : "issue_created";
+            ViewData["IssueSolvedSortParm"] = sortOrder == "issue_solved" ? "issue_solved_desc" : "issue_solved";
+            ViewData["MergeSortParm"] = sortOrder == "merge" ? "merge_desc" : "merge";
+            ViewData["CommentSortParm"] = sortOrder == "comment" ? "comment_desc" : "comment";
+
+            list = sortOrder switch
+            {
+                "name_desc" => list.OrderByDescending(s => s.Username).ToList(),
+                "monthly_rating_desc" => list.OrderByDescending(s => s.UserStats.MonthlyRating).ToList(),
+                "monthly_rating" => list.OrderBy(s => s.UserStats.MonthlyRating).ToList(),
+                "daily_rating_desc" => list.OrderByDescending(s => s.UserStats.DailyRating).ToList(),
+                "daily_rating" => list.OrderBy(s => s.UserStats.DailyRating).ToList(),
+                "commit_desc" => list.OrderByDescending(s => s.UserStats.TotalCommits).ToList(),
+                "commit" => list.OrderBy(s => s.UserStats.TotalCommits).ToList(),
+                "issue_created_desc" => list.OrderByDescending(s => s.UserStats.TotalIssuesCreated).ToList(),
+                "issue_created" => list.OrderBy(s => s.UserStats.TotalIssuesCreated).ToList(),
+                "issue_solved_desc" => list.OrderByDescending(s => s.UserStats.TotalIssuesSolved).ToList(),
+                "issue_solved" => list.OrderBy(s => s.UserStats.TotalIssuesSolved).ToList(),
+                "merge_desc" => list.OrderByDescending(s => s.UserStats.TotalMergeRequests).ToList(),
+                "merge" => list.OrderBy(s => s.UserStats.TotalMergeRequests).ToList(),
+                "comment_desc" => list.OrderByDescending(s => s.UserStats.TotalComments).ToList(),
+                "comment" => list.OrderBy(s => s.UserStats.TotalComments).ToList(),
+                _ => list.OrderBy(s => s.Username).ToList(),
+            };
+
             return View(list);
         }
 
