@@ -59,7 +59,10 @@ namespace HackerRank.Controllers
             Request.Headers.TryGetValue("X-Gitlab-Token", out StringValues gitLabSignature);
 
             if (gitLabSignature.FirstOrDefault() != _config["Authentication-GitLab-WebHookAuthentication"])
+            {
+                _logger.LogDebug("WebHook token was invalid");
                 return Unauthorized();
+            }
 
             using var reader = new StreamReader(Request.Body);
             var json = await reader.ReadToEndAsync();
@@ -72,9 +75,10 @@ namespace HackerRank.Controllers
 
             if (gitLabEvent == "Push Hook")
             {
+                _logger.LogDebug("Incoming push hook event");
                 model.WebHookResponse.WebHookCommitResponse = JsonSerializer.Deserialize<WebHookCommitResponse>(json);
                 message = $"{model.WebHookResponse.WebHookCommitResponse.user_name} made a push to {model.WebHookResponse.WebHookCommitResponse.project.name}"
-                    + $", " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
+                    + $", ";
                 username = model.WebHookResponse.WebHookCommitResponse.user_username;
                 projectId = model.WebHookResponse.WebHookCommitResponse.project_id;
                 point = 0.15;
@@ -82,10 +86,11 @@ namespace HackerRank.Controllers
 
             else if (gitLabEvent == "Issue Hook")
             {
+                _logger.LogDebug("Incoming issue hook event");
                 model.WebHookResponse.WebHookIssueResponse = JsonSerializer.Deserialize<WebHookIssueResponse>(json);
                 message = $"{model.WebHookResponse.WebHookIssueResponse.user.name} " +
                     $"{model.WebHookResponse.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookResponse.WebHookIssueResponse.object_attributes.title}"
-                    + $", " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
+                    + $", ";
                 username = model.WebHookResponse.WebHookIssueResponse.user.username;
                 point = 0.3;
                 projectId = model.WebHookResponse.WebHookIssueResponse.project.id;
@@ -95,10 +100,11 @@ namespace HackerRank.Controllers
 
             else if (gitLabEvent == "Merge Request Hook")
             {
+                _logger.LogDebug("Incoming merge hook event");
                 model.WebHookResponse.WebHookMergeResponse = JsonSerializer.Deserialize<WebHookMergeResponse>(json);
                 message = $"{model.WebHookResponse.WebHookMergeResponse.user.name} {model.WebHookResponse.WebHookMergeResponse.object_attributes.state} " +
                     $"from {model.WebHookResponse.WebHookMergeResponse.object_attributes.source_branch} to {model.WebHookResponse.WebHookMergeResponse.object_attributes.target_branch}" +
-                    $" on project {model.WebHookResponse.WebHookMergeResponse.project.name}, " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
+                    $" on project {model.WebHookResponse.WebHookMergeResponse.project.name}, ";
                 username = model.WebHookResponse.WebHookMergeResponse.user.username;
                 point = 0.35;
                 projectId = model.WebHookResponse.WebHookMergeResponse.project.id;
@@ -106,9 +112,10 @@ namespace HackerRank.Controllers
 
             else if (gitLabEvent == "Note Hook")
             {
+                _logger.LogDebug("Incoming note hook event");
                 model.WebHookResponse.WebHookCommentResponse = JsonSerializer.Deserialize<WebHookCommentResponse>(json);
                 message = $"{model.WebHookResponse.WebHookCommentResponse.user.name} commented on {model.WebHookResponse.WebHookCommentResponse.project.name}"
-                    + $", " + DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm");
+                    + $", ";
                 username = model.WebHookResponse.WebHookCommentResponse.user.username;
                 point = 0.05;
                 projectId = model.WebHookResponse.WebHookCommentResponse.project_id;
@@ -116,11 +123,13 @@ namespace HackerRank.Controllers
 
             try
             {
+                _logger.LogDebug("Updating userdata and rating");
                 var data = await _userService.UpdateUserData(username, model, gitLabEvent);
                 await _rankingService.CalculateRating(data, projectId);
             }
             catch (Exception e)
             {
+                _logger.LogDebug("Could not update userdata or rating");
                 _logger.LogError(e.Message);
                 return StatusCode(500);
             }

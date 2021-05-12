@@ -28,7 +28,8 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
         element.last().remove();
     }
     let li = document.createElement("li");
-    li.textContent = liveFeedMessage;
+    let s = new Date();
+    li.textContent = liveFeedMessage + s.toDateString() + " " + s.toLocaleTimeString();
     li.classList.add("list-group-item");
     if (element.length == 0) {
         document.getElementById("live_feed").appendChild(li);
