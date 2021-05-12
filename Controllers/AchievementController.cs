@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
+using HackerRank.Models.Users;
+using Microsoft.AspNetCore.Identity;
 
 namespace HackerRank.Controllers
 {
@@ -16,18 +18,20 @@ namespace HackerRank.Controllers
     {
         private readonly IAchievementService _achievementService;
         private readonly IUserService _userService;
+        private readonly UserManager<User> _userManager;
 
-        public AchievementController(IAchievementService achievementService, IUserService userService)
+        public AchievementController(IAchievementService achievementService, IUserService userService, UserManager<User> signInManager)
         {
             _achievementService = achievementService;
             _userService = userService;
+            _userManager = signInManager;
         }
 
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            await _userService.UpdateAchievementsOnUsers();
-            return View(await _achievementService.ListAllAchievements(User));
+            var user = await _userManager.GetUserAsync(User);
+            return View(await _achievementService.ListAllAchievements(user.NormalizedUserName));
         }
 
         [Authorize]
@@ -47,10 +51,11 @@ namespace HackerRank.Controllers
         [Authorize]
         public async Task<IActionResult> SetShowcase()
         {
-            var a = Request.Form["IsChecked"].ToList();
-            await _achievementService.SetShowCase(a, User);
+            var achievementIds = Request.Form["IsChecked"].ToList();
+            var user = await _userManager.GetUserAsync(User);
+            await _achievementService.SetShowCase(achievementIds, user.NormalizedUserName);
 
-            return RedirectToAction("profile", "user", new { id = User.Identity.Name });
+            return RedirectToAction("profile", "user", new { id = user.UserName });
         }
 
         [Authorize(Roles = "Administrator")]
