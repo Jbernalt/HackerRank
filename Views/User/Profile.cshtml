@@ -160,18 +160,13 @@
 
                     @if (Model.ChartDatas.Count > 0)
                     {
-                        @*Buttons to Change Charts*@
+                        @*Checkboxes to Change Charts*@
                         <div class="pb-3">
-
-                            @*<label for="myCheck">Checkbox:</label> 
-                            <input type="checkbox" id="myCheck" onclick="myFunction()">*@
-
-                            <button class="btn btn-primary" id="all"> All</button>
-                            <button class="btn btn-primary" id="commit"> Commit</button>
-                            <button class="btn btn-primary" id="issuesCreated"> Issues created</button>
-                            <button class="btn btn-primary" id="issuesSolved"> Issues solved</button>
-                            <button class="btn btn-primary" id="mergeRequests"> Merge requests</button>
-                            <button class="btn btn-primary" id="comments"> Comments</button>
+                            <input type="checkbox" class="checkbox" id="kolom1" checked> Show Commit
+                            <input type="checkbox" class="checkbox" id="kolom2" checked> Show IssuesCreated
+                            <input type="checkbox" class="checkbox" id="kolom3" checked> Show IssuesSolved
+                            <input type="checkbox" class="checkbox" id="kolom4" checked> Show MergeRequest
+                            <input type="checkbox" class="checkbox" id="kolom5" checked> Show Comments
                         </div>
 
                         <div class="col-12" id="dashboard">
@@ -182,11 +177,12 @@
 
                     @section Scripts
                     {
-                    <script type="text/javascript">
+                        <script type="text/javascript">
 
                         google.load('visualization', '1.1', { packages: ['corechart', 'controls'] });
 
                         function drawVisualization() {
+
                             var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard'));
 
                             var control = new google.visualization.ControlWrapper({
@@ -214,7 +210,6 @@
                                 options: {
                                     // Use the same chart area width as the control for axis alignment.
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    title: 'User Commits',
                                     backgroundColor: '#f0f6f6',
                                     hAxis: {
                                         title: 'Time',
@@ -223,13 +218,12 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'Commits',
                                         format: '',
                                     }
                                 },
                             });
 
-                            var data6 = google.visualization.arrayToDataTable([
+                            var data = google.visualization.arrayToDataTable([
                                 ['Time', 'Commit', 'IssuesCreated', 'IssuesSolved', 'MergeRequest', 'Comments'],
 
                                 @foreach (var data in Model.ChartDatas)
@@ -239,65 +233,104 @@
                             ]);
 
                             dashboard.bind(control, chart);
-                            dashboard.draw(data6);
+                            dashboard.draw(data);
 
                             //#region Listens for button click to change options and Data
 
-                            //var checkBox = document.getElementById("myCheck");
-                            //checkBox.onchange = function myFunction() {
+                            data.addColumn({ type: 'string', role: 'annotation' });
+                            var view = new google.visualization.DataView(data);
+                            view.setColumns([0, 1,
+                                {
+                                    calc: "stringify",
+                                    sourceColumn: 1,
+                                    type: "string",
+                                    role: "annotation"
+                                }, 2,
+                                {
+                                    calc: "stringify",
+                                    sourceColumn: 2,
+                                    type: "string",
+                                    role: "annotation"
+                                }, 3,
+                                {
+                                    calc: "stringify",
+                                    sourceColumn: 3,
+                                    type: "string",
+                                    role: "annotation"
+                                }, 4,
+                                {
+                                    calc: "stringify",
+                                    sourceColumn: 4,
+                                    type: "string",
+                                    role: "annotation"
+                                }, 5,
+                                {
+                                    calc: "stringify",
+                                    sourceColumn: 5,
+                                    type: "string",
+                                    role: "annotation"
+                                }]);
 
-                            //    if (checkBox.checked == true) {
-                            //        view = new google.visualization.DataView(data6);
-                            //        view.setColumns([0, 1, 2, 3, 4, 5]);
-                            //        dashboard.draw(view);
-                            //    } else {
-                            //        view = new google.visualization.DataView(data6);
-                            //        view.setColumns([0, 2, 3, 4, 5]);
-                            //        dashboard.draw(view);
-                            //    }
-                            //}
+                            $(document).ready(function () {
+                                // do stuff on "ready" event
+                                $(".checkbox").change(function () {
 
-                            var showAll = document.getElementById("all");
-                            showAll.onclick = function () {
-                                view = new google.visualization.DataView(data6);
-                                view.setColumns([0, 1, 2, 3, 4, 5]);
-                                dashboard.draw(view);
-                            }
+                                    //view = new google.visualization.DataView(data);
+                                    var tes = [0];
 
-                            var showCommit = document.getElementById("commit");
-                            showCommit.onclick = function () {
-                                view = new google.visualization.DataView(data6);
-                                view.setColumns([0, 1]);
-                                dashboard.draw(view);
-                            }
+                                    if ($("#kolom1").is(':checked')) {
 
-                            var showIssuesCreated = document.getElementById("issuesCreated");
-                            showIssuesCreated.onclick = function () {
-                                view = new google.visualization.DataView(data6);
-                                view.setColumns([0, 2]);
-                                dashboard.draw(view);
-                            }
+                                        tes.push(1,
+                                            {
+                                                calc: "stringify",
+                                                sourceColumn: 1,
+                                                type: "string",
+                                                role: "annotation"
+                                            });
+                                    }
+                                    if ($("#kolom2").is(':checked')) {
+                                        tes.push(2,
+                                            {
+                                                calc: "stringify",
+                                                sourceColumn: 2,
+                                                type: "string",
+                                                role: "annotation"
+                                            });
+                                    }
+                                    if ($("#kolom3").is(':checked')) {
+                                        tes.push(3,
+                                            {
+                                                calc: "stringify",
+                                                sourceColumn: 3,
+                                                type: "string",
+                                                role: "annotation"
+                                            });
+                                    }
+                                    if ($("#kolom4").is(':checked')) {
+                                        tes.push(4,
+                                            {
+                                                calc: "stringify",
+                                                sourceColumn: 4,
+                                                type: "string",
+                                                role: "annotation"
+                                            });
+                                    }
+                                    if ($("#kolom5").is(':checked')) {
+                                        tes.push(5,
+                                            {
+                                                calc: "stringify",
+                                                sourceColumn: 5,
+                                                type: "string",
+                                                role: "annotation"
+                                            });
+                                    }
+                                    if (tes != 0) {
+                                        view.setColumns(tes);
+                                    }
+                                    dashboard.draw(view);
+                                });
+                            });
 
-                            var showIssuesSolved = document.getElementById("issuesSolved");
-                            showIssuesSolved.onclick = function () {
-                                view = new google.visualization.DataView(data6);
-                                view.setColumns([0, 3]);
-                                dashboard.draw(view);
-                            }
-
-                            var showMergeRequest = document.getElementById("mergeRequests");
-                            showMergeRequest.onclick = function () {
-                                view = new google.visualization.DataView(data6);
-                                view.setColumns([0, 4]);
-                                dashboard.draw(view);
-                            }
-
-                            var showComments = document.getElementById("comments");
-                            showComments.onclick = function () {
-                                view = new google.visualization.DataView(data6);
-                                view.setColumns([0, 5]);
-                                dashboard.draw(view);
-                            }
                             //#endregion
                         }
                         google.setOnLoadCallback(drawVisualization);
@@ -305,7 +338,7 @@
                         $(window).resize(function () {
                             drawVisualization();
                         });
-                    </script>
+                        </script>
                     }
                 </div>
             </div>
