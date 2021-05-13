@@ -229,7 +229,7 @@
                                 },
                             });
 
-                            var data6 = google.visualization.arrayToDataTable([
+                            var data = google.visualization.arrayToDataTable([
                                 ['Time', 'Commit', 'IssuesCreated', 'IssuesSolved', 'MergeRequest', 'Comments'],
 
                                 @foreach (var data in Model.ChartDatas)
@@ -239,62 +239,122 @@
                             ]);
 
                             dashboard.bind(control, chart);
-                            dashboard.draw(data6);
+                            dashboard.draw(data);
 
                             //#region Listens for button click to change options and Data
-
-                            //var checkBox = document.getElementById("myCheck");
-                            //checkBox.onchange = function myFunction() {
-
-                            //    if (checkBox.checked == true) {
-                            //        view = new google.visualization.DataView(data6);
-                            //        view.setColumns([0, 1, 2, 3, 4, 5]);
-                            //        dashboard.draw(view);
-                            //    } else {
-                            //        view = new google.visualization.DataView(data6);
-                            //        view.setColumns([0, 2, 3, 4, 5]);
-                            //        dashboard.draw(view);
-                            //    }
-                            //}
-
                             var showAll = document.getElementById("all");
                             showAll.onclick = function () {
-                                view = new google.visualization.DataView(data6);
+                                view = new google.visualization.DataView(data);
                                 view.setColumns([0, 1, 2, 3, 4, 5]);
                                 dashboard.draw(view);
                             }
 
                             var showCommit = document.getElementById("commit");
                             showCommit.onclick = function () {
-                                view = new google.visualization.DataView(data6);
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    title: 'User Commits',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        title: 'Commits',
+                                        format: '',
+                                    }
+                                })
                                 view.setColumns([0, 1]);
                                 dashboard.draw(view);
                             }
 
                             var showIssuesCreated = document.getElementById("issuesCreated");
                             showIssuesCreated.onclick = function () {
-                                view = new google.visualization.DataView(data6);
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    title: 'User IssuesCreated',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        title: 'IssuesCreated',
+                                        format: '',
+                                    }
+                                })
                                 view.setColumns([0, 2]);
                                 dashboard.draw(view);
                             }
 
                             var showIssuesSolved = document.getElementById("issuesSolved");
                             showIssuesSolved.onclick = function () {
-                                view = new google.visualization.DataView(data6);
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    title: 'User IssuesSolved',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        title: 'IssuesSolved',
+                                        format: '',
+                                    }
+                                })
                                 view.setColumns([0, 3]);
                                 dashboard.draw(view);
                             }
 
                             var showMergeRequest = document.getElementById("mergeRequests");
                             showMergeRequest.onclick = function () {
-                                view = new google.visualization.DataView(data6);
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    title: 'User MergeRequests',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        title: 'MergeRequests',
+                                        format: '',
+                                    }
+                                })
                                 view.setColumns([0, 4]);
                                 dashboard.draw(view);
                             }
 
                             var showComments = document.getElementById("comments");
                             showComments.onclick = function () {
-                                view = new google.visualization.DataView(data6);
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    title: 'User Comments',
+                                    backgroundColor: '#f0f6f6',
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        title: 'Comments',
+                                        format: '',
+                                    }
+                                })
                                 view.setColumns([0, 5]);
                                 dashboard.draw(view);
                             }
