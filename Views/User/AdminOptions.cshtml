@@ -1,5 +1,5 @@
 ﻿@model List<HackerRank.ViewModels.RoleViewModel>
-@if (User.IsInRole("Administrator"))
+@if (User.IsInRole("SuperAdministrator"))
 {
  <form id="Roles" method="post" asp-action="SetRoles" asp-controller="User">
     <div class="container">

@@ -11,6 +11,7 @@ namespace HackerRank.Data
     public class RolesData
     {
         private static readonly string[] roles = new[] {
+            "SuperAdministrator",
             "Administrator",
             "User"
         };
