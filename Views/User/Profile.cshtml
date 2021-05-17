@@ -162,16 +162,30 @@
                     {
                         @*Buttons to Change Charts*@
                         <div class="pb-3">
-
-                            @*<label for="myCheck">Checkbox:</label> 
-                            <input type="checkbox" id="myCheck" onclick="myFunction()">*@
-
                             <button class="btn btn-primary" id="all"> All</button>
                             <button class="btn btn-primary" id="commit"> Commit</button>
                             <button class="btn btn-primary" id="issuesCreated"> Issues created</button>
                             <button class="btn btn-primary" id="issuesSolved"> Issues solved</button>
                             <button class="btn btn-primary" id="mergeRequests"> Merge requests</button>
                             <button class="btn btn-primary" id="comments"> Comments</button>
+                        </div>
+
+                        <div class="row" data-provide="datepicker">
+                            <div class="mr-1">
+                                <p class="p-0 m-0">Start Date</p>
+                                <input type="date" class="from-date" id="from-date">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="ml-1">
+                                <p class="p-0 m-0">End Date</p>
+                                <input type="date" class="to-date" id="to-date">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-12" id="dashboard">
@@ -183,7 +197,6 @@
                     @section Scripts
                     {
                     <script type="text/javascript">
-
                         google.load('visualization', '1.1', { packages: ['corechart', 'controls'] });
 
                         function drawVisualization() {
@@ -200,7 +213,7 @@
                                         chartOptions: {
                                             backgroundColor: '#f0f6f6',
                                             chartArea: { 'width': '90%' },
-                                            hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd" }
+                                            hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd", viewWindow: {}, }
                                         },
                                         // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
                                         minRangeSize: 86400000
@@ -214,8 +227,8 @@
                                 options: {
                                     // Use the same chart area width as the control for axis alignment.
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    title: 'User Commits',
                                     backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -223,7 +236,6 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'Commits',
                                         format: '',
                                     }
                                 },
@@ -238,8 +250,41 @@
                                 }
                             ]);
 
-                            dashboard.bind(control, chart);
-                            dashboard.draw(data);
+                            var daterange1 = null;
+                            document.getElementById("to-date").addEventListener("change", function () {
+                                daterange1 = this.value;
+                            });
+
+                            var daterange2 = null;
+                            document.getElementById("from-date").addEventListener("change", function () {
+                                daterange2 = this.value;
+                            });
+
+                            var showDate = document.getElementById("to-date");
+                            showDate.onchange = function () {
+                                view = new google.visualization.DataView(data);
+                                control.setState({
+                                    range: {
+                                        start: new Date(daterange2),
+                                        end: new Date(daterange1)
+                                    }
+                                });
+
+                                control.draw();
+                            }
+
+                            var showDate = document.getElementById("from-date");
+                            showDate.onchange = function () {
+                                view = new google.visualization.DataView(data);
+                                control.setState({
+                                    range: {
+                                        start: new Date(daterange2),
+                                        end: new Date(daterange1)
+                                    }
+                                });
+
+                                control.draw();
+                            }
 
                             //#region Listens for button click to change options and Data
                             var showAll = document.getElementById("all");
@@ -250,12 +295,12 @@
                             }
 
                             var showCommit = document.getElementById("commit");
-                            showCommit.onclick = function () {
+                            showCommit.onclick = function() {
                                 view = new google.visualization.DataView(data);
                                 chart.setOptions({
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    title: 'User Commits',
                                     backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -263,10 +308,9 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'Commits',
                                         format: '',
                                     }
-                                })
+                                });
                                 view.setColumns([0, 1]);
                                 dashboard.draw(view);
                             }
@@ -276,8 +320,8 @@
                                 view = new google.visualization.DataView(data);
                                 chart.setOptions({
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    title: 'User IssuesCreated',
                                     backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -285,7 +329,6 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'IssuesCreated',
                                         format: '',
                                     }
                                 })
@@ -298,8 +341,8 @@
                                 view = new google.visualization.DataView(data);
                                 chart.setOptions({
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    title: 'User IssuesSolved',
                                     backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -307,7 +350,6 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'IssuesSolved',
                                         format: '',
                                     }
                                 })
@@ -320,8 +362,8 @@
                                 view = new google.visualization.DataView(data);
                                 chart.setOptions({
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    title: 'User MergeRequests',
                                     backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -329,7 +371,6 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'MergeRequests',
                                         format: '',
                                     }
                                 })
@@ -342,8 +383,8 @@
                                 view = new google.visualization.DataView(data);
                                 chart.setOptions({
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    title: 'User Comments',
                                     backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -351,7 +392,6 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'Comments',
                                         format: '',
                                     }
                                 })
@@ -359,6 +399,9 @@
                                 dashboard.draw(view);
                             }
                             //#endregion
+
+                            dashboard.bind(control, chart);
+                            dashboard.draw(data);
                         }
                         google.setOnLoadCallback(drawVisualization);
 
