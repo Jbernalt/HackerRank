@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -46,11 +47,12 @@ namespace HackerRank
             services.Configure<CookiePolicyOptions>(options =>
             {
                 options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.Lax;
+                options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
 
             services.AddSignalR();
             services.AddResponseCaching();
+            services.AddDistributedMemoryCache();
 
             services.AddDbContext<HackerRankContext>(options =>
                 options.UseSqlServer(
@@ -86,8 +88,6 @@ namespace HackerRank
             services.AddMvc();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
-
-            services.Configure<AuthTokenOptions>(Configuration);
 
             services.AddAuthentication()
                 .AddGitLab(options =>
@@ -134,11 +134,18 @@ namespace HackerRank
             {
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
 
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
+            });
+
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(365);
             });
 
             services.AddAntiforgery(options =>
@@ -165,7 +172,6 @@ namespace HackerRank
             IAntiforgery antiforgery,
             IBackgroundJobClient backgroundJobs,
             RoleManager<IdentityRole> roleManager,
-            IUserService userService,
             IRecurringJobManager recurringJobManager,
             IRankingService rankingService,
             IGroupService groupService)
@@ -178,9 +184,22 @@ namespace HackerRank
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                HttpsCompression = Microsoft.AspNetCore.Http.Features.HttpsCompressionMode.Compress,
+                OnPrepareResponse = (context) =>
+                {
+                    var headers = context.Context.Response.GetTypedHeaders();
+                    headers.CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+                    {
+                        Public = true,
+                        MaxAge = TimeSpan.FromDays(30)
+                    };
+                }
+            });
 
             app.Use(next => context =>
             {
@@ -198,6 +217,7 @@ namespace HackerRank
                 return next(context);
             });
 
+            app.UseCookiePolicy();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseResponseCaching();
@@ -216,8 +236,8 @@ namespace HackerRank
             });
 
             //Add methods to run recurringly here:
-            //recurringJobManager.AddOrUpdate("GetUserData", Job.FromExpression(() => userService.GetAllUserData()), Cron.Daily());
             recurringJobManager.AddOrUpdate("ResetDailyStats", Job.FromExpression(() => rankingService.ResetDailyStats()), Cron.Daily());
+            //Seeds database with all groups in GitLab, newly created and deleted groups will be added via webhooks
             backgroundJobs.Enqueue(() => groupService.GetAllGroups());
 
             app.UseEndpoints(endpoints =>

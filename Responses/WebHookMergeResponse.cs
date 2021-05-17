@@ -36,8 +36,6 @@ namespace HackerRank.Responses
             public string source_branch { get; set; }
             public int source_project_id { get; set; }
             public string title { get; set; }
-            public DateTime created_at { get; set; }
-            public DateTime updated_at { get; set; }
             public string state { get; set; }
             public int target_project_id { get; set; }
             public string action { get; set; }

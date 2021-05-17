@@ -10,19 +10,17 @@
     {
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
-        double value = (Model.UserLevel.CurrentExperience - Model.UserLevel.Level.XpNeeded) * 10;
-        string progress = value.ToString() + "%";
+        string progress = Math.Round((Model.UserLevel.CurrentExperience - Model.UserLevel.Level.XpNeeded) * 10, 2).ToString() + "%";
         progress = progress.Replace(",", ".");
         int nextlevel = Model.UserLevel.Level.LevelId + 1;
-        int nextLevelXp = Model.UserLevel.Level.XpNeeded + 10;
 
         <div>
-            <h2 class="text-capitalize text-center">Prestige: @Model.UserLevel.PrestigeLevel Rank: @Model.UserLevel.Level.LevelName</h2>
+            <h2 class="text-capitalize text-center">Prestige @Model.UserLevel.PrestigeLevel, Level @Model.UserLevel.Level.LevelId @Model.UserLevel.Level.LevelName</h2>
             <div class="row flex-row justify-content-center align-items-center">
                 <div class="col-1 text-center">@Model.UserLevel.Level.LevelId</div>
                 <div class="progress col-10 px-0 position-relative" >
                     <div class="progress-bar" style="width:@progress; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
-                    <small class="justify-content-center d-flex position-absolute w-100" style="color:black">@Model.UserLevel.CurrentExperience/@nextLevelXp</small>
+                    <small class="justify-content-center d-flex position-absolute w-100" style="color:black">@progress</small>
                 </div>
                 <div class="col-1 text-center">@nextlevel</div>
             </div>
@@ -78,7 +76,7 @@
                 {
                     <a class="btn btn-primary" type="button" asp-area="Identity" asp-page="/Account/Manage/Index">Edit profile</a>
                 }
-                @if (User.IsInRole("Administrator"))
+                @if (User.IsInRole("SuperAdministrator"))
                 {
                     <a id="manage-roles" type="button" asp-controller="User" asp-action="AdminOptions" asp-route-id="@Model.Username" class="btn btn-primary">Manage roles</a>
                 }
@@ -111,7 +109,6 @@
                         }
                     </div>
                 </div>
-                
 
                 <div class="table-responsive mt-4 mb-4 p-4" style="background-color: #f0f6f6; border-radius: 30px">
                     <table class="table table-borderless">
@@ -163,23 +160,41 @@
                     {
                         @*Buttons to Change Charts*@
                         <div class="pb-3">
-                            <input type="button" id="commit" value="Commit" class="btn btn-primary" />
-                            <input type="button" id="issuesCreated" value="Issues created" class="btn btn-primary" />
-                            <input type="button" id="issuesSolved" value="Issues solved" class="btn btn-primary" />
-                            <input type="button" id="mergeRequests" value="Merge requests" class="btn btn-primary" />
-                            <input type="button" id="comments" value="Comments" class="btn btn-primary" />
+                            <button class="btn btn-primary" id="all"> All</button>
+                            <button class="btn btn-primary" id="commit"> Commit</button>
+                            <button class="btn btn-primary" id="issuesCreated"> Issues created</button>
+                            <button class="btn btn-primary" id="issuesSolved"> Issues solved</button>
+                            <button class="btn btn-primary" id="mergeRequests"> Merge requests</button>
+                            <button class="btn btn-primary" id="comments"> Comments</button>
+                        </div>
+
+                        <div class="row" data-provide="datepicker">
+                            <div class="mr-1">
+                                <p class="p-0 m-0">Start Date</p>
+                                <input type="date" class="from-date" id="from-date">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="ml-1">
+                                <p class="p-0 m-0">End Date</p>
+                                <input type="date" class="to-date" id="to-date">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-12" id="dashboard">
                             <div id="chart" style='width: 100%; height: 300px;'></div>
                             <div id="control" style='width: 100%; height: 50px;'></div>
                         </div>
-                     }
+                    }
 
                     @section Scripts
                     {
                     <script type="text/javascript">
-
                         google.load('visualization', '1.1', { packages: ['corechart', 'controls'] });
 
                         function drawVisualization() {
@@ -196,7 +211,7 @@
                                         chartOptions: {
                                             backgroundColor: '#f0f6f6',
                                             chartArea: { 'width': '90%' },
-                                            hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd" }
+                                            hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd", viewWindow: {}, }
                                         },
                                         // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
                                         minRangeSize: 86400000
@@ -210,9 +225,8 @@
                                 options: {
                                     // Use the same chart area width as the control for axis alignment.
                                     chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User Commits',
                                     backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
@@ -220,159 +234,175 @@
                                         viewWindow: {},
                                     },
                                     vAxis: {
-                                        title: 'Commits',
-                                        format: ''
+                                        format: '',
                                     }
                                 },
                             });
 
                             var data = google.visualization.arrayToDataTable([
-                            ['Time', 'Commit'],
+                                ['Time', 'Commit', 'IssuesCreated', 'IssuesSolved', 'MergeRequest', 'Comments'],
 
-                            @foreach (var data in Model.ChartDatas)
-                            {
-                                <text>[new Date('@data.TimeStamp'), @data.NumOfCommits],</text>
+                                @foreach (var data in Model.ChartDatas)
+                                {
+                                    <text>[new Date('@data.TimeStamp'), @data.NumOfCommits, @data.NumOfIssuesCreated, @data.NumOfIssuesSolved, @data.NumOfMergeRequests, @data.NumOfComments],</text>
+                                }
+                            ]);
+
+                            var daterange1 = null;
+                            document.getElementById("to-date").addEventListener("change", function () {
+                                daterange1 = this.value;
+                            });
+
+                            var daterange2 = null;
+                            document.getElementById("from-date").addEventListener("change", function () {
+                                daterange2 = this.value;
+                            });
+
+                            var showDate = document.getElementById("to-date");
+                            showDate.onchange = function () {
+                                view = new google.visualization.DataView(data);
+                                control.setState({
+                                    range: {
+                                        start: new Date(daterange2),
+                                        end: new Date(daterange1)
+                                    }
+                                });
+
+                                control.draw();
                             }
 
-                            ]);
+                            var showDate = document.getElementById("from-date");
+                            showDate.onchange = function () {
+                                view = new google.visualization.DataView(data);
+                                control.setState({
+                                    range: {
+                                        start: new Date(daterange2),
+                                        end: new Date(daterange1)
+                                    }
+                                });
 
-                            var data2 = google.visualization.arrayToDataTable([
-                                ['Time', 'IssuesCreated'],
+                                control.draw();
+                            }
 
-                                @foreach (var data in Model.ChartDatas)
-                                {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesCreated],</text>
-                                }
-                            ]);
+                            //#region Listens for button click to change options and Data
+                            var showAll = document.getElementById("all");
+                            showAll.onclick = function () {
+                                view = new google.visualization.DataView(data);
+                                view.setColumns([0, 1, 2, 3, 4, 5]);
+                                dashboard.draw(view);
+                            }
 
-                            var data3 = google.visualization.arrayToDataTable([
-                                ['Time', 'IssuesSolved'],
+                            var showCommit = document.getElementById("commit");
+                            showCommit.onclick = function() {
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        format: '',
+                                    }
+                                });
+                                view.setColumns([0, 1]);
+                                dashboard.draw(view);
+                            }
 
-                                @foreach (var data in Model.ChartDatas)
-                                {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfIssuesSolved],</text>
-                                }
-                            ]);
+                            var showIssuesCreated = document.getElementById("issuesCreated");
+                            showIssuesCreated.onclick = function () {
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        format: '',
+                                    }
+                                })
+                                view.setColumns([0, 2]);
+                                dashboard.draw(view);
+                            }
 
-                            var data4 = google.visualization.arrayToDataTable([
-                                ['Time', 'MergeRequests'],
+                            var showIssuesSolved = document.getElementById("issuesSolved");
+                            showIssuesSolved.onclick = function () {
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        format: '',
+                                    }
+                                })
+                                view.setColumns([0, 3]);
+                                dashboard.draw(view);
+                            }
 
-                                @foreach (var data in Model.ChartDatas)
-                                {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfMergeRequests],</text>
-                                }
-                            ]);
+                            var showMergeRequest = document.getElementById("mergeRequests");
+                            showMergeRequest.onclick = function () {
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        format: '',
+                                    }
+                                })
+                                view.setColumns([0, 4]);
+                                dashboard.draw(view);
+                            }
 
-                            var data5 = google.visualization.arrayToDataTable([
-                                ['Time', 'Comments'],
-
-                                @foreach (var data in Model.ChartDatas)
-                                {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfComments],</text>
-                                }
-                            ]);
+                            var showComments = document.getElementById("comments");
+                            showComments.onclick = function () {
+                                view = new google.visualization.DataView(data);
+                                chart.setOptions({
+                                    chartArea: { 'height': '70%', 'width': '90%' },
+                                    backgroundColor: '#f0f6f6',
+                                    legend: { position: 'top' },
+                                    hAxis: {
+                                        title: 'Time',
+                                        slantedText: false,
+                                        format: 'yyyy/MM/dd',
+                                        viewWindow: {},
+                                    },
+                                    vAxis: {
+                                        format: '',
+                                    }
+                                })
+                                view.setColumns([0, 5]);
+                                dashboard.draw(view);
+                            }
+                            //#endregion
 
                             dashboard.bind(control, chart);
                             dashboard.draw(data);
-
-                            //#region Listens for button click to change options and Data
-                            document.getElementById('commit').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User Commits',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'Commits',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data);
-                            }, false);
-
-                            document.getElementById('issuesCreated').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User IssuesCreated',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'IssuesCreated',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data2);
-                            }, false);
-
-                            document.getElementById('issuesSolved').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User IssuesSolved',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'IssuesSolved',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data3);
-                            }, false);
-
-                            document.getElementById('mergeRequests').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User MergeRequests',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'MergeRequests',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data4);
-                            }, false);
-
-                            document.getElementById('comments').addEventListener('click', function () {
-                                chart.setOptions({
-                                    chartArea: { 'height': '70%', 'width': '90%' },
-                                    legend: { 'position': 'none' },
-                                    title: 'User Comments',
-                                    backgroundColor: '#f0f6f6',
-                                    hAxis: {
-                                        title: 'Time',
-                                        slantedText: false,
-                                        format: 'yyyy/MM/dd',
-                                    },
-                                    vAxis: {
-                                        title: 'Comments',
-                                        format: ''
-                                    }
-                                })
-                                dashboard.draw(data5);
-                            }, false);
-                            //#endregion
                         }
                         google.setOnLoadCallback(drawVisualization);
+
                         $(window).resize(function () {
                             drawVisualization();
                         });

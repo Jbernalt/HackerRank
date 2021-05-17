@@ -30,9 +30,8 @@ namespace HackerRank.Services
     public interface IUserService
     {
         List<ChartData> GetUserCommitChartData(User user);
-        Task<Tuple<User, UserTransaction>> UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent);
-        Task UpdateAchievementsOnUsers();
-        Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity);
+        Task<Tuple<User, UserTransaction>> UpdateUserData(string username, WebHookResponse model, StringValues gitLabEvent);
+        Task<UserViewModel> GetUserByUsername(string username, bool isOwnProfile, bool isAdmin);
         List<string> UserSearch(string username);
         Task<string> UpdateUserLevel(string userName, double points);
         Task<List<UserViewModel>> GetAllUsers();
@@ -106,7 +105,7 @@ namespace HackerRank.Services
             return users;
         }
 
-        public async Task<UserViewModel> GetUserByUsername(string username, ClaimsPrincipal identity)
+        public async Task<UserViewModel> GetUserByUsername(string username, bool isOwnProfile, bool isAdmin)
         {
             username = username.ToUpper();
             var user = await _context.Users.Where(x => x.NormalizedUserName == username).Include(u => u.UserStats).Include(g => g.Groups).ThenInclude(p => p.Projects).FirstOrDefaultAsync();
@@ -114,7 +113,7 @@ namespace HackerRank.Services
             if (user == null)
                 return new UserViewModel() { IsPublic = false };
 
-            if (!user.IsPublic && identity.Identity.Name != user.UserName && !identity.IsInRole("Administrator"))
+            if (!user.IsPublic && !isOwnProfile && !isAdmin)
                 return new UserViewModel() { IsPublic = false };
 
             var achievements = await _context.UserAchievement.Where(a => a.User == user && a.IsUnlocked == true).Include(a => a.Achievement).Include(a => a.User).ToListAsync();
@@ -137,11 +136,14 @@ namespace HackerRank.Services
             return model;
         }
 
-        public async Task<Tuple<User, UserTransaction>> UpdateUserData(string username, TopFiveViewModel model, StringValues gitLabEvent)
+        public async Task<Tuple<User, UserTransaction>> UpdateUserData(string username, WebHookResponse model, StringValues gitLabEvent)
         {
             int id = 1;
             int projectId = 0;
             var user = await _context.Users.Where(u => u.NormalizedUserName == username.ToUpper()).Include(s => s.UserStats).FirstOrDefaultAsync();
+            if (user == null)
+                return null;
+
             UserTransaction tran = new()
             {
                 User = user,
@@ -151,31 +153,31 @@ namespace HackerRank.Services
 
             if (gitLabEvent == "Push Hook")
             {
-                projectId = model.WebHookResponse.WebHookCommitResponse.project.id;
+                projectId = model.WebHookCommitResponse.project.id;
                 user.UserStats.TotalCommits += 1;
             }
-            else if (gitLabEvent == "Issue Hook" && model.WebHookResponse.WebHookIssueResponse.object_attributes.state == "opened")
+            else if (gitLabEvent == "Issue Hook" && model.WebHookIssueResponse.object_attributes.state == "opened")
             {
                 id = 2;
-                projectId = model.WebHookResponse.WebHookIssueResponse.project.id;
+                projectId = model.WebHookIssueResponse.project.id;
                 user.UserStats.TotalIssuesCreated += 1;
             }
             else if (gitLabEvent == "Issue Hook")
             {
                 id = 3;
-                projectId = model.WebHookResponse.WebHookIssueResponse.project.id;
+                projectId = model.WebHookIssueResponse.project.id;
                 user.UserStats.TotalIssuesSolved += 1;
             }
             else if (gitLabEvent == "Merge Request Hook")
             {
                 id = 4;
-                projectId = model.WebHookResponse.WebHookMergeResponse.project.id;
+                projectId = model.WebHookMergeResponse.project.id;
                 user.UserStats.TotalMergeRequests += 1;
             }
             else if (gitLabEvent == "Note Hook")
             {
                 id = 5;
-                projectId = model.WebHookResponse.WebHookCommentResponse.project.id;
+                projectId = model.WebHookCommentResponse.project.id;
                 user.UserStats.TotalComments += 1;
             }
 
@@ -183,9 +185,10 @@ namespace HackerRank.Services
             tran.Transaction = await _context.Transaction.Where(t => t.TransactionId == id).FirstOrDefaultAsync();
             tran.TransactionId = id;
 
-            if (tran.User != null && tran.Transaction != null)
-                _context.UserTransaction.Add(tran);
-
+            if (tran.Transaction == null)
+                return null;
+            
+            _context.UserTransaction.Add(tran);
             await _context.SaveChangesAsync();
 
             return new Tuple<User, UserTransaction>(user, tran);
@@ -201,7 +204,7 @@ namespace HackerRank.Services
             if (nextLevel != null && userLevel.CurrentExperience >= nextLevel.XpNeeded)
             {
                 userLevel.Level = nextLevel;
-                message = $"{userLevel.User.UserName} just leveled up. They are now level {nextLevel.LevelId} {nextLevel.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
+                message = $"{userLevel.User.UserName} just leveled up. They are now level {nextLevel.LevelId} {nextLevel.LevelName}, ";
             }
             else
             {
@@ -210,56 +213,12 @@ namespace HackerRank.Services
                     userLevel.Level = _context.Levels.Find(1);
                     userLevel.CurrentExperience = 0;
                     userLevel.PrestigeLevel += 1;
-                    message = $"{userLevel.User.UserName} just prestiged. They are now prestige {userLevel.PrestigeLevel}, level {userLevel.Level.LevelId} {userLevel.Level.LevelName}, {DateTime.UtcNow:dddd, dd MMMM yyyy HH:mm}";
+                    message = $"{userLevel.User.UserName} just prestiged. They are now prestige {userLevel.PrestigeLevel}, level {userLevel.Level.LevelId} {userLevel.Level.LevelName}, ";
                 }
             }
 
             await _context.SaveChangesAsync();
             return message;
-        }
-
-        public async Task UpdateAchievementsOnUsers()
-        {
-            var users = await _context.Users.Include("UserStats").ToArrayAsync();
-            var achievements = await _context.Achievement.ToArrayAsync();
-
-            foreach (var u in users)
-            {
-                foreach (var a in achievements)
-                {
-                    var userachievements = await _context.UserAchievement.Include("Achievement").Where(ua => ua.Achievement.AchievementId == a.AchievementId && ua.User.Id == u.Id).FirstOrDefaultAsync();
-
-                    UserAchievement userAchievement = new()
-                    {
-                        IsUnlocked = true,
-                        User = u,
-                        Achievement = a
-                    };
-
-                    if (a.TypeOfAction == ActionType.Commit && u.UserStats.TotalCommits >= a.NumberOfActions && userachievements == null)
-                    {
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                    }
-                    else if (a.TypeOfAction == ActionType.IssueOpened && u.UserStats.TotalIssuesCreated >= a.NumberOfActions && userachievements == null)
-                    {
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                    }
-                    else if (a.TypeOfAction == ActionType.IssueSolved && u.UserStats.TotalIssuesSolved >= a.NumberOfActions && userachievements == null)
-                    {
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                    }
-                    else if (a.TypeOfAction == ActionType.MergeRequest && u.UserStats.TotalMergeRequests >= a.NumberOfActions && userachievements == null)
-                    {
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                    }
-                    else if (a.TypeOfAction == ActionType.Comment && u.UserStats.TotalComments >= a.NumberOfActions && userachievements == null)
-                    {
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                    }
-
-                    await _context.SaveChangesAsync();
-                }
-            }
         }
 
         public List<ChartData> GetUserCommitChartData(User user)

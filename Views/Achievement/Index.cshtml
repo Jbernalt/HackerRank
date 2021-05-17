@@ -50,9 +50,14 @@
                     }
                     <tr>
                         <td style="@style">
-                            <img src="~/achievementImg/@item.Image"
-                                 height="60" width="60"
-                                 asp-append-version="true" />
+                            @if (item.Image == "default-achievement.png")
+                            {
+                                <img src="~/img/default-achievement.png" height="60" width="60" asp-append-version="true" />
+                            }
+                            else
+                            {
+                                <img src="~/achievementImg/@item.Image" height="60" width="60" asp-append-version="true" />
+                            }
                         </td>
                         <td style="@style">
                             @Html.DisplayFor(modelItem => item.AchievementName)

@@ -148,13 +148,11 @@ namespace HackerRank.Areas.Identity.Pages.Account
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
-                        if (!await _roleManager.RoleExistsAsync("Administrator"))
-                            await _roleManager.CreateAsync(new IdentityRole("Administrator"));
-                        if (!await _roleManager.RoleExistsAsync("User"))
-                            await _roleManager.CreateAsync(new IdentityRole("User"));
-
                         if (_userManager.Users.ToArray().Length == 1)
+                        {
                             await _userManager.AddToRoleAsync(user, "Administrator");
+                            await _userManager.AddToRoleAsync(user, "SuperAdministrator");
+                        }
 
                         await _userManager.AddToRoleAsync(user, "User");
 

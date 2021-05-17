@@ -47,11 +47,11 @@
                                     <td>
                                         @if (item.ProfileImage == "default-profile-picture.png")
                                         {
-                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                                         }
                                         else
                                         {
-                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                                         }
                                     </td>
                                     <td>
@@ -171,21 +171,19 @@
                     <tbody id="levelTableBody">
                         @foreach (var item in Model.TopFiveUserLevels)
                         {
-                            double value = (item.CurrentExperience - item.Level.XpNeeded) * 10;
-                            string progress = value.ToString() + "%";
+                            string progress = Math.Round((item.CurrentExperience - item.Level.XpNeeded) * 10, 2).ToString() + "%";
                             progress = progress.Replace(",", ".");
-                            int nextlevel = item.Level.XpNeeded + 10;
                             if (item != null)
                             {
                                 <tr>
                                     <td>
                                         @if (item.ProfileImage == "default-profile-picture.png")
                                         {
-                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                            <img src="~/img/@item.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                                         }
                                         else
                                         {
-                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                                            <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="height:50px; width:50px; border-radius:50%" alt="profile-image" />
                                         }
                                     </td>
                                     <td>
@@ -202,7 +200,7 @@
                                     <td>
                                         <div class="progress position-relative">
                                             <div class="progress-bar" style="width:@progress; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10"></div>
-                                            <small class="justify-content-center d-flex position-absolute w-100 text-dark">@item.CurrentExperience/@nextlevel</small>
+                                            <small class="justify-content-center d-flex position-absolute w-100 text-dark">@progress</small>
                                         </div>
 
                                     </td>

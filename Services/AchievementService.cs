@@ -16,18 +16,21 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
+using static HackerRank.Models.ActionTypes;
+
 namespace HackerRank.Services
 {
     public interface IAchievementService
     {
-        Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user);
+        Task<List<AchievementViewModel>> ListAllAchievements(string username);
         Task<AchievementViewModel> FindAchievementById(int id);
         Task<AchievementResponse> FindAchievementModelById(int id);
         Task Create(AchievementResponse achievementModel, IFormFile file);
         Task Edit(AchievementResponse achievementModel, IFormFile file);
         Task<AchievementViewModel> Details(int id);
         Task Delete(int id);
-        Task SetShowCase(List<string> achievementIds, ClaimsPrincipal user);
+        Task SetShowCase(List<string> achievementIds, string username);
+        Task<string> UpdateAchievementsOnUser(string username, ActionType actionType);
     }
 
     public class AchievementService : IAchievementService
@@ -44,9 +47,62 @@ namespace HackerRank.Services
             _mapper = mapper;
             _imageService = imageService;
         }
-        public async Task SetShowCase(List<string> achievementIds, ClaimsPrincipal claimsUser)
+
+        public async Task<string> UpdateAchievementsOnUser(string username, ActionType actionType)
         {
-            List<UserAchievement> userAchievements = await _context.UserAchievement.Include("Achievement").Include("User").Where(u => u.User.UserName == claimsUser.Identity.Name).ToListAsync();
+            var achievements = await _context.Achievement.Where(a => a.TypeOfAction == actionType).ToArrayAsync();
+            var user = await _context.Users
+                .Include(u => u.UserStats)
+                .Where(n => n.NormalizedUserName == username.ToUpper())
+                .FirstOrDefaultAsync();
+
+            string message = string.Empty;
+            int i = 0;
+
+            foreach (var a in achievements)
+            {
+                var userachievements = await _context.UserAchievement
+                    .Include("Achievement")
+                    .Where(ua => ua.Achievement.AchievementId == a.AchievementId && ua.User.NormalizedUserName == user.NormalizedUserName)
+                    .FirstOrDefaultAsync();
+
+                if (userachievements == null)
+                {
+                    UserAchievement userAchievement = new()
+                    {
+                        IsUnlocked = true,
+                        User = user,
+                        Achievement = a
+                    };
+
+                    if (user.UserStats.TotalCommits >= a.NumberOfActions)
+                    {
+                        if (i == 0)
+                        {
+                            message = $"{user.UserName} achieved {userAchievement.Achievement.AchievementName}, ";
+                        }
+                        else if (i > 0)
+                        {
+                            message += $"{userAchievement.Achievement.AchievementName}, ";
+                        }
+                        await _context.UserAchievement.AddAsync(userAchievement);
+                        i++;
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return message;
+        }
+
+        public async Task SetShowCase(List<string> achievementIds, string username)
+        {
+            var userAchievements = await _context.UserAchievement
+                .Include("Achievement")
+                .Include("User")
+                .Where(u => u.User.NormalizedUserName == username)
+                .ToListAsync();
+
             foreach (var achievement in userAchievements)
             {
                 achievement.IsShowCase = false;
@@ -61,39 +117,31 @@ namespace HackerRank.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<AchievementViewModel>> ListAllAchievements(ClaimsPrincipal user)
+        public async Task<List<AchievementViewModel>> ListAllAchievements(string username)
         {
             List<AchievementViewModel> viewModelList = new();
 
-            if (user.Identity.IsAuthenticated)
+            var userAchievements = await _context.UserAchievement
+                .Include(a => a.Achievement)
+                .Where(x => x.User.NormalizedUserName == username).ToListAsync();
+
+            var achievements = await _context.Achievement.ToListAsync();
+
+            _mapper.Map(achievements, viewModelList);
+
+            foreach (var a in viewModelList)
             {
-                var userAchievements = await _context.UserAchievement
-                    .Include(a => a.Achievement)
-                    .Where(x => x.User.UserName == user.Identity.Name).ToListAsync();
-
-                var achievements = await _context.Achievement.ToListAsync();
-
-                _mapper.Map(achievements, viewModelList);
-
-                foreach (var a in viewModelList)
+                if (userAchievements.Where(x => x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
                 {
-                    if (userAchievements.Where(x => x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
-                    {
-                        a.IsUnlocked = true;
-                    }
-                    if (userAchievements.Where(x => x.IsShowCase == true && x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
-                    {
-                        a.IsShowCase = true;
-                    }
+                    a.IsUnlocked = true;
                 }
+                if (userAchievements.Where(x => x.IsShowCase == true && x.Achievement.AchievementId == a.AchievementId).FirstOrDefault() != null)
+                {
+                    a.IsShowCase = true;
+                }
+            }
 
-                return viewModelList.OrderByDescending(x => x.IsUnlocked).ToList();
-            }
-            else
-            {
-                _mapper.Map(await _context.Achievement.ToListAsync(), viewModelList);
-                return viewModelList;
-            }
+            return viewModelList.OrderByDescending(x => x.IsUnlocked).ToList();
         }
 
         public async Task<AchievementViewModel> FindAchievementById(int id)
@@ -113,7 +161,8 @@ namespace HackerRank.Services
         public async Task Create(AchievementResponse achievementModel, IFormFile file)
         {
             Achievement achievement =_mapper.Map<Achievement>(achievementModel);
-            achievement.Image = await _imageService.SaveImage(file, false);
+            var filename = await _imageService.SaveImage(file, false);
+            achievement.Image = filename ?? "default-achievement.png";
 
             _context.Add(achievement);
             await _context.SaveChangesAsync();
