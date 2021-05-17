@@ -60,20 +60,20 @@ namespace HackerRank.Controllers
             list = sortOrder switch
             {
                 "name_desc" => list.OrderByDescending(s => s.Username).ToList(),
-                "monthly_rating_desc" => list.OrderByDescending(s => s.UserStats.MonthlyRating).ToList(),
                 "monthly_rating" => list.OrderBy(s => s.UserStats.MonthlyRating).ToList(),
-                "daily_rating_desc" => list.OrderByDescending(s => s.UserStats.DailyRating).ToList(),
+                "monthly_rating_desc" => list.OrderByDescending(s => s.UserStats.MonthlyRating).ToList(),
                 "daily_rating" => list.OrderBy(s => s.UserStats.DailyRating).ToList(),
-                "commit_desc" => list.OrderByDescending(s => s.UserStats.TotalCommits).ToList(),
+                "daily_rating_desc" => list.OrderByDescending(s => s.UserStats.DailyRating).ToList(),
                 "commit" => list.OrderBy(s => s.UserStats.TotalCommits).ToList(),
-                "issue_created_desc" => list.OrderByDescending(s => s.UserStats.TotalIssuesCreated).ToList(),
+                "commit_desc" => list.OrderByDescending(s => s.UserStats.TotalCommits).ToList(),
                 "issue_created" => list.OrderBy(s => s.UserStats.TotalIssuesCreated).ToList(),
-                "issue_solved_desc" => list.OrderByDescending(s => s.UserStats.TotalIssuesSolved).ToList(),
+                "issue_created_desc" => list.OrderByDescending(s => s.UserStats.TotalIssuesCreated).ToList(),
                 "issue_solved" => list.OrderBy(s => s.UserStats.TotalIssuesSolved).ToList(),
-                "merge_desc" => list.OrderByDescending(s => s.UserStats.TotalMergeRequests).ToList(),
+                "issue_solved_desc" => list.OrderByDescending(s => s.UserStats.TotalIssuesSolved).ToList(),
                 "merge" => list.OrderBy(s => s.UserStats.TotalMergeRequests).ToList(),
-                "comment_desc" => list.OrderByDescending(s => s.UserStats.TotalComments).ToList(),
+                "merge_desc" => list.OrderByDescending(s => s.UserStats.TotalMergeRequests).ToList(),
                 "comment" => list.OrderBy(s => s.UserStats.TotalComments).ToList(),
+                "comment_desc" => list.OrderByDescending(s => s.UserStats.TotalComments).ToList(),
                 _ => list.OrderBy(s => s.Username).ToList(),
             };
 
