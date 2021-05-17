@@ -29,7 +29,7 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
     }
     let li = document.createElement("li");
     let s = new Date();
-    li.textContent = liveFeedMessage + s.toDateString() + " " + s.toLocaleTimeString();
+    li.textContent = liveFeedMessage + s.toDateString() + " at " + s.toLocaleTimeString('sv-SE');
     li.classList.add("list-group-item");
     if (element.length == 0) {
         document.getElementById("live_feed").appendChild(li);
@@ -104,7 +104,7 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
             let divParent = $('<div class="progress position-relative">')[0];
             let divChild = $('<div class="progress-bar" style="width:' + value + '; background-color: skyblue" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10">')[0];
             let smallChild = $('<small class="justify-content-center d-flex position-absolute w-100 text-dark">')[0];
-            smallChild.innerHTML = Number(userLevel.CurrentExperience).toFixed(2).toString() + "/" + (userLevel.Level.XpNeeded + 10).toString();
+            smallChild.innerHTML = value;
             divParent.append(divChild);
             divParent.append(smallChild);
 
