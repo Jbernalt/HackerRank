@@ -36,7 +36,7 @@ namespace HackerRank.Controllers
             return View(await _userService.GetUserByUsername(id, isOwnProfile, isAdmin));
         }
 
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "SuperAdministrator")]
         public async Task<IActionResult> AdminOptions(string id)
         {
             var roles = await _userService.GetUserRoles(id);
@@ -44,7 +44,7 @@ namespace HackerRank.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "SuperAdministrator")]
         public async Task<IActionResult> SetRoles()
         {
             var roleNames = Request.Form["roleCheck"].ToList();
