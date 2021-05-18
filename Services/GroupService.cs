@@ -108,8 +108,8 @@ namespace HackerRank.Services
             List<Group> groups = new();
             foreach (var group in groupResponses)
             {
-                var dbGroup = await _context.Group.Where(i => i.GitlabTeamId == group.id).FirstOrDefaultAsync();
-                if (dbGroup == null)
+                var exists = await _context.Group.Where(i => i.GitlabTeamId == group.id).FirstOrDefaultAsync();
+                if (exists == null)
                 {
                     var projects = await GetProjectsForGroup(group.id);
                     Group newGroup = new()
@@ -121,17 +121,6 @@ namespace HackerRank.Services
                         Users = new()
                     };
                     groups.Add(newGroup);
-                }
-                else
-                {
-                    var projects = await GetProjectsForGroup(group.id);
-                    foreach (var project in projects)
-                    {
-                        if (dbGroup.Projects.Find(x => x.GitLabId == project.GitLabId) == null)
-                        {
-                            dbGroup.Projects.Add(project);
-                        }
-                    }
                 }
             }
             _context.Group.AddRange(groups);

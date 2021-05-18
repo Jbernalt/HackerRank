@@ -161,7 +161,7 @@
                         @*Buttons to Change Charts*@
                         <div class="pb-3">
                             <button class="btn btn-primary" id="all"> All</button>
-                            <button class="btn btn-primary" id="commit"> Commits</button>
+                            <button class="btn btn-primary" id="commit"> Commit</button>
                             <button class="btn btn-primary" id="issuesCreated"> Issues created</button>
                             <button class="btn btn-primary" id="issuesSolved"> Issues solved</button>
                             <button class="btn btn-primary" id="mergeRequests"> Merge requests</button>
@@ -240,7 +240,7 @@
                             });
 
                             var data = google.visualization.arrayToDataTable([
-                                ['Time', 'Commits', 'Issues created', 'Issues solved', 'Merge requests', 'Comments'],
+                                ['Time', 'Commit', 'IssuesCreated', 'IssuesSolved', 'MergeRequest', 'Comments'],
 
                                 @foreach (var data in Model.ChartDatas)
                                 {
