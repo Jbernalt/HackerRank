@@ -47,16 +47,14 @@ namespace HackerRank.Services
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly GroupService _groupService;
 
-        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration, IMapper mapper, RoleManager<IdentityRole> roleManager, GroupService groupService)
+        public UserService(HackerRankContext context, UserManager<User> userManager, IConfiguration configuration, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _config = configuration;
             _mapper = mapper;
             _roleManager = roleManager;
-            _groupService = groupService;
         }
 
         public async Task<List<UserViewModel>> GetAllUsers()
@@ -142,7 +140,6 @@ namespace HackerRank.Services
         {
             int id = 1;
             int projectId = 0;
-            string projectName = string.Empty;
             var user = await _context.Users.Where(u => u.NormalizedUserName == username.ToUpper()).Include(s => s.UserStats).FirstOrDefaultAsync();
             if (user == null)
                 return null;
@@ -157,45 +154,34 @@ namespace HackerRank.Services
             if (gitLabEvent == "Push Hook")
             {
                 projectId = model.WebHookCommitResponse.project.id;
-                projectName = model.WebHookCommitResponse.project.name;
                 user.UserStats.TotalCommits += 1;
             }
             else if (gitLabEvent == "Issue Hook" && model.WebHookIssueResponse.object_attributes.state == "opened")
             {
                 id = 2;
                 projectId = model.WebHookIssueResponse.project.id;
-                projectName = model.WebHookIssueResponse.project.name;
                 user.UserStats.TotalIssuesCreated += 1;
             }
             else if (gitLabEvent == "Issue Hook")
             {
                 id = 3;
                 projectId = model.WebHookIssueResponse.project.id;
-                projectName = model.WebHookIssueResponse.project.name;
                 user.UserStats.TotalIssuesSolved += 1;
             }
             else if (gitLabEvent == "Merge Request Hook")
             {
                 id = 4;
                 projectId = model.WebHookMergeResponse.project.id;
-                projectName = model.WebHookMergeResponse.project.name;
                 user.UserStats.TotalMergeRequests += 1;
             }
             else if (gitLabEvent == "Note Hook")
             {
                 id = 5;
                 projectId = model.WebHookCommentResponse.project.id;
-                projectName = model.WebHookCommentResponse.project.name;
                 user.UserStats.TotalComments += 1;
             }
-            var project = await _context.Project.Where(p => p.GitLabId == projectId).FirstOrDefaultAsync();
-            if (project == null)
-            {
-                await _groupService.GetAllGroups();
-                project = await _context.Project.Where(p => p.GitLabId == projectId).FirstOrDefaultAsync();
-            }
 
-            tran.Project = project;
+            tran.Project = await _context.Project.Where(p => p.GitLabId == projectId).FirstOrDefaultAsync();
             tran.Transaction = await _context.Transaction.Where(t => t.TransactionId == id).FirstOrDefaultAsync();
             tran.TransactionId = id;
 
