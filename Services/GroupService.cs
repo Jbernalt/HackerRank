@@ -91,21 +91,31 @@ namespace HackerRank.Services
             UriBuilder uriBuilder = new()
             {
                 Scheme = "https",
-                Host = "gitlab.com/api/v4/groups"
+                Host = "gitlab.com/api/v4",
+                Path = "groups",
+                Query = "per_page=100"
             };
 
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
-
+                var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
                 var jsonResult = await response.Content.ReadAsStringAsync();
 
                 List<GroupResponse> result = JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult);
                 groupResponses.AddRange(result);
+                if (totalPages > 1)
+                {
+                    for (int i = 2; i <= totalPages; i++)
+                    {
+                        response = await client.GetAsync(uriBuilder.ToString() + "&page=" + i.ToString());
+                        jsonResult = await response.Content.ReadAsStringAsync();
+                        groupResponses.AddRange(JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult));
+                    }
+                }
             }
 
-            List<Group> groups = new();
             foreach (var group in groupResponses)
             {
                 var exists = await _context.Group.Where(i => i.GitlabTeamId == group.id).FirstOrDefaultAsync();
@@ -120,11 +130,10 @@ namespace HackerRank.Services
                         Projects = projects,
                         Users = new()
                     };
-                    groups.Add(newGroup);
+                    _context.Group.Add(newGroup);
+                    await _context.SaveChangesAsync();
                 }
             }
-            _context.Group.AddRange(groups);
-            await _context.SaveChangesAsync();
         }
 
         //public async Task<List<User>> GetUsersInGroup(Group group)
@@ -219,16 +228,14 @@ namespace HackerRank.Services
             UriBuilder uriBuilder = new()
             {
                 Scheme = "https",
-                Host = "gitlab.com/api/v4/groups",
+                Host = $"gitlab.com/api/v4/groups/{id}",
+                Path = "projects",
                 Query = "?per_page=100"
             };
 
             List<ProjectResponse> projectResponses = new();
             using (var client = new HttpClient())
             {
-                string path = id.ToString() + $"/projects";
-                uriBuilder.Path = path;
-
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
                 var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
@@ -240,7 +247,7 @@ namespace HackerRank.Services
                 {
                     for (int i = 2; i <= totalPages; i++)
                     {
-                        response = await client.GetAsync(uriBuilder.ToString());
+                        response = await client.GetAsync(uriBuilder.ToString() + "&page=" + i.ToString());
                         jsonResult = await response.Content.ReadAsStringAsync();
 
                         projectResponses.AddRange(JsonSerializer.Deserialize<List<ProjectResponse>>(jsonResult));
