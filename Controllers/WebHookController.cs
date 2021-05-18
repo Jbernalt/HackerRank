@@ -74,6 +74,7 @@ namespace HackerRank.Controllers
             WebHookResponse model = new();
             string message = string.Empty;
             string username = string.Empty;
+            string projectname = string.Empty;
             int projectId = 0;
             double point = 0;
             ActionType actionType = ActionType.Commit;
@@ -87,6 +88,7 @@ namespace HackerRank.Controllers
                 username = model.WebHookCommitResponse.user_username;
                 projectId = model.WebHookCommitResponse.project_id;
                 point = 0.15;
+                projectname = model.WebHookCommitResponse.project.name;
             }
             else if (gitLabEvent == "Issue Hook")
             {
@@ -104,6 +106,7 @@ namespace HackerRank.Controllers
                     point = 0.15;
                     actionType = ActionType.Commit;
                 }
+                projectname = model.WebHookIssueResponse.project.name;
             }
             else if (gitLabEvent == "Merge Request Hook")
             {
@@ -116,6 +119,7 @@ namespace HackerRank.Controllers
                 point = 0.35;
                 actionType = ActionType.MergeRequest;
                 projectId = model.WebHookMergeResponse.project.id;
+                projectname = model.WebHookMergeResponse.project.name;
             }
             else if (gitLabEvent == "Note Hook")
             {
@@ -127,10 +131,12 @@ namespace HackerRank.Controllers
                 point = 0.05;
                 actionType = ActionType.Comment;
                 projectId = model.WebHookCommentResponse.project_id;
+                projectname = model.WebHookCommentResponse.project.name;
             }
 
             try
             {
+                await _groupService.GetProjectsGroups(projectId, projectname);
                 _logger.LogDebug("Updating userdata and rating");
                 var data = await _userService.UpdateUserData(username, model, gitLabEvent);
                 if (data == null)
