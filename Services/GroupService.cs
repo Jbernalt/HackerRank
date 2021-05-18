@@ -28,6 +28,7 @@ namespace HackerRank.Services
         public Task<bool> RemoveUserFromGroup(WebHookMemberResponse response);
         public Task<bool> AddUserToGroup(WebHookMemberResponse response);
         public Task GetAllGroups();
+        public Task<bool> GetProjectsGroups(int id, string projectname);
     }
 
     public class GroupService : IGroupService
@@ -131,6 +132,11 @@ namespace HackerRank.Services
                         Users = new()
                     };
                     _context.Group.Add(newGroup);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    exists.Projects = await GetProjectsForGroup(exists.GitlabTeamId);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -358,19 +364,54 @@ namespace HackerRank.Services
             }
         }
 
-        //public bool UserExistsInGroup(Group group, User user)
-        //{
-        //    bool result = false;
+        public async Task<bool> GetProjectsGroups(int id, string projectname)
+        {
+            if (_context.Project.Where(x => x.GitLabId == id).FirstOrDefault() != null)
+                return false;
 
-        //    foreach(var u in group.Users)
-        //    {
-        //        if(u == user)
-        //        {
-        //            result = true;
-        //            return result;
-        //        }
-        //    }
-        //    return result;
-        //}
+            UriBuilder uriBuilder = new()
+            {
+                Scheme = "https",
+                Host = $"gitlab.com/api/v4/projects/{id}/groups"
+            };
+
+            List<GroupResponse> groupResponse = new();
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
+                var response = await client.GetAsync(uriBuilder.ToString());
+                var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
+                var jsonResult = await response.Content.ReadAsStringAsync();
+
+                groupResponse.AddRange(JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult));
+
+                if (totalPages > 1)
+                {
+                    for (int i = 2; i <= totalPages; i++)
+                    {
+                        response = await client.GetAsync(uriBuilder.ToString() + "&page=" + i.ToString());
+                        jsonResult = await response.Content.ReadAsStringAsync();
+
+                        groupResponse.AddRange(JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult));
+                    }
+                }
+            }
+
+            var project = new Project()
+            {
+                GitLabId = id,
+                ProjectName = projectname
+            };
+
+            _context.Project.Add(project);
+
+            foreach (var group in groupResponse)
+            {
+                var g = await _context.Group.Where(x => x.GitlabTeamId == group.id).Include(p => p.Projects).FirstOrDefaultAsync();
+                g.Projects.Add(project);
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
