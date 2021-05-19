@@ -27,6 +27,9 @@ namespace HackerRank.Controllers
 
         public async Task<IActionResult> Profile(string id)
         {
+            if (id == null)
+                return RedirectToAction("Error", "Home");
+
             var username = User.Identity.Name;
             var isOwnProfile = false;
             if (username != null)
