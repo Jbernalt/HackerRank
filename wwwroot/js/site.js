@@ -91,7 +91,7 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
             } else {
                 img.src = "../profileImg/" + userLevel.ProfileImage;
             }
-            img.style = "height: 50px; border-radius: 50%";
+            img.style = "height: 50px; width: 50px; border-radius: 50%";
             img.alt = "profile-image";
 
             let a = document.createElement("a");
