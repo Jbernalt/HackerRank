@@ -156,7 +156,7 @@ namespace HackerRank
                 // Set Cookie properties using CookieBuilder properties†.
                 options.FormFieldName = "AntiforgeryField";
                 options.HeaderName = "X-CSRF-TOKEN";
-                options.SuppressXFrameOptionsHeader = true;
+                options.SuppressXFrameOptionsHeader = false;
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.Strict;
