@@ -32,11 +32,11 @@
             <div class="col-3 pt-3 mt-3" style="background-color: #f0f6f6; border-radius: 30px">
                 @if (Model.ProfileImage == "default-profile-picture.png")
                 {
-                    <img src="~/img/@Model.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                    <img src="~/img/@Model.ProfileImage" asp-append-version="true" style="height:50px; width: 50px; border-radius:50%" alt="profile-image" />
                 }
                 else
                 {
-                    <img src="~/profileImg/@Model.ProfileImage" asp-append-version="true" style="height:50px; border-radius:50%" alt="profile-image" />
+                    <img src="~/profileImg/@Model.ProfileImage" asp-append-version="true" style="height:50px; width: 50px; border-radius:50%" alt="profile-image" />
                 }
                 <br />
                 <dl class="col text-center">
@@ -57,7 +57,7 @@
                 <h3>Projects</h3>
                 <hr />
                 <div class="col text-center">
-                    @foreach (var item in Model.Projects.AsEnumerable())
+                    @foreach (var item in Model.Projects.Take(10).AsEnumerable())
                     {
                         <p>@item.ProjectName</p>
                     }
@@ -66,7 +66,7 @@
                 <h3>Groups</h3>
                 <hr />
                 <div class="col text-center">
-                    @foreach (var item in Model.Groups)
+                    @foreach (var item in Model.Groups.Take(10).AsEnumerable())
                     {
                         <p>@item.GroupName</p>
                     }

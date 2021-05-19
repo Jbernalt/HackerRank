@@ -101,7 +101,7 @@ namespace HackerRank.Services
 
         public List<string> UserSearch(string username)
         {
-            List<string> users = _context.Users.Where(u => u.UserName.StartsWith(username) && u.IsPublic == true).Select(x => x.UserName).ToList();
+            List<string> users = _context.Users.Where(u => u.UserName.Contains(username) && u.IsPublic == true).Select(x => x.UserName).ToList();
             return users;
         }
 
