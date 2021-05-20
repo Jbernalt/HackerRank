@@ -94,7 +94,7 @@ namespace HackerRank.Services
                     if (response.IsSuccessStatusCode)
                     {
                         group.Users.Add(user);
-                    }                    
+                    }
                 }
             }
         }
@@ -102,6 +102,7 @@ namespace HackerRank.Services
         public List<string> UserSearch(string username)
         {
             List<string> users = _context.Users.Where(u => u.UserName.Contains(username) && u.IsPublic == true).Select(x => x.UserName).ToList();
+
             return users;
         }
 
@@ -184,10 +185,10 @@ namespace HackerRank.Services
             tran.Project = await _context.Project.Where(p => p.GitLabId == projectId).FirstOrDefaultAsync();
             tran.Transaction = await _context.Transaction.Where(t => t.TransactionId == id).FirstOrDefaultAsync();
             tran.TransactionId = id;
-
+            
             if (tran.Transaction == null)
                 return null;
-            
+
             _context.UserTransaction.Add(tran);
             await _context.SaveChangesAsync();
 
@@ -241,11 +242,11 @@ namespace HackerRank.Services
             }
             return chart;
         }
-        
+
         public async Task SetRoles(List<string> roleNames, string userName)
         {
             var user = await _userManager.FindByNameAsync(userName);
-            if(user != null)
+            if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 var result = await _userManager.RemoveFromRolesAsync(user, roles);
@@ -256,7 +257,7 @@ namespace HackerRank.Services
                     {
                         await _context.SaveChangesAsync();
                     }
-                } 
+                }
             }
         }
 
