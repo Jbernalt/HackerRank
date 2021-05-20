@@ -42,6 +42,9 @@ namespace HackerRank.Controllers
         [Authorize(Roles = "SuperAdministrator")]
         public async Task<IActionResult> AdminOptions(string id)
         {
+            if(id == null)
+                return RedirectToAction("Error", "Home");
+
             var roles = await _userService.GetUserRoles(id);
             return View(roles);
         }
