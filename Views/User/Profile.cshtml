@@ -211,7 +211,7 @@
                                         chartOptions: {
                                             backgroundColor: '#f0f6f6',
                                             chartArea: { 'width': '90%' },
-                                            hAxis: { 'baselineColor': 'none', format: "yyyy/MM/dd", viewWindow: {}, }
+                                            hAxis: { 'baselineColor': 'none', format: "yyyy-MM-dd HH:mm", viewWindow: {}, }
                                         },
                                         // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
                                         minRangeSize: 86400000
@@ -230,10 +230,11 @@
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
-                                        format: 'yyyy/MM/dd',
+                                        format: 'yyyy-MM-dd HH:mm',
                                         viewWindow: {},
                                     },
                                     vAxis: {
+                                        minValue: 0,
                                         format: '',
                                     }
                                 },
@@ -244,7 +245,7 @@
 
                                 @foreach (var data in Model.ChartDatas)
                                 {
-                                    <text>[new Date('@data.TimeStamp'), @data.NumOfCommits, @data.NumOfIssuesCreated, @data.NumOfIssuesSolved, @data.NumOfMergeRequests, @data.NumOfComments],</text>
+                                    <text>[new Date(@data.TimeStamp), @data.NumOfCommits, @data.NumOfIssuesCreated, @data.NumOfIssuesSolved, @data.NumOfMergeRequests, @data.NumOfComments],</text>
                                 }
                             ]);
 
@@ -302,10 +303,11 @@
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
-                                        format: 'yyyy/MM/dd',
+                                        format: 'yyyy-MM-dd HH:mm',
                                         viewWindow: {},
                                     },
                                     vAxis: {
+                                        minValue: 0,
                                         format: '',
                                     }
                                 });
@@ -323,10 +325,11 @@
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
-                                        format: 'yyyy/MM/dd',
+                                        format: 'yyyy-MM-dd HH:mm',
                                         viewWindow: {},
                                     },
                                     vAxis: {
+                                        minValue: 0,
                                         format: '',
                                     }
                                 })
@@ -344,10 +347,11 @@
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
-                                        format: 'yyyy/MM/dd',
+                                        format: 'yyyy-MM-dd HH:mm',
                                         viewWindow: {},
                                     },
                                     vAxis: {
+                                        minValue: 0,
                                         format: '',
                                     }
                                 })
@@ -365,10 +369,11 @@
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
-                                        format: 'yyyy/MM/dd',
+                                        format: 'yyyy-MM-dd HH:mm',
                                         viewWindow: {},
                                     },
                                     vAxis: {
+                                        minValue: 0,
                                         format: '',
                                     }
                                 })
@@ -386,10 +391,11 @@
                                     hAxis: {
                                         title: 'Time',
                                         slantedText: false,
-                                        format: 'yyyy/MM/dd',
+                                        format: 'yyyy-MM-dd HH:mm',
                                         viewWindow: {},
                                     },
                                     vAxis: {
+                                        minValue: 0,
                                         format: '',
                                     }
                                 })
