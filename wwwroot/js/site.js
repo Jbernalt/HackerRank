@@ -8,7 +8,7 @@ $('input.IsChecked').on('click', function(evt) {
        this.checked = false;
    }
 });
-var liveFeedHubconnection = new signalR.HubConnectionBuilder().withUrl("/LiveFeedHub").build();
+var liveFeedHubconnection = new signalR.HubConnectionBuilder().withUrl("/LiveFeedHub").withAutomaticReconnect([0, 3000, 5000, 10000, 15000, 30000]).build();
 
 function appendTableRow(obj) {
     let td = document.createElement("td");
