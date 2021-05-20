@@ -29,7 +29,7 @@ namespace HackerRank.Services
 {
     public interface IUserService
     {
-        List<ChartData> GetUserCommitChartData(User user);
+        List<ChartData> GetUserChartData(User user);
         Task<Tuple<User, UserTransaction>> UpdateUserData(string username, WebHookResponse model, StringValues gitLabEvent);
         Task<UserViewModel> GetUserByUsername(string username, bool isOwnProfile, bool isAdmin);
         List<string> UserSearch(string username);
@@ -126,7 +126,7 @@ namespace HackerRank.Services
                 projects.AddRange(g.Projects);
             }
 
-            var data = GetUserCommitChartData(user);
+            var data = GetUserChartData(user);
 
             _mapper.Map(user, model);
             model.Projects = projects;
@@ -221,16 +221,16 @@ namespace HackerRank.Services
             return message;
         }
 
-        public List<ChartData> GetUserCommitChartData(User user)
+        public List<ChartData> GetUserChartData(User user)
         {
             List<ChartData> chart = new();
-            var userTransactions = _context.UserTransaction.Include("User").Where(u => u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.Date).ToArray();
+            var userTransactions = _context.UserTransaction.Include("User").Where(u => u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.AddMonths(-1).ToString("yyyy, MM, dd, HH")).ToArray();
 
             foreach (var transaction in userTransactions)
             {
                 ChartData data = new()
                 {
-                    TimeStamp = transaction.Key.Date,
+                    TimeStamp = transaction.Key,
                     NumOfCommits = transaction.Where(u => u.TransactionId == 1).Count(),
                     NumOfIssuesCreated = transaction.Where(u => u.TransactionId == 2).Count(),
                     NumOfIssuesSolved = transaction.Where(u => u.TransactionId == 3).Count(),
