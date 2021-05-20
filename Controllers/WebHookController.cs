@@ -83,8 +83,7 @@ namespace HackerRank.Controllers
             {
                 _logger.LogDebug("Incoming push hook event");
                 model.WebHookCommitResponse = JsonSerializer.Deserialize<WebHookCommitResponse>(json);
-                message = $"{model.WebHookCommitResponse.user_name} made a push to {model.WebHookCommitResponse.project.name}"
-                    + $", ";
+                message = $"{model.WebHookCommitResponse.user_name} pushed to {model.WebHookCommitResponse.project.name}, ";
                 username = model.WebHookCommitResponse.user_username;
                 projectId = model.WebHookCommitResponse.project_id;
                 point = 0.15;
@@ -94,9 +93,7 @@ namespace HackerRank.Controllers
             {
                 _logger.LogDebug("Incoming issue hook event");
                 model.WebHookIssueResponse = JsonSerializer.Deserialize<WebHookIssueResponse>(json);
-                message = $"{model.WebHookIssueResponse.user.name} " +
-                    $"{model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}"
-                    + $", ";
+                message = $"{model.WebHookIssueResponse.user.name} {model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}, ";
                 username = model.WebHookIssueResponse.user.username;
                 point = 0.3;
                 actionType = ActionType.IssueSolved;
@@ -104,7 +101,7 @@ namespace HackerRank.Controllers
                 if (model.WebHookIssueResponse.object_attributes.state == "opened")
                 {
                     point = 0.15;
-                    actionType = ActionType.Commit;
+                    actionType = ActionType.IssueOpened;
                 }
                 projectname = model.WebHookIssueResponse.project.name;
             }
@@ -113,8 +110,8 @@ namespace HackerRank.Controllers
                 _logger.LogDebug("Incoming merge hook event");
                 model.WebHookMergeResponse = JsonSerializer.Deserialize<WebHookMergeResponse>(json);
                 message = $"{model.WebHookMergeResponse.user.name} {model.WebHookMergeResponse.object_attributes.state} " +
-                    $"from {model.WebHookMergeResponse.object_attributes.source_branch} to {model.WebHookMergeResponse.object_attributes.target_branch}" +
-                    $" on project {model.WebHookMergeResponse.project.name}, ";
+                    $"{model.WebHookMergeResponse.object_attributes.source_branch} into {model.WebHookMergeResponse.object_attributes.target_branch}" +
+                    $" in the {model.WebHookMergeResponse.project.name} project, ";
                 username = model.WebHookMergeResponse.user.username;
                 point = 0.35;
                 actionType = ActionType.MergeRequest;

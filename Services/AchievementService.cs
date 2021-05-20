@@ -75,59 +75,11 @@ namespace HackerRank.Services
                         Achievement = a
                     };
 
-                    if (user.UserStats.TotalCommits >= a.NumberOfActions && a.TypeOfAction == ActionType.Commit)
-                    {
-                        if (i == 0)
-                        {
-                            message = $"{user.UserName} achieved {userAchievement.Achievement.AchievementName}, ";
-                        }
-                        else if (i > 0)
-                        {
-                            message += $"{userAchievement.Achievement.AchievementName}, ";
-                        }
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                        i++;
-                    }
-                    else if (user.UserStats.TotalIssuesCreated >= a.NumberOfActions && a.TypeOfAction == ActionType.IssueOpened)
-                    {
-                        if (i == 0)
-                        {
-                            message = $"{user.UserName} achieved {userAchievement.Achievement.AchievementName}, ";
-                        }
-                        else if (i > 0)
-                        {
-                            message += $"{userAchievement.Achievement.AchievementName}, ";
-                        }
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                        i++;
-                    }
-                    else if (user.UserStats.TotalIssuesSolved >= a.NumberOfActions && a.TypeOfAction == ActionType.IssueSolved)
-                    {
-                        if (i == 0)
-                        {
-                            message = $"{user.UserName} achieved {userAchievement.Achievement.AchievementName}, ";
-                        }
-                        else if (i > 0)
-                        {
-                            message += $"{userAchievement.Achievement.AchievementName}, ";
-                        }
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                        i++;
-                    }
-                    else if (user.UserStats.TotalMergeRequests >= a.NumberOfActions && a.TypeOfAction == ActionType.MergeRequest)
-                    {
-                        if (i == 0)
-                        {
-                            message = $"{user.UserName} achieved {userAchievement.Achievement.AchievementName}, ";
-                        }
-                        else if (i > 0)
-                        {
-                            message += $"{userAchievement.Achievement.AchievementName}, ";
-                        }
-                        await _context.UserAchievement.AddAsync(userAchievement);
-                        i++;
-                    }
-                    else if (user.UserStats.TotalComments >= a.NumberOfActions && a.TypeOfAction == ActionType.Comment)
+                    if ((user.UserStats.TotalCommits >= a.NumberOfActions && a.TypeOfAction == actionType) ||
+                        (user.UserStats.TotalIssuesCreated >= a.NumberOfActions && a.TypeOfAction == actionType) ||
+                        (user.UserStats.TotalIssuesSolved >= a.NumberOfActions && a.TypeOfAction == actionType) ||
+                        (user.UserStats.TotalMergeRequests >= a.NumberOfActions && a.TypeOfAction == actionType) ||
+                        (user.UserStats.TotalComments >= a.NumberOfActions && a.TypeOfAction == actionType))
                     {
                         if (i == 0)
                         {
