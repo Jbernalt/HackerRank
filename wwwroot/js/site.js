@@ -10,6 +10,10 @@ $('input.IsChecked').on('click', function(evt) {
 });
 var liveFeedHubconnection = new signalR.HubConnectionBuilder().withUrl("/LiveFeedHub").withAutomaticReconnect([0, 3000, 5000, 10000, 15000, 30000]).build();
 
+liveFeedHubconnection.start().catch(function (err) {
+    return console.error(err.toString());
+});
+
 function appendTableRow(obj) {
     let td = document.createElement("td");
     td.append(obj);
@@ -118,10 +122,6 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
             $("#levelTableBody").append(tr);
         }
     }
-});
-
-liveFeedHubconnection.start().catch(function (err) {
-    return console.error(err.toString());
 });
 
 $(function () {
