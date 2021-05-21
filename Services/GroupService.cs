@@ -101,7 +101,9 @@ namespace HackerRank.Services
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
-                var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
+                response.Headers.TryGetValues("X-Total-Pages", out var headerlist);
+                var pages = headerlist.FirstOrDefault();
+                int.TryParse(pages, out int totalPages);
                 var jsonResult = await response.Content.ReadAsStringAsync();
 
                 List<GroupResponse> result = JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult);
@@ -244,7 +246,9 @@ namespace HackerRank.Services
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
-                var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
+                response.Headers.TryGetValues("X-Total-Pages", out var headerlist);
+                var pages = headerlist.FirstOrDefault();
+                int.TryParse(pages, out int totalPages);
                 var jsonResult = await response.Content.ReadAsStringAsync();
 
                 projectResponses.AddRange(JsonSerializer.Deserialize<List<ProjectResponse>>(jsonResult));
@@ -291,7 +295,7 @@ namespace HackerRank.Services
                 Query = "?per_page=100"
             };
 
-            List<UserResponse> projectResponses = new();
+            List<UserResponse> userResponse = new();
             using (var client = new HttpClient())
             {
                 string path = id.ToString() + $"/members";
@@ -299,14 +303,26 @@ namespace HackerRank.Services
 
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
-                var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
+                response.Headers.TryGetValues("X-Total-Pages", out var headerlist);
+                var pages = headerlist.FirstOrDefault();
+                int.TryParse(pages, out int totalPages);
 
                 var jsonResult = await response.Content.ReadAsStringAsync();
-                projectResponses = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
+                userResponse = JsonSerializer.Deserialize<List<UserResponse>>(jsonResult);
+                if (totalPages > 1)
+                {
+                    for (int i = 2; i <= totalPages; i++)
+                    {
+                        response = await client.GetAsync(uriBuilder.ToString() + "&page=" + i.ToString());
+                        jsonResult = await response.Content.ReadAsStringAsync();
+
+                        userResponse.AddRange(JsonSerializer.Deserialize<List<UserResponse>>(jsonResult));
+                    }
+                }
             }
 
             List<User> users = new();
-            foreach (var response in projectResponses)
+            foreach (var response in userResponse)
             {
                 var p = await _context.Users.Where(p => p.GitLabId == response.id).FirstOrDefaultAsync();
                 if (p != null)
@@ -372,7 +388,9 @@ namespace HackerRank.Services
             UriBuilder uriBuilder = new()
             {
                 Scheme = "https",
-                Host = $"gitlab.com/api/v4/projects/{id}/groups"
+                Host = $"gitlab.com/api/v4",
+                Path = $"projects/{id}/groups",
+                Query = "?per_page=100"
             };
 
             List<GroupResponse> groupResponse = new();
@@ -380,7 +398,9 @@ namespace HackerRank.Services
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config["Authentication-GitLab-APIKey"]);
                 var response = await client.GetAsync(uriBuilder.ToString());
-                var totalPages = int.Parse(response.Headers.GetValues("X-Total-Pages").First());
+                response.Headers.TryGetValues("X-Total-Pages", out var headerlist);
+                var pages = headerlist.FirstOrDefault();
+                int.TryParse(pages, out int totalPages);
                 var jsonResult = await response.Content.ReadAsStringAsync();
 
                 groupResponse.AddRange(JsonSerializer.Deserialize<List<GroupResponse>>(jsonResult));
@@ -408,7 +428,8 @@ namespace HackerRank.Services
             foreach (var group in groupResponse)
             {
                 var g = await _context.Group.Where(x => x.GitlabTeamId == group.id).Include(p => p.Projects).FirstOrDefaultAsync();
-                g.Projects.Add(project);
+                if (g != null)
+                    g.Projects.Add(project);
             }
             await _context.SaveChangesAsync();
             return true;
