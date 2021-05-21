@@ -93,19 +93,16 @@ namespace HackerRank.Controllers
             {
                 _logger.LogDebug("Incoming issue hook event");
                 model.WebHookIssueResponse = JsonSerializer.Deserialize<WebHookIssueResponse>(json);
-                if (model.WebHookIssueResponse.object_attributes.action == "open")
+                message = $"{model.WebHookIssueResponse.user.name} {model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}, ";
+                username = model.WebHookIssueResponse.user.username;
+                point = 0.3;
+                actionType = ActionType.IssueSolved;
+                projectId = model.WebHookIssueResponse.project.id;
+                projectname = model.WebHookIssueResponse.project.name;
+                if (model.WebHookIssueResponse.object_attributes.state == "open")
                 {
-                    message = $"{model.WebHookIssueResponse.user.name} {model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}, ";
-                    username = model.WebHookIssueResponse.user.username;
-                    point = 0.3;
-                    actionType = ActionType.IssueSolved;
-                    projectId = model.WebHookIssueResponse.project.id;
-                    if (model.WebHookIssueResponse.object_attributes.state == "opened")
-                    {
-                        point = 0.15;
-                        actionType = ActionType.IssueOpened;
-                    }
-                    projectname = model.WebHookIssueResponse.project.name;
+                    point = 0.15;
+                    actionType = ActionType.IssueOpened;
                 }
             }
             else if (gitLabEvent == "Merge Request Hook")
