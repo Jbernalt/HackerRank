@@ -53,7 +53,10 @@ namespace HackerRank
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
 
-            services.AddSignalR();
+            services.AddSignalR(options => 
+            {
+                options.ClientTimeoutInterval = TimeSpan.FromHours(1);
+            });
             services.AddResponseCaching();
             services.AddDistributedMemoryCache();
 
