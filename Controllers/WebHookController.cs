@@ -109,7 +109,7 @@ namespace HackerRank.Controllers
             {
                 _logger.LogDebug("Incoming merge hook event");
                 model.WebHookMergeResponse = JsonSerializer.Deserialize<WebHookMergeResponse>(json);
-                if (model.WebHookMergeResponse.object_attributes.action == "merge" || model.WebHookMergeResponse.object_attributes.action == "open")
+                if (model.WebHookMergeResponse.object_attributes.state == "merged" || model.WebHookMergeResponse.object_attributes.state == "opened")
                 {
                     message = $"{model.WebHookMergeResponse.user.name} {model.WebHookMergeResponse.object_attributes.state} " +
                         $"{model.WebHookMergeResponse.object_attributes.source_branch} into {model.WebHookMergeResponse.object_attributes.target_branch}" +
