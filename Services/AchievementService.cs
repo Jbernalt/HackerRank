@@ -90,12 +90,11 @@ namespace HackerRank.Services
                             message += $"{userAchievement.Achievement.AchievementName}, ";
                         }
                         await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
                         i++;
                     }
                 }
             }
-
-            await _context.SaveChangesAsync();
             return message;
         }
 

@@ -99,7 +99,7 @@ namespace HackerRank.Controllers
                 actionType = ActionType.IssueSolved;
                 projectId = model.WebHookIssueResponse.project.id;
                 projectname = model.WebHookIssueResponse.project.name;
-                if (model.WebHookIssueResponse.object_attributes.state == "open")
+                if (model.WebHookIssueResponse.object_attributes.state == "opened")
                 {
                     point = 0.15;
                     actionType = ActionType.IssueOpened;
@@ -125,8 +125,7 @@ namespace HackerRank.Controllers
             {
                 _logger.LogDebug("Incoming note hook event");
                 model.WebHookCommentResponse = JsonSerializer.Deserialize<WebHookCommentResponse>(json);
-                message = $"{model.WebHookCommentResponse.user.name} commented on {model.WebHookCommentResponse.project.name}"
-                    + $", ";
+                message = $"{model.WebHookCommentResponse.user.name} commented on {model.WebHookCommentResponse.project.name}, ";
                 username = model.WebHookCommentResponse.user.username;
                 point = 0.05;
                 actionType = ActionType.Comment;
