@@ -75,11 +75,11 @@ namespace HackerRank.Services
                         Achievement = a
                     };
 
-                    if ((user.UserStats.TotalCommits >= a.NumberOfActions && a.TypeOfAction == actionType) ||
-                        (user.UserStats.TotalIssuesCreated >= a.NumberOfActions && a.TypeOfAction == actionType) ||
-                        (user.UserStats.TotalIssuesSolved >= a.NumberOfActions && a.TypeOfAction == actionType) ||
-                        (user.UserStats.TotalMergeRequests >= a.NumberOfActions && a.TypeOfAction == actionType) ||
-                        (user.UserStats.TotalComments >= a.NumberOfActions && a.TypeOfAction == actionType))
+                    if ((user.UserStats.TotalCommits >= a.NumberOfActions && ActionType.Commit == actionType) ||
+                        (user.UserStats.TotalIssuesCreated >= a.NumberOfActions && ActionType.IssueOpened == actionType) ||
+                        (user.UserStats.TotalIssuesSolved >= a.NumberOfActions && ActionType.IssueSolved == actionType) ||
+                        (user.UserStats.TotalMergeRequests >= a.NumberOfActions && ActionType.MergeRequest == actionType) ||
+                        (user.UserStats.TotalComments >= a.NumberOfActions && ActionType.Comment == actionType))
                     {
                         if (i == 0)
                         {
