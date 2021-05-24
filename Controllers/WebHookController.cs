@@ -93,23 +93,26 @@ namespace HackerRank.Controllers
             {
                 _logger.LogDebug("Incoming issue hook event");
                 model.WebHookIssueResponse = JsonSerializer.Deserialize<WebHookIssueResponse>(json);
-                message = $"{model.WebHookIssueResponse.user.name} {model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}, ";
-                username = model.WebHookIssueResponse.user.username;
-                point = 0.3;
-                actionType = ActionType.IssueSolved;
-                projectId = model.WebHookIssueResponse.project.id;
-                projectname = model.WebHookIssueResponse.project.name;
-                if (model.WebHookIssueResponse.object_attributes.state == "opened")
+                if (model.WebHookIssueResponse.object_attributes.action != "update")
                 {
-                    point = 0.15;
-                    actionType = ActionType.IssueOpened;
+                    message = $"{model.WebHookIssueResponse.user.name} {model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}, ";
+                    username = model.WebHookIssueResponse.user.username;
+                    point = 0.3;
+                    actionType = ActionType.IssueSolved;
+                    projectId = model.WebHookIssueResponse.project.id;
+                    projectname = model.WebHookIssueResponse.project.name;
+                    if (model.WebHookIssueResponse.object_attributes.state == "opened")
+                    {
+                        point = 0.15;
+                        actionType = ActionType.IssueOpened;
+                    }
                 }
             }
             else if (gitLabEvent == "Merge Request Hook")
             {
                 _logger.LogDebug("Incoming merge hook event");
                 model.WebHookMergeResponse = JsonSerializer.Deserialize<WebHookMergeResponse>(json);
-                if (model.WebHookMergeResponse.object_attributes.state == "merged" || model.WebHookMergeResponse.object_attributes.state == "opened")
+                if ((model.WebHookMergeResponse.object_attributes.state == "merged" || model.WebHookMergeResponse.object_attributes.state == "opened") && model.WebHookMergeResponse.object_attributes.action != "update")
                 {
                     message = $"{model.WebHookMergeResponse.user.name} {model.WebHookMergeResponse.object_attributes.state} " +
                         $"{model.WebHookMergeResponse.object_attributes.source_branch} into {model.WebHookMergeResponse.object_attributes.target_branch}" +
