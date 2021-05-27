@@ -3,8 +3,132 @@
 @{
     ViewData["Title"] = "Ranking";
 }
-<div class="min-body">
-<div class="grid">
+<div class="img-background">
+    <div class="box">
+        <h1 class="Homepage-header">High Score</h1>
+    </div>
+    <div class="containers">
+        <div class="box-bottom ranking">
+            <h2>Top Users</h2>
+            <div class="score-card" >
+                
+                    <img src="\img\hackerman (3).jpg" alt="">
+                    
+                    @* <div class="break"></div> *@
+                    
+                    <div class="paragraphs">
+                        <h3>Jonas Brunhage</h3>
+                    <p>25 Commits</p>
+                    <p>26 Issues Created</p>
+                    <p>27 Issues solved</p>
+                    
+                    @* <p>28 Merge requests</p>
+                    <p>29 Comments</p>
+                    <p>30 Daily rating</p> *@
+                    </div>
+                    <div class="paragraphs">
+                    <p>25 Commits</p>
+                    <p>26 Issues Crated</p>
+                    <p>27 Issues solved</p>
+                    
+                    @* <p>28 Merge requests</p>
+                    <p>29 Comments</p>
+                    <p>30 Daily rating</p> *@
+                    </div>
+                
+                @* <div class="paragraphs">
+                    <p>25 Commits</p>
+                    <p>26 Issues Crated</p>
+                    <p>27 Issues solved</p>
+                    <p>28 Merge requests</p>
+                    <p>29 Comments</p>
+                    <p>30 Daily rating</p>
+                </div> *@
+
+
+            </div>
+        </div>
+        <div class="box-bottom ranking">
+            <h2>Top Teams</h2>
+            @foreach (var item in Model)
+            {
+                @if (item.DailyRating != 0)
+                {
+                    <div class="flex-card">
+                        <img src="../img/logo.png" asp-append-version="true"/>
+                        <div class="stats">
+                            <p class="white">@Html.DisplayFor(modelItem => item.UserName)</p>
+                            <div class="flex-paragraf">
+                                <p class="flex-item"><b>@string.Format("{0:0}", item.Commits) </b>Commits</p>
+                                <p class="flex-item item-2"><b>@string.Format("{0:0}", item.IssuesCreated)</b> Issues Created</p>
+                                <p class="flex-item item-3"><b>@string.Format("{0:0}", item.IssuesSolved) </b> Issues solved</p>
+                            </div>
+                            <div class="flex-paragraf">
+                                <p class="flex-item"><b>@string.Format("{0:0}", item.MergeRequest) </b> Merge requests</p>
+                                <p class="flex-item item-2"><b>@string.Format("{0:0}", item.Comments) </b> Comments</p>
+                                <p class="flex-item item-3"><b>@string.Format("{0:0.00}", item.DailyRating) </b> Daily rating</p>
+                            </div>
+                        </div>
+                    </div>
+     
+                }
+            }
+            
+            <div class="flex-card">
+                <img src="\img\hackerman (3).jpg" alt="">
+                <div class="stats">
+                    <p class="white">Jonas Brunhage</p>
+                    <div class="flex-paragraf">
+                        <p class="flex-item"><b>25 </b>Commits</p>
+                        <p class="flex-item"><b>26 </b> Issues Created</p>
+                        <p class="flex-item"><b>27 </b> Issues solved</p>
+                    </div>
+                    <div class="flex-paragraf">
+                        <p class="flex-item"><b>28 </b> Merge requests</p>
+                        <p class="flex-item"><b>29 </b> Comments</p>
+                        <p class="flex-item"><b>30 </b> Daily rating</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="box-bottom ranking">
+            <h2>Top Level</h2>
+            <div class="flex-card">
+                <img src="\img\hackerman (3).jpg" alt="">
+                <div class="stats">
+                    <p class="white">Jonas Brunhage</p>
+                    <div class="flex-paragraf">
+                        <p class="flex-item">Prestige</p>       
+                    </div> 
+                </div>
+                <div>
+                    <div><h3>LV</h3></div>
+                    <div><h3>16</h3></div>
+                </div>
+            </div>
+        </div>
+        <div class="box-bottom live-feed">
+            <h2>Live Feed</h2>
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+@* <div class="grid">
     <div class="box-left">
         <div class="head-row">
             <p></p>
@@ -32,9 +156,9 @@
                 }
             }         
         </div>
-    </div>
+    </div> *@
     @*Team*@
-    <div class="box-left2">
+    @* <div class="box-left2">
         <div class="head-row">
             <p></p>
             <p >Name</p>
@@ -69,9 +193,9 @@
             <p></p>
             <p >Name</p>
             <p>Prestige</p>
-            <p>Level</p>
+            <p class="text-design">Level</p>
         </div>
-        <div class="card2">
+        <div class="card2"> *@
             @* @foreach (var item in Model)
             { 
                 if (item.UserLevel != null)
@@ -92,7 +216,7 @@
                     
                 }              
             }          *@
-                    <img src="../img/logo.png" asp-append-version="true" class="profile-pic" />
+                    @* <img src="../img/logo.png" asp-append-version="true" class="profile-pic" />
                     
                     <p>
                        fff  
@@ -106,9 +230,9 @@
                     
         </div> 
         
-    </div>
+    </div> *@
 
-    <div class="box-right">
+    @* <div class="box-right">
         <article class="live_feed">
             <div class="overlay">
             <p class="pulsate-text">Live feed </p>
@@ -136,11 +260,11 @@
         </article>       
     </div>
 </div>
-</div>
+</div> *@
 
-<div class="container">
+@* <div class="container">
     <div class="row text-center">
-        <div class="col-9">
+        <div class="col-9"> *@
             @* <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -313,7 +437,7 @@
                     </tbody>
                 </table>
             </div> *@
-        </div>
+        @* </div> *@
         @* <div class="col-3 wrapper">
             <article class="live_feed">
                 <p class="pulsate">Live feed </p>
@@ -356,6 +480,17 @@
                 <img src="~/profileImg/@item.ProfileImage" asp-append-version="true" style="width:100%" />
             }}          
         </div> *@
-    </div>
-</div>
-</div>
+
+    @* </div>
+    
+    <div class="custom-shape-divider-bottom-1619695453">
+      
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M985.66,92.83C906.67,172,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="shape-fill"></path>
+        
+    </svg>
+    
+    </div> *@
+
+
+
