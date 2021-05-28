@@ -225,7 +225,7 @@ namespace HackerRank.Services
         public List<ChartData> GetUserChartData(User user)
         {
             List<ChartData> chart = new();
-            var userTransactions = _context.UserTransaction.Include("User").Where(u => u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.AddMonths(-1).ToString("yyyy, MM, dd, HH")).ToArray();
+            var userTransactions = _context.UserTransaction.Include("User").Where(u => u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.Date).ToArray();
 
             foreach (var transaction in userTransactions)
             {
