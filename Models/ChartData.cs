@@ -7,7 +7,7 @@ namespace HackerRank.Models
 {
     public class ChartData
     {
-        public string TimeStamp { get; set; }
+        public DateTime TimeStamp { get; set; }
         public int NumOfCommits { get; set; }
         public int NumOfIssuesCreated { get; set; }
         public int NumOfIssuesSolved { get; set; }
