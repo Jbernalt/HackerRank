@@ -18,6 +18,7 @@ using Hangfire.SqlServer;
 
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -46,11 +47,16 @@ namespace HackerRank
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
+                options.HttpOnly = HttpOnlyPolicy.Always;
+                options.Secure = CookieSecurePolicy.Always;
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Strict;
             });
 
-            services.AddSignalR();
+            services.AddSignalR(options => 
+            {
+                options.ClientTimeoutInterval = TimeSpan.FromHours(1);
+            });
             services.AddResponseCaching();
             services.AddDistributedMemoryCache();
 
@@ -134,8 +140,8 @@ namespace HackerRank
             {
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-
+                options.ExpireTimeSpan = TimeSpan.FromDays(1);
+                options.Cookie.SameSite = SameSiteMode.Strict;
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
@@ -154,6 +160,9 @@ namespace HackerRank
                 options.FormFieldName = "AntiforgeryField";
                 options.HeaderName = "X-CSRF-TOKEN";
                 options.SuppressXFrameOptionsHeader = false;
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Strict;
             });
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
@@ -211,13 +220,12 @@ namespace HackerRank
                 {
                     var tokens = antiforgery.GetAndStoreTokens(context);
                     context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
-                        new CookieOptions() { HttpOnly = false });
+                        new CookieOptions() { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict });
                 }
 
                 return next(context);
             });
 
-            app.UseCookiePolicy();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseResponseCaching();

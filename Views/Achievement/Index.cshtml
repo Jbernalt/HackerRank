@@ -97,6 +97,7 @@
             </tbody>
         </table>
     </div>
+    @Html.AntiForgeryToken()
 </form>
 @if (User.Identity.IsAuthenticated)
 {

@@ -74,6 +74,7 @@ namespace HackerRank.Controllers
             WebHookResponse model = new();
             string message = string.Empty;
             string username = string.Empty;
+            string projectname = string.Empty;
             int projectId = 0;
             double point = 0;
             ActionType actionType = ActionType.Commit;
@@ -82,55 +83,62 @@ namespace HackerRank.Controllers
             {
                 _logger.LogDebug("Incoming push hook event");
                 model.WebHookCommitResponse = JsonSerializer.Deserialize<WebHookCommitResponse>(json);
-                message = $"{model.WebHookCommitResponse.user_name} made a push to {model.WebHookCommitResponse.project.name}"
-                    + $", ";
+                message = $"{model.WebHookCommitResponse.user_name} pushed to {model.WebHookCommitResponse.project.name}, ";
                 username = model.WebHookCommitResponse.user_username;
                 projectId = model.WebHookCommitResponse.project_id;
                 point = 0.15;
+                projectname = model.WebHookCommitResponse.project.name;
             }
             else if (gitLabEvent == "Issue Hook")
             {
                 _logger.LogDebug("Incoming issue hook event");
                 model.WebHookIssueResponse = JsonSerializer.Deserialize<WebHookIssueResponse>(json);
-                message = $"{model.WebHookIssueResponse.user.name} " +
-                    $"{model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}"
-                    + $", ";
-                username = model.WebHookIssueResponse.user.username;
-                point = 0.3;
-                actionType = ActionType.IssueSolved;
-                projectId = model.WebHookIssueResponse.project.id;
-                if (model.WebHookIssueResponse.object_attributes.state == "opened")
+                if (model.WebHookIssueResponse.object_attributes.action != "update")
                 {
-                    point = 0.15;
-                    actionType = ActionType.Commit;
+                    message = $"{model.WebHookIssueResponse.user.name} {model.WebHookIssueResponse.object_attributes.state} the issue {model.WebHookIssueResponse.object_attributes.title}, ";
+                    username = model.WebHookIssueResponse.user.username;
+                    point = 0.3;
+                    actionType = ActionType.IssueSolved;
+                    projectId = model.WebHookIssueResponse.project.id;
+                    projectname = model.WebHookIssueResponse.project.name;
+                    if (model.WebHookIssueResponse.object_attributes.state == "opened")
+                    {
+                        point = 0.15;
+                        actionType = ActionType.IssueOpened;
+                    }
                 }
             }
             else if (gitLabEvent == "Merge Request Hook")
             {
                 _logger.LogDebug("Incoming merge hook event");
                 model.WebHookMergeResponse = JsonSerializer.Deserialize<WebHookMergeResponse>(json);
-                message = $"{model.WebHookMergeResponse.user.name} {model.WebHookMergeResponse.object_attributes.state} " +
-                    $"from {model.WebHookMergeResponse.object_attributes.source_branch} to {model.WebHookMergeResponse.object_attributes.target_branch}" +
-                    $" on project {model.WebHookMergeResponse.project.name}, ";
-                username = model.WebHookMergeResponse.user.username;
-                point = 0.35;
-                actionType = ActionType.MergeRequest;
-                projectId = model.WebHookMergeResponse.project.id;
+                if ((model.WebHookMergeResponse.object_attributes.state == "merged" || model.WebHookMergeResponse.object_attributes.state == "opened") && model.WebHookMergeResponse.object_attributes.action != "update")
+                {
+                    message = $"{model.WebHookMergeResponse.user.name} {model.WebHookMergeResponse.object_attributes.state} " +
+                        $"{model.WebHookMergeResponse.object_attributes.source_branch} into {model.WebHookMergeResponse.object_attributes.target_branch}" +
+                        $" in the {model.WebHookMergeResponse.project.name} project, ";
+                    username = model.WebHookMergeResponse.user.username;
+                    point = 0.35;
+                    actionType = ActionType.MergeRequest;
+                    projectId = model.WebHookMergeResponse.project.id;
+                    projectname = model.WebHookMergeResponse.project.name;
+                }
             }
             else if (gitLabEvent == "Note Hook")
             {
                 _logger.LogDebug("Incoming note hook event");
                 model.WebHookCommentResponse = JsonSerializer.Deserialize<WebHookCommentResponse>(json);
-                message = $"{model.WebHookCommentResponse.user.name} commented on {model.WebHookCommentResponse.project.name}"
-                    + $", ";
+                message = $"{model.WebHookCommentResponse.user.name} commented on {model.WebHookCommentResponse.project.name}, ";
                 username = model.WebHookCommentResponse.user.username;
                 point = 0.05;
                 actionType = ActionType.Comment;
                 projectId = model.WebHookCommentResponse.project_id;
+                projectname = model.WebHookCommentResponse.project.name;
             }
 
             try
             {
+                await _groupService.GetProjectsGroups(projectId, projectname);
                 _logger.LogDebug("Updating userdata and rating");
                 var data = await _userService.UpdateUserData(username, model, gitLabEvent);
                 if (data == null)

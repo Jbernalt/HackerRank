@@ -36,6 +36,7 @@ namespace HackerRank.Responses
             public int project_id { get; set; }
             public string description { get; set; }
             public string state { get; set; }
+            public string action { get; set; }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace HackerRank.Services
 {
     public interface IUserService
     {
-        List<ChartData> GetUserCommitChartData(User user);
+        List<ChartData> GetUserChartData(User user);
         Task<Tuple<User, UserTransaction>> UpdateUserData(string username, WebHookResponse model, StringValues gitLabEvent);
         Task<UserViewModel> GetUserByUsername(string username, bool isOwnProfile, bool isAdmin);
         List<string> UserSearch(string username);
@@ -94,14 +94,15 @@ namespace HackerRank.Services
                     if (response.IsSuccessStatusCode)
                     {
                         group.Users.Add(user);
-                    }                    
+                    }
                 }
             }
         }
 
         public List<string> UserSearch(string username)
         {
-            List<string> users = _context.Users.Where(u => u.UserName.StartsWith(username) && u.IsPublic == true).Select(x => x.UserName).ToList();
+            List<string> users = _context.Users.Where(u => u.UserName.Contains(username) && u.IsPublic == true).Select(x => x.UserName).ToList();
+
             return users;
         }
 
@@ -126,7 +127,7 @@ namespace HackerRank.Services
                 projects.AddRange(g.Projects);
             }
 
-            var data = GetUserCommitChartData(user);
+            var data = GetUserChartData(user);
 
             _mapper.Map(user, model);
             model.Projects = projects;
@@ -184,10 +185,10 @@ namespace HackerRank.Services
             tran.Project = await _context.Project.Where(p => p.GitLabId == projectId).FirstOrDefaultAsync();
             tran.Transaction = await _context.Transaction.Where(t => t.TransactionId == id).FirstOrDefaultAsync();
             tran.TransactionId = id;
-
+            
             if (tran.Transaction == null)
                 return null;
-            
+
             _context.UserTransaction.Add(tran);
             await _context.SaveChangesAsync();
 
@@ -221,7 +222,7 @@ namespace HackerRank.Services
             return message;
         }
 
-        public List<ChartData> GetUserCommitChartData(User user)
+        public List<ChartData> GetUserChartData(User user)
         {
             List<ChartData> chart = new();
             var userTransactions = _context.UserTransaction.Include("User").Where(u => u.User == user).AsEnumerable().GroupBy(d => d.FetchDate.Date).ToArray();
@@ -230,7 +231,7 @@ namespace HackerRank.Services
             {
                 ChartData data = new()
                 {
-                    TimeStamp = transaction.Key.Date,
+                    TimeStamp = transaction.Key,
                     NumOfCommits = transaction.Where(u => u.TransactionId == 1).Count(),
                     NumOfIssuesCreated = transaction.Where(u => u.TransactionId == 2).Count(),
                     NumOfIssuesSolved = transaction.Where(u => u.TransactionId == 3).Count(),
@@ -241,11 +242,11 @@ namespace HackerRank.Services
             }
             return chart;
         }
-        
+
         public async Task SetRoles(List<string> roleNames, string userName)
         {
             var user = await _userManager.FindByNameAsync(userName);
-            if(user != null)
+            if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 var result = await _userManager.RemoveFromRolesAsync(user, roles);
@@ -256,7 +257,7 @@ namespace HackerRank.Services
                     {
                         await _context.SaveChangesAsync();
                     }
-                } 
+                }
             }
         }
 

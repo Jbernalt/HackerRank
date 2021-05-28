@@ -8,7 +8,11 @@ $('input.IsChecked').on('click', function(evt) {
        this.checked = false;
    }
 });
-var liveFeedHubconnection = new signalR.HubConnectionBuilder().withUrl("/LiveFeedHub").build();
+var liveFeedHubconnection = new signalR.HubConnectionBuilder().withUrl("/LiveFeedHub").withAutomaticReconnect([0, 3000, 5000, 10000, 15000, 30000]).build();
+
+liveFeedHubconnection.start().catch(function (err) {
+    return console.error(err.toString());
+});
 
 function appendTableRow(obj) {
     let td = document.createElement("td");
@@ -48,7 +52,7 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
         } else {
             img.src = "../profileImg/" + user.ProfileImage;
         }
-        img.style = "height: 50px; border-radius: 50%";
+        img.style = "height: 50px; width: 50px; border-radius: 50%";
         img.alt = "profile-image";
 
         let a = document.createElement("a");
@@ -91,7 +95,7 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
             } else {
                 img.src = "../profileImg/" + userLevel.ProfileImage;
             }
-            img.style = "height: 50px; border-radius: 50%";
+            img.style = "height: 50px; width: 50px; border-radius: 50%";
             img.alt = "profile-image";
 
             let a = document.createElement("a");
@@ -118,10 +122,6 @@ liveFeedHubconnection.on("ReceiveMessage", function (message) {
             $("#levelTableBody").append(tr);
         }
     }
-});
-
-liveFeedHubconnection.start().catch(function (err) {
-    return console.error(err.toString());
 });
 
 $(function () {

@@ -40,7 +40,7 @@ namespace HackerRank.Services
         private readonly IMapper _mapper;
         private readonly IImageService _imageService;
 
-        public AchievementService (HackerRankContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper, IImageService imageService)
+        public AchievementService(HackerRankContext context, IWebHostEnvironment webHostEnvironment, IMapper mapper, IImageService imageService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
@@ -75,7 +75,11 @@ namespace HackerRank.Services
                         Achievement = a
                     };
 
-                    if (user.UserStats.TotalCommits >= a.NumberOfActions)
+                    if ((user.UserStats.TotalCommits >= a.NumberOfActions && ActionType.Commit == actionType) ||
+                        (user.UserStats.TotalIssuesCreated >= a.NumberOfActions && ActionType.IssueOpened == actionType) ||
+                        (user.UserStats.TotalIssuesSolved >= a.NumberOfActions && ActionType.IssueSolved == actionType) ||
+                        (user.UserStats.TotalMergeRequests >= a.NumberOfActions && ActionType.MergeRequest == actionType) ||
+                        (user.UserStats.TotalComments >= a.NumberOfActions && ActionType.Comment == actionType))
                     {
                         if (i == 0)
                         {
@@ -86,12 +90,11 @@ namespace HackerRank.Services
                             message += $"{userAchievement.Achievement.AchievementName}, ";
                         }
                         await _context.UserAchievement.AddAsync(userAchievement);
+                        await _context.SaveChangesAsync();
                         i++;
                     }
                 }
             }
-
-            await _context.SaveChangesAsync();
             return message;
         }
 
@@ -106,11 +109,11 @@ namespace HackerRank.Services
             foreach (var achievement in userAchievements)
             {
                 achievement.IsShowCase = false;
-                foreach(var id in achievementIds)
+                foreach (var id in achievementIds)
                 {
                     if (achievement.Achievement.AchievementId == int.Parse(id))
                     {
-                        achievement.IsShowCase = true;                     
+                        achievement.IsShowCase = true;
                     }
                 }
             }
@@ -160,7 +163,7 @@ namespace HackerRank.Services
 
         public async Task Create(AchievementResponse achievementModel, IFormFile file)
         {
-            Achievement achievement =_mapper.Map<Achievement>(achievementModel);
+            Achievement achievement = _mapper.Map<Achievement>(achievementModel);
             var filename = await _imageService.SaveImage(file, false);
             achievement.Image = filename ?? "default-achievement.png";
 

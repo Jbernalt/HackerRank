@@ -1,7 +1,7 @@
 ﻿@model List<HackerRank.ViewModels.RoleViewModel>
 @if (User.IsInRole("SuperAdministrator"))
 {
- <form id="Roles" method="post" asp-action="SetRoles" asp-controller="User">
+<form id="Roles" method="post" asp-action="SetRoles" asp-controller="User">
     <div class="container">
         <div class="row justify-content-center text-center" style="background-color: #f0f6f6; border-radius: 30px;">
             <div class="col-7 p-3">
@@ -42,10 +42,10 @@
                 </div>
             </div>
             <div class="col-7 justify-content-center pb-3">
-                <input type="submit" form="Roles" value="save" class="btn btn-primary"
-                       style="width:auto" />
+                <input type="submit" form="Roles" value="Save" class="btn btn-primary" style="width:auto" />
             </div>
         </div>
     </div>
- </form>             
+    @Html.AntiForgeryToken()
+</form>             
 }
