@@ -107,6 +107,7 @@ namespace HackerRank.Controllers
                         actionType = ActionType.IssueOpened;
                     }
                 }
+                projectname = model.WebHookIssueResponse.project.name;
             }
             else if (gitLabEvent == "Merge Request Hook")
             {
