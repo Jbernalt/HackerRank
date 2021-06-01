@@ -10,43 +10,7 @@
     <div class="containers">
         <div class="box-bottom ranking">
             <h2>Top Users</h2>
-            <div class="score-card" >
-                
-                    <img src="\img\hackerman (3).jpg" alt="">
-                    
-                    @* <div class="break"></div> *@
-                    
-                    <div class="paragraphs">
-                        <h3>Jonas Brunhage</h3>
-                    <p>25 Commits</p>
-                    <p>26 Issues Created</p>
-                    <p>27 Issues solved</p>
-                    
-                    @* <p>28 Merge requests</p>
-                    <p>29 Comments</p>
-                    <p>30 Daily rating</p> *@
-                    </div>
-                    <div class="paragraphs">
-                    <p>25 Commits</p>
-                    <p>26 Issues Crated</p>
-                    <p>27 Issues solved</p>
-                    
-                    @* <p>28 Merge requests</p>
-                    <p>29 Comments</p>
-                    <p>30 Daily rating</p> *@
-                    </div>
-                
-                @* <div class="paragraphs">
-                    <p>25 Commits</p>
-                    <p>26 Issues Crated</p>
-                    <p>27 Issues solved</p>
-                    <p>28 Merge requests</p>
-                    <p>29 Comments</p>
-                    <p>30 Daily rating</p>
-                </div> *@
-
-
-            </div>
+            
         </div>
         <div class="box-bottom ranking">
             <h2>Top Teams</h2>
@@ -60,13 +24,13 @@
                             <p class="white">@Html.DisplayFor(modelItem => item.UserName)</p>
                             <div class="flex-paragraf">
                                 <p class="flex-item"><b>@string.Format("{0:0}", item.Commits) </b>Commits</p>
-                                <p class="flex-item item-2"><b>@string.Format("{0:0}", item.IssuesCreated)</b> Issues Created</p>
-                                <p class="flex-item item-3"><b>@string.Format("{0:0}", item.IssuesSolved) </b> Issues solved</p>
+                                <p class="flex-item"><b>@string.Format("{0:0}", item.IssuesCreated)</b> Issues Created</p>
+                                <p class="flex-item"><b>@string.Format("{0:0}", item.IssuesSolved) </b> Issues solved</p>
                             </div>
                             <div class="flex-paragraf">
                                 <p class="flex-item"><b>@string.Format("{0:0}", item.MergeRequest) </b> Merge requests</p>
-                                <p class="flex-item item-2"><b>@string.Format("{0:0}", item.Comments) </b> Comments</p>
-                                <p class="flex-item item-3"><b>@string.Format("{0:0.00}", item.DailyRating) </b> Daily rating</p>
+                                <p class="flex-item"><b>@string.Format("{0:0}", item.Comments) </b> Comments</p>
+                                <p class="flex-item"><b>@string.Format("{0:0.00}", item.DailyRating) </b> Daily rating</p>
                             </div>
                         </div>
                     </div>
@@ -77,7 +41,7 @@
             <div class="flex-card">
                 <img src="\img\hackerman (3).jpg" alt="">
                 <div class="stats">
-                    <p class="white">Jonas Brunhage</p>
+                    <p class="card-title">Jonas Brunhage</p>
                     <div class="flex-paragraf">
                         <p class="flex-item"><b>25 </b>Commits</p>
                         <p class="flex-item"><b>26 </b> Issues Created</p>
@@ -97,12 +61,12 @@
             <div class="flex-card">
                 <img src="\img\hackerman (3).jpg" alt="">
                 <div class="stats">
-                    <p class="white">Jonas Brunhage</p>
+                    <p class="card-title">Jonas Brunhage</p>
                     <div class="flex-paragraf">
                         <p class="flex-item">Prestige</p>       
                     </div> 
                 </div>
-                <div>
+                <div class="level">
                     <div><h3>LV</h3></div>
                     <div><h3>16</h3></div>
                 </div>
